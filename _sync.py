@@ -117,6 +117,11 @@ quaero_experiments = [
 
 swb_dst_base_dir = mydir + "/switchboard"
 swb_src_base_dir = "/u/zeyer/setups/switchboard/2016-01-28--crnn"
+swb_experiments = [
+	"dropout01.l2_1e_2.5l.n500.max_seqs40.grad_noise03.nadam.lr1e_3.grad_clip_inf",
+	"vanilla_lstm.ontop.5l",
+	"assoc_lstm.ontop.5l",
+]
 
 
 def cp(src_dir, dst_dir, filename):
@@ -132,23 +137,23 @@ def cp(src_dir, dst_dir, filename):
 
 
 def main():
-	for corpus_src, corpus_dst in [(quaero_src_base_dir, quaero_dst_base_dir), (swb_src_base_dir, swb_dst_base_dir)]:
+	for corpus_src, corpus_dst, experiments in [(quaero_src_base_dir, quaero_dst_base_dir, quaero_experiments), (swb_src_base_dir, swb_dst_base_dir, swb_experiments)]:
 		for fn in base_files:
-			cp(src_dir=corpus_src, dst_dir=swb_dst_base_dir, filename=fn)
+			cp(src_dir=corpus_src, dst_dir=corpus_dst, filename=fn)
 
-	for setup_name in quaero_experiments:
-		cp(
-			src_dir=quaero_src_base_dir,
-			dst_dir=quaero_dst_base_dir,
-			filename="config-train/%s.config" % setup_name)
-		cp(
-			src_dir=quaero_src_base_dir,
-			dst_dir=quaero_dst_base_dir,
-			filename="scores/%s.recog.wers.txt" % setup_name)
-		cp(
-			src_dir=quaero_src_base_dir,
-			dst_dir=quaero_dst_base_dir,
-			filename="scores/%s.train.info.txt" % setup_name)
+		for setup_name in experiments:
+			cp(
+				src_dir=corpus_src,
+				dst_dir=corpus_dst,
+				filename="config-train/%s.config" % setup_name)
+			cp(
+				src_dir=corpus_src,
+				dst_dir=corpus_dst,
+				filename="scores/%s.recog.wers.txt" % setup_name)
+			cp(
+				src_dir=corpus_src,
+				dst_dir=corpus_dst,
+				filename="scores/%s.train.info.txt" % setup_name)
 
 
 if __name__ == "__main__":
