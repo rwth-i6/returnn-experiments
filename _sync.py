@@ -122,12 +122,12 @@ swb_src_base_dir = "/u/zeyer/setups/switchboard/2016-01-28--crnn"
 def cp(src_dir, dst_dir, filename):
 	src_fn = src_dir + "/" + filename
 	dst_fn = dst_dir + "/" + filename
-	assert os.path.exists(src_fn), "%r does not exist", % src_fn
+	assert os.path.exists(src_fn), "%r does not exist" % src_fn
 	try:
-		os.mkdirs(os.path.dirname(dst_fn))
-	except os.OSError:
+		os.makedirs(os.path.dirname(dst_fn))
+	except os.error:
 		pass
-	print("copy (%s) %s" % (dst_fn, filename))
+	print("copy (%s) %s" % (dst_dir, filename))
 	shutil.copyfile(src_fn, dst_fn)
 
 
