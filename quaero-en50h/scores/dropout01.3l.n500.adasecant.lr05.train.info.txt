@@ -1,0 +1,22 @@
+epoch   1 dev_error: 0.539483685887979
+epoch   2 dev_error: 0.5358080809556222
+epoch   3 dev_error: 0.537945318730628
+epoch   4 dev_error: 0.6173386189751424
+epoch   5 dev_error: 0.696341046592134
+epoch   1 dev_score: 2.295203174409964
+epoch   2 dev_score: 2.2891025659477737
+epoch   3 dev_score: 2.31764203665982
+epoch   4 dev_score: 2.8192947557217103
+epoch   5 dev_score: 3.3748786144014264
+epoch   1 learning_rate: 0.5
+epoch   2 learning_rate: 0.5
+epoch   3 learning_rate: 0.25
+epoch   4 learning_rate: 0.125
+epoch   5 learning_rate: 0.0625
+epoch   1 train_score: 3.059639897305481
+epoch   2 train_score: 2.695906357123508
+epoch   3 train_score: 2.7468286073235206
+epoch   4 train_score: 3.030115291393154
+epoch   5 train_score: 3.6280830870233105
+num params: 18714498
+average epoch time 'GeForce GTX 680': 7:38:59

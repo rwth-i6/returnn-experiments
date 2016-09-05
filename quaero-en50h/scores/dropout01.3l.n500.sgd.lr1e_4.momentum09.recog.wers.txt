@@ -1,0 +1,6 @@
+epoch   5: 17.41
+epoch  10: 15.89
+epoch  18: 14.76
+epoch  23: 14.79
+epoch  28: 14.81
+epoch  30: 14.81

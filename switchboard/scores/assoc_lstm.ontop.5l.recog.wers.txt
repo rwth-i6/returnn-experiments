@@ -1,0 +1,7 @@
+epoch   5: 21.8
+epoch  10: 20.9
+epoch  21: 16.5
+epoch  23: 16.4
+epoch  25: 16.3
+epoch  26: 16.3
+epoch  30: 16.3
