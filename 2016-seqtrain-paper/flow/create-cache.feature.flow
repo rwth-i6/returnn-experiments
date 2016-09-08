@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+<!--
+  Feature extraction
+-->
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+<!--
+  Feature cache
+-->
+  <node name="feature-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="base-feature-extraction:features" to="feature-cache"/>
+
+
+<!--
+  Output
+-->
+  <link from="feature-cache" to="network:features"/>
+
+
+</network>

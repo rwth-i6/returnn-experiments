@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+  <out name="alignments"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+  <param name="id"/>
+  <param name="orthography"/>
+
+
+
+  <node name="feature-extraction-setup" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	track="$(track)"
+	speaker="$(speaker)"/>
+
+  <node name="feature-extraction-setup-2" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	track="$(track)"
+	speaker="$(speaker)"/>
+
+  <node name="aggregate" 
+	filter="generic-aggregation-vector-f32"/>
+  <link from="feature-extraction-setup:features" to="aggregate"/>
+
+  <node name="alignment-builder" 
+	filter="speech-alignment"
+        id="$(id)" 
+	orthography="$(orthography)"/>
+  <link from="aggregate" to="alignment-builder"/>
+
+  <node name="streams" filter="generic-aggregation-vector-f32"/>
+  <link from="feature-extraction-setup:features" to="streams:0"/>
+  <link from="feature-extraction-setup-2:features" to="streams:1"/>
+
+<!--
+  Output
+-->
+  <link from="feature-extraction-setup:energies" to="network:energies"/>
+  <link from="streams" to="network:features"/>
+  <link from="alignment-builder" to="network:alignments"/>
+
+</network>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="alignments"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+  <param name="id"/>
+  <param name="orthography"/>
+
+
+  <node name="feature-cache" filter="generic-cache"
+        id="$(id)"/>
+  
+  <node name="alignment-cache" filter="generic-cache"
+        id="$(id)"/>
+
+<!--
+  Output
+-->
+  <link from="alignment-cache" to="network:alignments"/>
+  <link from="feature-cache" to="network:features"/>
+
+</network>

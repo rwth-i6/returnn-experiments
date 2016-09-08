@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+<!--
+  Parameters for the neural network (weight multiplication)
+-->
+  <param name="feature-1-mean"/>
+  <param name="feature-1-pca"/>
+  <param name="feature-1-size"/>
+  <param name="feature-1-winSize"/>
+  <param name="feature-1-winRight"/>
+
+<!-- 
+  feature-1
+  - external pca normalisation (mean from xml file)
+  - external variance normalisation (variance from xml file)
+  - temporal context of size X
+-->
+  <node name="feature-1"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"
+	/>
+  <node name="feature-1-external-normalisation-by-mean"
+        filter="signal-vector-f32-sub-external"
+        file="$(feature-1-mean)"
+        />
+  <link from="feature-1:features" to="feature-1-external-normalisation-by-mean"/>
+  <node name="feature-1-principal-component-analysis"
+        filter="signal-matrix-multiplication-f32"
+	file="$(feature-1-pca)"
+	/>
+  <link from="feature-1-external-normalisation-by-mean" to="feature-1-principal-component-analysis"/>
+
+  <node name="feature-1-selection"
+        filter="ann-vector-f32-select"
+	select="0-$(feature-1-size)"
+        />
+  <link from="feature-1-principal-component-analysis" to="feature-1-selection"/>
+  <node name="feature-1-window"
+        filter="signal-vector-f32-sequence-concatenation"
+        margin-condition="present-not-empty"
+        expand-timestamp="false"
+	max-size="$(feature-1-winSize)"
+	right="$(feature-1-winRight)"
+	/>
+  <link from="feature-1-selection" to="feature-1-window"/>
+
+<!--
+  Output
+-->
+  <link from="feature-1-selection" to="network:features"/>
+  <link from="feature-1:energies" to="network:energies"/>
+
+</network>

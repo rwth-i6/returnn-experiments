@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="mean-vector"/>
+
+
+<!--
+  Input Features to normalise (by file)
+-->
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!-- 
+  Global Mean normalisation (mean from xml file)
+-->
+  <node name="normalisation-by-mean"
+	filter="signal-vector-f32-sub-external"
+	/>
+  <link from="base-feature-extraction:features" to="normalisation-by-mean"/>
+
+<!-- 
+  Global Variance normalisation (variance from xml file)
+-->
+  <node name="normalisation-by-variance"
+	filter="signal-vector-f32-mul-external"
+	/>
+  <link from="normalisation-by-mean" to="normalisation-by-variance"/>
+
+<!-- 
+  Window extention for the features
+-->
+  <node name="base-feature-window"
+        filter="signal-vector-f32-sequence-concatenation"
+        max-size="9"
+        right="4"
+	margin-policy="copy"
+        margin-condition="present-not-empty"
+        expand-timestamp="false"
+	/>
+  <link from="normalisation-by-variance" to="base-feature-window"/>
+
+<!--
+  Bias extention for matrix multiplication
+-->
+ <node name="bias-extend"
+        filter="signal-vector-f32-resize"
+        new-discrete-size="1"
+        initial-value="1.0"
+        relative-change="true"
+        change-front="true"/>
+  <link from="base-feature-window" to="bias-extend"/>
+<!--  <link from="bias-extend" to="network:features"/> -->
+
+
+  <node name="forwarding-weights" 
+        filter="signal-matrix-multiplication-f32"
+        />
+  <link from="bias-extend" to="forwarding-weights"/>
+<!--   <link from="forwarding-weights" to="network:features"/> -->
+
+
+  <node name="sigmoid"
+        filter="generic-vector-f32-sigmoid"/>
+  <link from="forwarding-weights" to="sigmoid"/>
+  <link from="sigmoid" to="network:features"/>
+
+
+
+
+
+
+
+<!--
+  Energy cache
+-->
+  <node name="energy-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+<!--
+  Output
+-->
+<!--  <link from="mean-vector-repeat:data" to="network:features"/> -->
+<!--  <link from="mean-vector-cutter" to="network:features"/> -->
+  <link from="energy-cache" to="network:energies"/>
+
+</network>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="input-file"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+
+<!--
+  Base feature
+-->
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!--
+  Voiced feature
+-->
+  <node name="voiced-cache" 
+	filter="generic-cache"
+	id="$(id)"/>
+
+
+<!--
+	Concatenate
+-->
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"
+	timestamp-port="features"/>
+  <link from="base-feature-extraction:features" to="concatenation:features"/>
+  <link from="voiced-cache" to="concatenatenation:voiced-feature"/>
+
+
+<!--
+  Output
+-->
+  <link from="concatenation" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  4. level - frontend
+-->
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+  <param name="id"/>
+
+
+
+  <node name="feature-extraction-setup" 
+	filter="$(file)"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	track="$(track)"
+	speaker="$(speaker)"/>
+
+
+<!--
+  Output
+-->
+  <link from="feature-extraction-setup:energies" to="network:energies"/>
+  <link from="feature-extraction-setup:features" to="network:features"/>
+
+</network>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level feature
+-->
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+<!--
+  Get 1. level features
+-->
+  <node name="base-feature-transformation" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+<!--
+   A bug(feature???) in flow/signal makes it necessary to resize the vector BEFORE concatenating tone
+-->
+  <node name="extend" 
+	filter="signal-vector-f32-resize"
+      	new-discrete-size="1" 
+	initial-value="1.0"
+	relative-change="true" 
+	change-front="true"/>
+  <link from="base-feature-transformation:features" to="extend"/>
+
+
+<!--
+  Concatenate tone features
+-->
+  <node name="concatenate-tone-with-derivatives" 
+	filter="concatenate.tone+derivatives.flow"
+	id="$(id)"/>
+  <link from="extend" to="concatenate-tone-with-derivatives:in"/>
+
+
+<!--
+  CMLLR-SAT
+-->
+  <node name="segment-clustering" 
+	filter="generic-coprus-key-map" 
+	key="$(id)"
+        start-time="$(start-time)" 
+	end-time="$(end-time)"/>
+
+
+  <node name="affine-transform" 
+	filter="affine-transform.flow"/>
+  <link from="concatenate-tone-with-derivatives:features" to="affine-transform:in"/>
+  <link from="segment-clustering" to="affine-transform:corpus-key"/>
+
+
+<!--
+  cache
+-->
+  <node name="extract-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="affine-transform:out" to="extract-cache"/>
+
+
+<!--
+  output
+-->
+  <link from="extract-cache" to="network:features"/>
+  <link from="base-feature-transformation:energies" to="network:energies"/>
+
+</network>

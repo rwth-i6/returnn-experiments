@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+  <param name="id"/>
+  <param name="input-file"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+
+  <node name="feature-extraction-setup" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+  
+  	<node name="mean-input" 
+	filter="generic-vector-f32-text-input"
+	input-file="results/mean-f32.xml">
+	
+	<node name="mean-negative"
+  	filter="generic-vector-f32-multiplication"
+	value="-1"/>
+	<link from="mean-input" to="mean-negative"/>
+	
+	<node name="mean-sync"
+    filter="signal-repeating-frame-prediction"/>
+    <link from="mean-negative" to="mean-sync"/>
+	
+  	<node name="std-input" 
+	filter="generic-vector-f32-text-input"
+	input-file="results/standard-deviation-f32.xml">
+  	
+  	<node name="std-invert"
+	filter="generic-vector-f32-power"
+	value="-1" />
+	<link from="std-input" to="std-invert"/>
+  	
+  	<node name="std-sync"
+    filter="signal-repeating-frame-prediction"/>
+    <link from="std-invert" to="std-sync"/>
+  
+
+	<node name="mean-norm" 
+	filter="generic-f32-addition"/>
+	<link from="feature-extraction-setup:features" to="mean-norm:1"/>
+	<link from="mean-sync" to="mean-norm:2"/>
+	
+	
+	
+	<node name="std-norm" 
+	filter="generic-vector-vector-f32-multiplication"/>
+	<link from="mean-norm" to="std-norm:1"/>
+	<link from="std-sync" to="std-norm:2"/>
+	
+<!--
+  Output
+-->
+  <link from="std-norm" to="network:features"/>
+  <link from="feature-extraction-setup:energies" to="network:energies"/>
+
+</network>

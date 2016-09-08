@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+
+  <param name="id"/>
+
+  <node name="feature-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+  <node name="energy-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+  <link from="feature-cache" to="network:features"/>
+  <link from="energy-cache" to="network:energies"/>
+
+
+</network>

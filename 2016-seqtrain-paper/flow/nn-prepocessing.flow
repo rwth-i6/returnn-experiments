@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="nn-layer-bias"/>
+  <param name="nn-layer-weights"/>
+
+
+<!--
+  RAW input features for the neural network
+   - normalisation: Mean
+   - normalisation: Variance
+   - window
+   - 
+-->
+  <node name="base-feature-extraction-setup"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+<!--
+  read NN-layer-bias and combine with inputfeatures
+-->
+  <node name="nn-layer-bias"
+        filter="signal-vector-f32"
+        file="$(nn-layer-bias).vector"/>
+
+  <node name="nn-layer-feature-extraction-setup"
+        filter="signal-vector-f32-sum"/>
+  <link from="bias" to="nn-layer-feature-extraction-setup:0"/>
+  <link from="base-feature-extraction-setup" to="nn-layer-feature-extraction-setup:1"/>
+	
+<!--
+  multiply with the weight matrix
+-->
+  <node name="nn-activation-multiplication" 
+        filter="signal-matrix-multiplication-f32"
+        file="$(nn-layer-weights).matrix"/>
+  <link from="base-feature-extraction-setup" to="nn-activation-multiplication"/>
+
+  <node name="nn-activation-output" 
+        filter="generic-vector-f32-sigmoid"/>
+  <link from="nn-activation-multiplication" to="nn-activation-output"/>
+
+
+
+<!--
+  Output
+-->
+  <link from="nn-activation-output" to="network:features"/>
+
+</network>

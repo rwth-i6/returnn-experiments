@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="file-extension"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+
+  <!-- load image -->
+  <node name="video" filter="$(video-filter)" 
+        file="$(input-file)$(file-extension)"
+	start-time="$(start-time)"
+	end-time="$(end-time)"/>
+
+  <!-- cropp image -->
+  <node name="cropping" filter="image-crop"/>
+  <link from="video" to="cropping"/>
+  <node name="bluring" filter="image-blur-fast"/>
+  <link from="cropping" to="bluring"/>
+  <node name="scaling" filter="image-scale-bresenham"/>
+  <link from="bluring" to="scaling"/>
+
+  <!-- energy == absolute motion of two images/croppings -->
+  <node name="delay" filter="signal-delay" 
+        max-size="2"
+	right="0"
+	margin-condition="present-not-empty"/>
+  <link from="scaling" to="delay"/>
+
+  <node name="multiplication" filter="generic-vector-f32-multiplication" value="-1"/>
+  <link from="delay:-1" to="multiplication"/>
+
+  <node name="sum" filter="generic-vector-f32-sum"
+        timestamp-port="0"/>
+  <link from="delay:0" to="sum:0"/>
+  <link from="multiplication" to="sum:1"/>
+  
+  <node name="absolute" filter="generic-vector-f32-abs"/>
+  <link from="sum" to="absolute"/>
+
+  <!-- normalize -->
+  <node name="norm" filter="generic-vector-f32-norm" value="2"/>
+  <link from="absolute" to="norm"/>
+
+  <!-- output of the network -->
+  <link from="norm" to="network:features"/>
+  <link from="norm" to="network:energies"/>
+</network>

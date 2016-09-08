@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+<!--
+  Neural network config: postprocessing
+   - log transformation
+   - external pca transformation (mean norm + matrix multi)
+   - dimension reduction
+-->
+  <node name="nn-feature-extraction"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+<!--
+  Output
+-->
+  <link from="nn-feature-extraction:features" to="network:features"/>
+  <link from="nn-feature-extraction:energies" to="network:energies"/>
+
+</network>

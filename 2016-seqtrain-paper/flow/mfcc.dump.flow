@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+     mfcc/mfcc.postprocessing.flow $Rev: 330 $
+
+     (c) 2008 by RWTH Aachen University
+     rwthasr@i6.informatik.rwth-aachen.de
+     You can redistribute this file and/or modify it under the terms of the
+     RWTH ASR License
+     <http://www-i6.informatik.rwth-aachen.de/rwth-asr/rwth-asr-license.html>
+-->
+<network>
+  <in name="samples"/>
+  <out name="out"/>
+
+  <param name="id"/>
+  <param name="dir"/>
+  
+  <node name="preemphasis" filter="signal-preemphasis" alpha="1.00"/>
+  <link from="network:samples" to="preemphasis"/>
+
+  <node name="window" filter="signal-window" type="hamming" shift=".01" length="0.025"/>
+  <link from="preemphasis" to="window"/>
+
+  <node name="fast-fourier-transform" filter="signal-real-fast-fourier-transform" maximum-input-size="0.025"/>
+  <link from="window" to="fast-fourier-transform"/>
+  
+    <node name="fft-dump" filter="generic-dump" file="../data/$(dir)/$(id).fft.xml"/>
+    <link from="fast-fourier-transform" to="fft-dump"/>
+
+  <node name="amplitude-spectrum" filter="signal-vector-alternating-complex-f32-amplitude"/>
+  <link from="fft-dump" to="amplitude-spectrum"/>
+  
+    <node name="amplitude-dump" filter="generic-dump" file="../data/$(dir)/$(id).amplitude.xml"/>
+    <link from="amplitude-spectrum" to="amplitude-dump"/>
+  
+  <node name="filterbank" filter="signal-filterbank" warping-function="mel" filter-width="268.258"/>
+  <link from="amplitude-dump" to="filterbank"/>
+
+  <node name="nonlinear" filter="generic-vector-f32-log"/>
+  <link from="filterbank" to="nonlinear"/>
+
+  <node name="cepstrum" filter="signal-cosine-transform" nr-outputs="16"/>
+  <link from="nonlinear" to="cepstrum"/>
+
+  <node name="normalization" filter="signal-normalization" length="infinite" right="infinite" type="mean"/>
+  <link from="cepstrum" to="normalization"/>
+
+    <node name="mfcc-dump" filter="generic-dump" file="../data/$(dir)/$(id).mfcc.xml"/>
+    <link from="normalization" to="mfcc-dump"/>
+  
+  <link from="mfcc-dump" to="network:out"/>
+</network>
+
+<!--
+  <node name="preemphasis" filter="signal-preemphasis" alpha="1.00"/>
+  <link from="network:samples" to="preemphasis"/>
+
+  <node name="window" filter="signal-window" type="hamming" shift=".01" length="0.025"/>
+  <link from="preemphasis" to="window"/>
+
+  <node name="fast-fourier-transform" filter="signal-real-fast-fourier-transform" maximum-input-size="0.025"/>
+  <link from="window" to="fast-fourier-transform"/>
+
+  <node name="amplitude-spectrum" filter="signal-vector-alternating-complex-f32-amplitude"/>
+  <link from="fast-fourier-transform" to="amplitude-spectrum"/>
+  
+  <node name="filterbank" filter="signal-filterbank" warping-function="mel" filter-width="268.258"/>
+  <link from="amplitude-spectrum" to="filterbank"/>
+
+  <node name="nonlinear" filter="generic-vector-f32-log"/>
+  <link from="filterbank" to="nonlinear"/>
+
+  <node name="cepstrum" filter="signal-cosine-transform" nr-outputs="16"/>
+  <link from="nonlinear" to="cepstrum"/>
+
+  <node name="normalization" filter="signal-normalization" length="infinite" right="infinite" type="mean"/>
+  <link from="cepstrum" to="normalization"/>
+
+  
+  <link from="normalization" to="network:out"/>
+-->

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="transforms"/>
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!--
+  CMLLR-SAT
+-->
+  <node name="segment-clustering" 
+	filter="generic-coprus-key-map" 
+	key="$(id)"
+        start-time="$(start-time)" 
+	end-time="$(end-time)"/>
+
+
+  <node name="extend"
+	filter="signal-vector-f32-resize"
+	new-discrete-size="1"
+	initial-value="1.0"
+	relative-change="true"
+	change-front="true"/>
+  <link from="base-feature-extraction:features" to="extend"/>
+
+
+  <node name="multiplication" 
+	filter="signal-matrix-multiplication-f32"
+	file="$(transforms)/$input(corpus-key).matrix"/>
+  <link from="extend" to="multiplication"/>
+  <link from="segment-clustering" to="multiplication:corpus-key"/>
+
+  <node name="feature-normalization"
+        filter="signal-normalization"
+        type="mean-and-variance"/>
+  <link from="multiplication" to="feature-normalization"/>
+
+<!--
+  Output
+-->
+  <link from="feature-normalization" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

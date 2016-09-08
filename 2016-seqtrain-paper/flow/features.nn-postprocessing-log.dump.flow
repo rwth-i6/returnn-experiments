@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="base-dump-dir"/>
+  <param name="log-dump-dir"/>
+
+<!--
+  Neural network config: postprocessing
+   - log transformation
+   - external pca transformation (mean norm + matrix multi)
+   - dimension reduction
+-->
+  <node name="nn-feature-extraction"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+  <node name="base-feature-dump"
+	filter="generic-dump"
+	file="$(base-dump-dir)/$(id).xml"/>
+  <link from="nn-feature-extraction:features" to="base-feature-dump"/>
+
+<!--
+  Neural network config: layer 1
+   - resize input feature for bias
+   - multiply [bias, input features] and weight matrix
+   - apply activation function
+-->
+  <node name="post-feature-logarithm"
+        filter="generic-vector-f32-ln"/>
+<!--  <link from="nn-feature-extraction:features" to="post-feature-logarithm"/> -->
+  <link from="base-feature-dump" to="post-feature-logarithm"/>
+
+  <node name="log-feature-dump"
+	filter="generic-dump"
+	file="$(log-dump-dir)/$(id).xml"/>
+  <link from="post-feature-logarithm" to="log-feature-dump"/>
+
+
+<!--
+  Output
+-->
+<!--  <link from="post-feature-logarithm" to="network:features"/> -->
+  <link from="log-feature-dump" to="network:features"/>
+  <link from="nn-feature-extraction:energies" to="network:energies"/>
+
+</network>

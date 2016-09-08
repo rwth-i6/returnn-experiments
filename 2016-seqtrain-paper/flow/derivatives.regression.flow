@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<network>
+  <in name="in"/>
+  <out name="delta"/>
+  <out name="deltadelta"/>
+
+
+  <node name="window" 
+	filter="signal-delay"
+	max-size="5" 
+	right="2" 
+	margin-condition="present-not-empty"/>
+  <link from="network:in" to="window"/>
+
+
+  <node name="delta" 
+	filter="signal-regression" 
+	order="1" 
+	timestamp-port="0"/>
+  <link from="window:-2" to="delta:-2"/>
+  <link from="window:-1" to="delta:-1"/>
+  <link from="window:0" to="delta:0"/>
+  <link from="window:+1" to="delta:+1"/>
+  <link from="window:+2" to="delta:+2"/>
+
+
+  <node name="deltadelta" 
+	filter="signal-regression" 
+	order="2" 
+	timestamp-port="0"/>
+  <link from="window:-2" to="deltadelta:-2"/>
+  <link from="window:-1" to="deltadelta:-1"/>
+  <link from="window:0" to="deltadelta:0"/>
+  <link from="window:+1" to="deltadelta:+1"/>
+  <link from="window:+2" to="deltadelta:+2"/>
+
+
+  <link from="delta" to="network:delta"/>
+  <link from="deltadelta" to="network:deltadelta"/>
+
+</network>

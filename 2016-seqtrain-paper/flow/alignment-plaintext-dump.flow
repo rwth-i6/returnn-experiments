@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<network>
+  <out name="features"/>
+  <out name="alignments"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+
+  <param name="speaker"/>
+  <param name="id"/>
+  <param name="orthography"/>
+
+  <node name="feature-extraction-setup" filter="$(file)"
+        ignore-unknown-parameters="true"
+	input-file="$(input-file)"
+	id="$(id)"
+        speaker="$(id)"
+	start-time="$(start-time)" end-time="$(end-time)" track="$(track)"/>
+
+  <node name="aggregate" filter="generic-aggregation-vector-f32"/>
+  <link from="feature-extraction-setup:features" to="aggregate"/>
+  
+  <node name="alignment" filter="speech-alignment"
+        id="$(id)" orthography="$(orthography)"/>
+<!--  <link from="aggregate" to="alignment"/> -->
+  <link from="feature-extraction-setup:features" to="alignment"/>
+
+  <node name="alignment-cache" filter="generic-cache"
+        id="$(id)"/>
+  <link from="alignment" to="alignment-cache"/>
+
+  <node name="dump-node" filter="speech-alignment-dump"
+        id="$(id)" />
+  <link from="alignment-cache" to="dump-node"/>
+  <link from="aggregate" to="dump-node:features"/>
+
+<!--
+	OUTPUT
+-->
+  <link from="dump-node" to="network:alignments"/>
+  <link from="aggregate" to="network:features"/>
+
+</network>

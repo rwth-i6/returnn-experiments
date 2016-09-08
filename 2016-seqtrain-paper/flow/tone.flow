@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="xml-dir"/>
+
+
+<!--
+  Tone feature cache
+-->
+  <node name="tone-archive"
+	filter="generic-vector-f32-text-input"
+	file="$(xml-dir)/$(input-audio-name).xml.gz"
+	sample-rate="16000"/>
+
+  <node name="tone-cutter" 
+	filter="generic-cutter"
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	id="$(input-audio-name)"/>
+  <link from="tone-archive" to="tone-cutter"/>
+
+  <node name="tone-normalization" 
+	filter="signal-normalization"
+	type="mean-and-variance"/>
+<!--
+	length="infinite" 
+	right="infinite" />
+-->
+  <link from="tone-cutter" to="tone-normalization"/>
+
+
+<!--
+  Energy cache
+-->
+  <node name="energy-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+<!--
+  Output
+-->
+  <link from="tone-normalization" to="network:features"/>
+  <link from="energy-cache" to="network:energies"/>
+
+</network>

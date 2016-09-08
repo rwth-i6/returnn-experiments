@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<network>
+  <out name="features"/>
+  <out name="labels"/>
+
+  <param name="input-audio-name"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+
+  <param name="speaker"/>
+  <param name="id"/>
+  <param name="segment-0"/>
+
+
+  <node name="labeling"
+	filter="generic-coprus-key-map"
+        default-output="$(input-audio-name)"
+        start-time="$(start-time)" 
+	end-time="$(end-time)"/>
+
+
+<!--	datatype="f32" -->
+  <node name="aligned-feature-cache" 
+	filter="speech-aligned-feature-cache-reader"
+	datatype="f32"
+	path="$(segment-0)"/>
+  <link from="labeling" to="aligned-feature-cache"/>
+
+
+  <node name="scalar-to-vector" 
+	filter="generic-convert-f32-to-vector-f32"/>
+  <link from="aligned-feature-cache" to="scalar-to-vector"/>
+
+
+  <link from="labeling" to="network:labels"/>
+  <link from="scalar-to-vector" to="network:features"/>
+
+</network>

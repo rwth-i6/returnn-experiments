@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="id"/>
+  <param name="input-file"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+
+<!--
+  Get 1. level features
+-->
+  <node name="base-feature-transformation" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+<!--
+  Concatenate tone features
+-->
+  <node name="concatenate-tone-with-derivatives" 
+	filter="concatenate.tone+derivatives.flow"
+	id="$(id)"/>
+  <link from="base-feature-transformation:features" to="concatenate-tone-with-derivatives:in"/>
+
+
+<!--
+  cache
+-->
+  <node name="extract-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="concatenate-tone-with-derivatives:features" to="extract-cache"/>
+
+
+  <link from="extract-cache" to="network:features"/>
+  <link from="base-feature-transformation:energies" to="network:energies"/>
+
+</network>

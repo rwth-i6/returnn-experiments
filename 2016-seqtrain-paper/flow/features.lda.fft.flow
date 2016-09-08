@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+  <node name="lda-window"
+	filter="signal-vector-f32-sequence-concatenation"
+	margin-condition="present-not-empty" 
+	expand-timestamp="false"/>
+<!--
+	max-size="9"
+	right="4"
+-->
+  <link from="base-feature-extraction:features" to="lda-window"/>
+
+
+<!--
+	dump features before the LDA
+ -->
+  <node name="lda-input-dump"
+        filter="generic-dump"/>
+  <link from="lda-window" to="lda-input-dump"/>
+
+  <node name="lda" 
+	filter="signal-matrix-multiplication-f32"/>
+<!--  <link from="lda-input-dump" to="lda"/> -->
+  <link from="lda-window" to="lda"/>
+
+
+<!--
+	dump features after the LDA
+ -->
+  <node name="lda-output-dump"
+        filter="generic-dump"/>
+  <link from="lda" to="lda-output-dump"/>
+
+<!--
+	feature output
+ -->
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+<!--  <link from="lda-output-dump" to="network:features"/> -->
+  <link from="lda" to="network:features"/>
+
+
+</network>

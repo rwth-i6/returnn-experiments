@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+<!--
+	Input features to be transformed
+-->
+  <node name="base-feature-extraction"
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+<!-- 
+	mean normalisation (mean from xml file)
+-->
+  <node name="normalisation-by-mean"
+	filter="signal-vector-f32-sub-external"
+	/>
+  <link from="base-feature-extraction:features" to="normalisation-by-mean"/>
+
+<!--
+	principal component analysis (PCA)
+-->
+  <node name="principal-component-analysis"
+	filter="signal-matrix-multiplication-f32"/>
+  <link from="normalisation-by-mean" to="principal-component-analysis"/>
+
+<!--
+	final output features
+-->
+  <link from="principal-component-analysis" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

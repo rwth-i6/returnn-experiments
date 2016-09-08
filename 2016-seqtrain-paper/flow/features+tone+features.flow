@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+
+<!--
+  Primary 1. level features
+-->
+  <node name="base-feature-transformation" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!--
+  2. level feature: tone feature with derivatives
+-->
+  <node name="tone-with-derivatives" 
+	filter="tone+derivatives.flow"
+	id="$(id)"/>
+
+
+<!--
+  Secondary 1. level features
+-->
+  <node name="supplemental-base-feature-transformation" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+<!--
+  <link from="base-feature-transformation:energies" to="supplemental-base-feature-transformation:energies"/>
+-->
+
+
+<!--
+	Concatenate
+-->
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"
+	timestamp-port="features"/>
+  <link from="base-feature-transformation:features" to="concatenation:features"/>
+  <link from="tone-with-derivatives:features" to="concatenation:tone-features"/>
+  <link from="supplemental-base-feature-transformation:features" to="concatenation:supplemental-features"/>
+
+<!--
+  Output
+-->
+  <link from="concatenation" to="network:features"/>
+  <link from="base-feature-transformation:energies" to="network:energies"/>
+
+</network>

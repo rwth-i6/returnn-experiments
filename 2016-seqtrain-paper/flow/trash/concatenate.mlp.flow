@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level feature
+-->
+
+<network>
+  <in name="in"/>
+
+  <out name="features"/>
+
+  <param name="id"/>
+
+
+<!--
+  MLP features
+-->
+  <node name="mlp-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+<!--
+  Concatenate
+-->
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"
+	timestamp-port="features"/>
+  <link from="network:in" to="concatenation:features"/> 
+  <link from="mlp-cache" to="concatenation:mlp"/>
+
+  <link from="concatenation" to="network:features"/>
+
+</network>

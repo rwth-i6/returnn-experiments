@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level features : transformed base features
+-->
+
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!--
+	using t-2,t,t+2
+-->
+  <node name="window" 
+	filter="signal-delay"
+	max-size="5" 
+	right="2" 
+	margin-condition="present-not-empty"/>
+  <link from="base-feature-extraction" to="window"/>
+
+<!--
+        Concatenate
+-->
+  <node name="concatenation"
+        filter="generic-vector-f32-concat"
+        check-same-length="true"
+        timestamp-port="window:0"/>
+  <link from="window:-2" to="concatenation:-2"/>
+  <link from="window:0"  to="concatenation:0"/>
+  <link from="window:+2" to="concatenation:+2"/>
+
+<!--
+	Final features
+-->
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+  <link from="concatenation"                    to="network:features"/>
+
+</network>

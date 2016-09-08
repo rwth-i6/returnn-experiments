@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level features : transformed base features
+-->
+
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+  <node name="derivatives" 
+	filter="derivatives.regression.flow"/>
+  <link from="base-feature-extraction:features" to="derivatives:in"/>
+
+
+  <node name="split-deltadelta" 
+	filter="generic-vector-f32-split"/>
+  <link from="derivatives:deltadelta" to="split-deltadelta"/>
+
+
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"
+	timestamp-port="features"/>
+  <link from="base-feature-extraction:features" to="concatenation:features"/>
+  <link from="derivatives:delta" to="concatenation:delta"/>
+  <link from="split-deltadelta:0" to="concatenation:deltadelta"/>
+
+
+  <link from="concatenation" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level features : transformed base features
+-->
+
+
+<network>
+  <in name="in"/>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+<!--
+  Delay window
+-->
+  <node name="delay"
+	filter="signal-delay"
+	max-size="9"
+	right="4"
+	margin-condition="present-not-empty"
+	/>
+  <link from="network:in" to="delay"/>
+  
+<!--
+  Concatenate the features of nine frames (-4 ... -1, 0, 1, ... 4)
+-->
+  <node name="concatenation" 
+        filter="generic-vector-f32-concat"
+        check-same-length="true"
+        timestamp-port="feature-0"/>
+<!--  <link from="delay:-4" to="concatenation:feature-4"/> -->
+<!--  <link from="delay:-3" to="concatenation:feature-3"/> -->
+<!--  <link from="delay:-2" to="concatenation:feature-2"/> -->
+  <link from="delay:-1" to="concatenation:feature-1"/>
+  <link from="delay:0" to="concatenation:feature-0"/>
+  <link from="delay:1" to="concatenation:feature+1"/>
+<!--  <link from="delay:2" to="concatenation:feature+2"/> -->
+<!--  <link from="delay:3" to="concatenation:feature+3"/> -->
+<!--  <link from="delay:4" to="concatenation:feature+4"/> -->
+
+  <link from="concatenation" to="network:features"/>
+
+</network>

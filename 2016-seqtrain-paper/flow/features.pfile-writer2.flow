@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="archive-path"/>
+
+  <node name="base-feature-extraction"
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)"
+	input-audio-name="$(input-audio-name)"
+	id="$(id)"
+	track="$(track)"
+	start-time="$(start-time)"
+	end-time="$(end-time)"
+	speaker="$(speaker)"/>
+
+
+<!--
+  Dump features into pfile format
+-->
+  <node name="feature-dump-pfile" 
+	filter="ann-pfile-writer" 
+	file="$(archive-path)"
+	write-segments="false"
+	id="$(id)"
+	/>
+  <link from="base-feature-extraction:features" to="feature-dump-pfile"/>
+
+<!--
+  Output
+-->
+  <link from="feature-dump-pfile" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

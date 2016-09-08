@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--	TempoRAl Pattern (Traps) -->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+  <param name="audio-format"/>
+
+<!-- TRAP-DCT configurations -->
+  <param name="temporal-size"/>
+  <param name="temporal-right"/>
+  <param name="coefficients"/>
+
+<!--
+	base feature extraction, e.g. crbe
+-->
+  <node name="base-feature-extraction" 
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+<!--
+	TRAP features:
+	 - Padding:
+	   - mean_of_segment => (x-mean)->pad-0 + (mean)->pad-Copy
+	   - first/last => copy first/last element
+	 - hamming window + dct for all bands
+-->
+  <node name="mean-normalisation"
+	filter="signal-normalization"
+	type="mean"
+	length="infinite" 
+	right="infinite"/>
+  <node name="window-padding"
+        filter="signal-vector-f32-sequence-concatenation"
+        max-size="$(temporal-size)"
+        right="$(temporal-right)"
+        margin-condition="present-not-empty"
+	margin-policy="zero"
+        expand-timestamp="false"/>
+  <node name="segment-mean"
+	filter="signal-mean-estimator"/>
+  <node name="window-padding-mean"
+        filter="signal-vector-f32-sequence-concatenation"
+        max-size="$(temporal-size)"
+        right="$(temporal-right)"
+        margin-condition="present-not-empty"
+	margin-policy="copy"
+        expand-timestamp="false"/>
+  <node name="mean-normalisation-undo"
+	filter="generic-vector-f32-sum"/>
+  <link from="base-feature-extraction:features" to="mean-normalisation"/>
+  <link from="mean-normalisation" to="window-padding"/>
+  <link from="base-feature-extraction:features" to="segment-mean"/>
+  <link from="segment-mean" to="window-padding-mean"/>
+  <link from="window-padding" to="mean-normalisation-undo:first"/>
+  <link from="window-padding-mean" to="mean-normalisation-undo:second"/>
+
+
+<!--
+  trap-dct
+  - hamming window
+  - dct (NplusOneData)
+-->
+  <node name="temporal-pattern-dct"
+  	filter="ann-temporal-pattern"
+	type="hamming"
+	context-length="$(temporal-size)"
+	output-size="$(coefficients)"
+	/>
+  <link from="mean-normalisation-undo" to="temporal-pattern-dct"/>
+
+<!--
+  Final Output
+-->
+  <link from="temporal-pattern-dct" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <node name="base-feature-extraction"
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+<!-- Split the vector and only use the first dimension -->
+  <node name="fea-split" filter="generic-vector-f32-split"/>
+  <link from="base-feature-extraction" to="fea-split"/>
+
+<!--
+  Output
+-->
+  <link from="fea-split:0" to="network:features"/>
+
+</network>

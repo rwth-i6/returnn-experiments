@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="feature-normalisation-mean"/>
+  <param name="feature-normalisation-variance"/>
+
+
+<!--
+  Input Features to normalise (by file)
+-->
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+<!-- 
+  Global Mean normalisation (mean from xml file)
+-->
+  <node name="normalisation-by-mean"
+        filter="signal-vector-f32-sub-external"
+        file="$(feature-normalisation-mean)"
+	/>
+  <link from="base-feature-extraction:features" to="normalisation-by-mean"/>
+
+<!-- 
+  Global Variance normalisation (variance from xml file)
+-->
+  <node name="normalisation-by-variance"
+	filter="signal-vector-f32-mul-external"
+        file="$(feature-normalisation-variance)"
+	/>
+  <link from="normalisation-by-mean" to="normalisation-by-variance"/>
+
+
+<!--
+  Output
+-->
+  <link from="normalisation-by-variance" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

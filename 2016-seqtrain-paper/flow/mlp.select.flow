@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+<!--
+  Parameters for the neural network (weight multiplication)
+-->
+  <param name="feature-size"/>
+
+  <node name="base-feature-extraction"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+  <node name="post-feature-selection"
+        filter="ann-vector-f32-select"
+	select="0-$(feature-size)"
+        />
+  <link from="base-feature-extraction:features" to="post-feature-selection"/>
+
+<!--
+  Output
+-->
+  <link from="post-feature-selection" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

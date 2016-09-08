@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level features : transformed base features
+-->
+
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+  <node name="window"
+	filter="signal-vector-f32-sequence-concatenation"
+	margin-condition="present-not-empty"
+	expand-timestamp="false"/>
+  <link from="base-feature-extraction:features" to="window"/>
+
+
+  <link from="base-feature-extraction:energies"	to="network:energies"/>
+  <link from="window"				to="network:features"/>
+
+</network>

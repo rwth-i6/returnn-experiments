@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="feature-cache"/>
+  <param name="archive-path"/>
+
+<!--
+  Read features from pfile format
+-->
+  <node name="feature-read-pfile" 
+	filter="ann-pfile-reader" 
+	file="$(feature-cache)"
+	id="$(id)"
+	start-time="$(start-time)"
+	end-time="$(end-time)"
+	/>
+
+<!--
+  Feature cache
+-->
+  <node name="feature-cache"
+	filter="generic-cache"
+	id="$(id)"
+	path="$(archive-path)"
+	/>
+	
+  <link from="feature-read-pfile" to="feature-cache"/>
+
+<!--
+  Output
+-->
+  <link from="feature-cache" to="network:features"/>
+
+</network>

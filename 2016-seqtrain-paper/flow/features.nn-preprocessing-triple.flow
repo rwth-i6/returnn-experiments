@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+<!--
+  Parameters for the neural network (weight multiplication)
+-->
+  <param name="feature-1-mean"/>
+  <param name="feature-1-variance"/>
+  <param name="feature-1-winSize"/>
+  <param name="feature-1-winRight"/>
+  <param name="feature-2-mean"/>
+  <param name="feature-2-variance"/>
+  <param name="feature-2-winSize"/>
+  <param name="feature-2-winRight"/>
+  <param name="feature-3-mean"/>
+  <param name="feature-3-variance"/>
+  <param name="feature-3-winSize"/>
+  <param name="feature-3-winRight"/>
+
+
+<!--
+  Neural network config: preprocessing
+   - mean and variance normalization
+   - temporal context
+   - combination of several feature streams
+-->
+
+<!-- 
+  feature-1
+  - external mean normalisation (mean from xml file)
+  - external variance normalisation (variance from xml file)
+  - temporal context of size X
+-->
+  <node name="feature-1"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"
+	/>
+  <node name="feature-1-external-normalisation-by-mean"
+        filter="signal-vector-f32-sub-external"
+        file="$(feature-1-mean)"
+        />
+  <link from="feature-1:features" to="feature-1-external-normalisation-by-mean"/>
+  <node name="feature-1-external-normalisation-by-variance"
+        filter="signal-vector-f32-mul-external"
+        file="$(feature-1-variance)"
+        />
+  <link from="feature-1-external-normalisation-by-mean" to="feature-1-external-normalisation-by-variance"/>
+  <node name="feature-1-window"
+        filter="signal-vector-f32-sequence-concatenation"
+        margin-condition="present-not-empty"
+        expand-timestamp="false"
+	max-size="$(feature-1-winSize)"
+	right="$(feature-1-winRight)"
+	/>
+  <link from="feature-1-external-normalisation-by-variance" to="feature-1-window"/>
+
+<!-- 
+  feature-2
+  - external mean normalisation (mean from xml file)
+  - external variance normalisation (variance from xml file)
+  - temporal context of size X
+-->
+  <node name="feature-2"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"
+	/>
+  <node name="feature-2-external-normalisation-by-mean"
+        filter="signal-vector-f32-sub-external"
+        file="$(feature-2-mean)"
+        />
+  <link from="feature-2:features" to="feature-2-external-normalisation-by-mean"/>
+  <node name="feature-2-external-normalisation-by-variance"
+        filter="signal-vector-f32-mul-external"
+        file="$(feature-2-variance)"
+        />
+  <link from="feature-2-external-normalisation-by-mean" to="feature-2-external-normalisation-by-variance"/>
+  <node name="feature-2-window"
+        filter="signal-vector-f32-sequence-concatenation"
+        margin-condition="present-not-empty"
+        expand-timestamp="false"
+	max-size="$(feature-2-winSize)"
+	right="$(feature-2-winRight)"
+	/>
+  <link from="feature-2-external-normalisation-by-variance" to="feature-2-window"/>
+
+<!-- 
+  feature-3
+  - external mean normalisation (mean from xml file)
+  - external variance normalisation (variance from xml file)
+  - temporal context of size X
+-->
+  <node name="feature-3"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"
+	/>
+  <node name="feature-3-external-normalisation-by-mean"
+        filter="signal-vector-f32-sub-external"
+        file="$(feature-3-mean)"
+        />
+  <link from="feature-3:features" to="feature-3-external-normalisation-by-mean"/>
+  <node name="feature-3-external-normalisation-by-variance"
+        filter="signal-vector-f32-mul-external"
+        file="$(feature-3-variance)"
+        />
+  <link from="feature-3-external-normalisation-by-mean" to="feature-3-external-normalisation-by-variance"/>
+  <node name="feature-3-window"
+        filter="signal-vector-f32-sequence-concatenation"
+        margin-condition="present-not-empty"
+        expand-timestamp="false"
+	max-size="$(feature-3-winSize)"
+	right="$(feature-3-winRight)"
+	/>
+ <link from="feature-3-external-normalisation-by-variance" to="feature-3-window"/>
+
+<!-- 
+  Concatenation
+-->
+  <node name="feature-concatenation" 
+        filter="generic-vector-f32-concat"
+        check-same-length="true"
+        timestamp-port="feature-1"/>
+  <link from="feature-1-window" to="feature-concatenation:feature-1"/>
+  <link from="feature-2-window" to="feature-concatenation:feature-2"/>
+  <link from="feature-3-window" to="feature-concatenation:feature-3"/>
+ 
+
+<!--
+  Output
+-->
+ <link from="feature-concatenation" to="network:features"/>
+ <link from="feature-1:energies" to="network:energies"/>
+
+</network>

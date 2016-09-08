@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<network>
+  <in name="in"/>
+  <out name="features"/>
+
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+  <param name="transforms"/>
+
+<!--
+  CMLLR-SAT
+-->
+  <node name="segment-clustering" 
+	filter="generic-coprus-key-map" 
+	key="$(id)"
+        start-time="$(start-time)" 
+	end-time="$(end-time)"/>
+
+
+  <node name="extend"
+	filter="signal-vector-f32-resize"
+	new-discrete-size="1"
+	initial-value="1.0"
+	relative-change="true"
+	change-front="true"/>
+  <link from="network:in" to="extend"/>
+
+
+  <node name="multiplication" 
+	filter="signal-matrix-multiplication-f32"
+	file="$(transforms)/$input(corpus-key).matrix"/>
+  <link from="extend" to="multiplication"/>
+  <link from="segment-clustering" to="multiplication:corpus-key"/>
+
+
+<!--
+  Output
+-->
+  <link from="multiplication" to="network:features"/>
+
+</network>

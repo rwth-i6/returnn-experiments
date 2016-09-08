@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="translation-x"/>
+  <param name="translation-y"/>
+  <param name="rectangle-width"/>
+  <param name="rectangle-height"/>
+
+<!-- position of the tracking -->
+  <node name="tracking"
+  	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+<!-- resize the position -->
+
+<!-- convert position to rectangle -->
+  <node name="rectangle"
+	filter="convert-rectangle-f32"/>
+  <link from="tracking:features" to="rectangle"/>
+
+<!-- shift the extracted tracking rectangles -->
+  <node name="rectangle-split"
+	filter="generic-vector-f32-split"/>
+  <link from="rectangle" to="rectangle-split"/>
+
+  <node name="position-translation-X"
+	filter="generic-vector-f32-addition"
+	value="$(translation-x)"/>
+  <node name="position-translation-Y"
+	filter="generic-vector-f32-addition"
+	value="$(translation-y)"/>
+  <link from="rectangle-split:0" to="position-translation-X"/>
+  <link from="rectangle-split:1" to="position-translation-Y"/>
+	
+  <node name="rectangle-concatenation"
+	filter="generic-vector-f32-concat"/>
+  <link from="position-translation-X" to="rectangle-concatenation:0"/>
+  <link from="position-translation-Y" to="rectangle-concatenation:1"/>
+  <link from="rectangle-split:2" to="rectangle-concatenation:2"/>
+  <link from="rectangle-split:3" to="rectangle-concatenation:3"/>
+
+<!-- resize the extracted tracking rectangles -->
+  <node name="rectangle-quantization"
+	filter="generic-vector-f32-quantize"/>
+  <link from="rectangle-concatenation" to="rectangle-quantization"/>
+	
+  <node name="rectangle-resize"
+	filter="convert-f32-rectangle"
+	width="$(rectangle-width)"
+	height="$(rectangle-height)"/>
+  <link from="rectangle-quantization" to="rectangle-resize"/>
+
+<!--
+  Output
+-->
+  <link from="rectangle-resize" to="network:features"/>
+
+</network>

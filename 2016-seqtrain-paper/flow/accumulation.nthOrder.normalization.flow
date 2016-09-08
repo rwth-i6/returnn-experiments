@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+  <out name="alignments"/>
+
+  <param name="input-audio-name"/>
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="covar-norm-matrix"/>
+
+  <param name="speaker"/>
+  <param name="id"/>
+  <param name="orthography"/>
+
+  <param name="nth-order"/>
+
+  <node name="feature-extraction-setup" filter="$(file)"
+	input-file="$(input-file)"
+	id="$(id)"
+	start-time="$(start-time)"
+	end-time="$(end-time)"
+	track="$(track)"
+    speaker="$(speaker)"/>
+  
+  <node name="nth" filter="signal-nth-order-features" order="$(nth-order)"/>
+  <link from="feature-extraction-setup:features" to="nth"/>
+
+  <node name="normalization" filter="mean-and-variance-normalization.flow"/>
+  <link from="nth" to="normalization:in"/>
+
+  <node name="alignment-cache" filter="generic-cache" id="$(id)"/>
+  
+  <link from="alignment-cache" to="network:alignments"/>
+  <link from="normalization:out" to="network:features"/>
+  <link from="feature-extraction-setup:energies" to="network:energies"/>
+
+</network>

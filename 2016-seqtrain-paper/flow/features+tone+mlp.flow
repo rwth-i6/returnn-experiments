@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="id"/>
+  <param name="input-file"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+
+<!--
+  1. level features
+-->
+  <node name="base-feature-transformation" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!--
+  2. level feature: tone feature with derivatives
+-->
+  <node name="tone-with-derivatives" 
+	filter="tone+derivatives.flow"
+	id="$(id)"/>
+
+
+<!--
+  2. level feature: MLP feature
+-->
+  <node name="mlp-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+
+<!--
+	Concatenate
+-->
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"
+	timestamp-port="features"/>
+  <link from="base-feature-transformation:features" to="concatenation:features"/>
+  <link from="tone-with-derivatives:features" to="concatenation:tone-features"/>
+  <link from="mlp-cache:features" to="concatenation:mlp-features"/>
+
+
+
+<!--
+  Output
+-->
+  <link from="concatenation" to="network:features"/>
+  <link from="base-feature-transformation:energies" to="network:energies"/>
+
+</network>

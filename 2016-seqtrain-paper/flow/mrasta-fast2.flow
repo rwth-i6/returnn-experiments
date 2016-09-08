@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	mrasta filtering (Gaussian filtering)
+	- input: base-feature-extraction (e.g. CRBE)
+	- output: mrasta features
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+  <param name="audio-format"/>
+
+<!-- MRASTA configurations -->
+  <param name="temporal-size"/>
+  <param name="temporal-right"/>
+  <param name="derivatives"/>
+  <param name="gauss-filters"/>
+
+
+<!--
+	base feature extraction (e.g. CRBE)
+-->
+  <node name="base-feature-extraction" 
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+<!--
+	MRASTA features:
+	 - Padding:
+	   - first/last => copy first/last element
+	 - apply Gaussian filter
+-->
+  <node name="window-padding"
+        filter="signal-vector-f32-sequence-concatenation"
+        max-size="$(temporal-size)"
+        right="$(temporal-right)"
+        margin-condition="present-not-empty"
+	margin-policy="copy"
+        expand-timestamp="false"/>
+  <link from="base-feature-extraction:features" to="window-padding"/>
+
+<!--
+	Gaussian filter
+-->
+  <node name="mrasta-filtering"
+  	filter="ann-mrasta-filtering"
+	context-length="$(temporal-size)"
+	derivative="$(derivatives)"
+	gauss-filter="$(gauss-filters)"
+	/>
+  <link from="window-padding" to="mrasta-filtering"/>
+
+<!--
+	Fast mopdulation mrasta features:
+	-   0-113
+	- 228-329
+-->
+  <node name="mrasta-select"
+  	filter="ann-vector-f32-select"
+	select="0-113,228-329"
+	/>
+  <link from="mrasta-filtering" to="mrasta-select"/>
+
+<!--
+	Final Output
+-->
+  <link from="mrasta-filtering" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

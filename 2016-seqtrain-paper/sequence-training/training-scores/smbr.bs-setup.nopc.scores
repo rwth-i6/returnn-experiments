@@ -1,0 +1,152 @@
+{
+1: EpochData(learningRate=0.0001, error={
+'dev_error': 0.26415120490833827,
+'dev_score': 0.775327641325262,
+'train_score': 0.6232795842640132,
+}),
+2: EpochData(learningRate=0.0001, error={
+'dev_error': 0.27173424255864381,
+'dev_score': 0.80835779023880139,
+'train_score': 0.64138153168132683,
+}),
+3: EpochData(learningRate=8e-05, error={
+'dev_error': 0.26446998817267892,
+'dev_score': 0.76095264375785532,
+'train_score': 0.65448797845362539,
+}),
+4: EpochData(learningRate=8e-05, error={
+'dev_error': 0.26750612926276368,
+'dev_score': 0.76751480242591774,
+'train_score': 0.64126581579252961,
+}),
+5: EpochData(learningRate=6.400000000000001e-05, error={
+'dev_error': 0.26467943031736646,
+'dev_score': 0.76246217296787577,
+'train_score': 0.61967902453016255,
+}),
+6: EpochData(learningRate=5.120000000000001e-05, error={
+'dev_error': 0.25649501650896905,
+'dev_score': 0.72501339903954998,
+'train_score': 0.5830145517005666,
+}),
+7: EpochData(learningRate=5.120000000000001e-05, error={
+'dev_error': 0.25664131800709639,
+'dev_score': 0.72661898020054971,
+'train_score': 0.56123833322844396,
+}),
+8: EpochData(learningRate=4.0960000000000014e-05, error={
+'dev_error': 0.25453457643406269,
+'dev_score': 0.71594140742531476,
+'train_score': 0.56154724640611864,
+}),
+9: EpochData(learningRate=4.0960000000000014e-05, error={
+'dev_error': 0.25419654297260003,
+'dev_score': 0.70293058743731596,
+'train_score': 0.55121773049219236,
+}),
+10: EpochData(learningRate=4.0960000000000014e-05, error={
+'dev_error': 0.2543898149517051,
+'dev_score': 0.70725438046356692,
+'train_score': 0.54617193127058583,
+}),
+11: EpochData(learningRate=3.2768000000000016e-05, error={
+'dev_error': 0.2527989786615415,
+'dev_score': 0.69640151170873088,
+'train_score': 0.54141104060053002,
+}),
+12: EpochData(learningRate=3.2768000000000016e-05, error={
+'dev_error': 0.25162779666863788,
+'dev_score': 0.6943894616485512,
+'train_score': 0.51281036065624452,
+}),
+13: EpochData(learningRate=2.6214400000000015e-05, error={
+'dev_error': 0.24943096417307314,
+'dev_score': 0.68380487451604099,
+'train_score': 0.50590852964505095,
+}),
+14: EpochData(learningRate=2.6214400000000015e-05, error={
+'dev_error': 0.24990682904592945,
+'dev_score': 0.68711319764925138,
+'train_score': 0.5106111717682944,
+}),
+15: EpochData(learningRate=2.0971520000000012e-05, error={
+'dev_error': 0.24836219322885866,
+'dev_score': 0.67605632572937313,
+'train_score': 0.50178987099784722,
+}),
+16: EpochData(learningRate=2.0971520000000012e-05, error={
+'dev_error': 0.24874719717129903,
+'dev_score': 0.68183160307561064,
+'train_score': 0.51824322516932353,
+}),
+17: EpochData(learningRate=1.677721600000001e-05, error={
+'dev_error': 0.24738505322294502,
+'dev_score': 0.67365203015601738,
+'train_score': 0.49451056395791387,
+}),
+18: EpochData(learningRate=1.677721600000001e-05, error={
+'dev_error': 0.2465811649911295,
+'dev_score': 0.66978218065265982,
+'train_score': 0.48497653983644351,
+}),
+19: EpochData(learningRate=1.3421772800000009e-05, error={
+'dev_error': 0.24655498472304357,
+'dev_score': 0.67028656859804892,
+'train_score': 0.48718406768815059,
+}),
+20: EpochData(learningRate=1.0737418240000008e-05, error={
+'dev_error': 0.24607141977133848,
+'dev_score': 0.66456222012506871,
+'train_score': 0.48390543938123631,
+}),
+21: EpochData(learningRate=8.589934592000007e-06, error={
+'dev_error': 0.24554011433077075,
+'dev_score': 0.66536765514030138,
+'train_score': 0.48017184556198772,
+}),
+22: EpochData(learningRate=6.871947673600007e-06, error={
+'dev_error': 0.24580422703528484,
+'dev_score': 0.6670297903350042,
+'train_score': 0.49531903876635247,
+}),
+23: EpochData(learningRate=5.4975581388800055e-06, error={
+'dev_error': 0.24537687265917604,
+'dev_score': 0.66426616619259748,
+'train_score': 0.47372872003789906,
+}),
+24: EpochData(learningRate=4.3980465111040045e-06, error={
+'dev_error': 0.24517513059333729,
+'dev_score': 0.65930385949600856,
+'train_score': 0.47330859553987037,
+}),
+25: EpochData(learningRate=3.5184372088832037e-06, error={
+'dev_error': 0.24507117952887839,
+'dev_score': 0.66047742377130236,
+'train_score': 0.47364953541591681,
+}),
+26: EpochData(learningRate=2.8147497671065632e-06, error={
+'dev_error': 0.24501188892174255,
+'dev_score': 0.66040472041543086,
+'train_score': 0.47243537685874304,
+}),
+27: EpochData(learningRate=2.2517998136852508e-06, error={
+'dev_error': 0.24489253769958605,
+'dev_score': 0.66101870089387516,
+'train_score': 0.47244511597142475,
+}),
+28: EpochData(learningRate=1.8014398509482006e-06, error={
+'dev_error': 0.24476086635127145,
+'dev_score': 0.65989925838799823,
+'train_score': 0.47256647935295454,
+}),
+29: EpochData(learningRate=1.4411518807585606e-06, error={
+'dev_error': 0.24481168687167357,
+'dev_score': 0.6608506732266165,
+'train_score': 0.47529045854064073,
+}),
+30: EpochData(learningRate=1.1529215046068486e-06, error={
+'dev_error': 0.24478165656416323,
+'dev_score': 0.66074115459721117,
+'train_score': 0.47229218663837802,
+}),
+}

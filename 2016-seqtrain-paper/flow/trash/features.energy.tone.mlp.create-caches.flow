@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <node name="samples"
+	filter="samples.flow"
+	input-file="$(input-file)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	track="$(track)"/>
+
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+  <link from="samples:out" to="base-feature-extraction:samples"/>
+
+
+
+<!--
+  Cepstral features cache
+-->
+  <node name="feature-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="base-feature-extraction:features" to="feature-cache"/>
+
+
+
+<!--
+  Energy feature cache
+-->
+  <node name="energy-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="base-feature-extraction:energies" to="energy-cache"/>
+
+  <node name="convert-energy-scalar-to-vector" 
+	filter="generic-convert-f32-to-vector-f32"/>
+  <link from="energy-cache" to="convert-energy-scalar-to-vector"/>
+
+
+
+<!--
+  Tone feature cache
+-->
+  <node name="tone-archive"
+	filter="generic-vector-f32-text-input"
+	file="$(tone-archive-dir)/$(input-audio-name).xml.gz"
+	sample-rate="16000"/>
+
+  <node name="tone-cutter" 
+	filter="generic-cutter"
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	id="$(input-audio-name)"/>
+  <link from="tone-archive" to="tone-cutter"/>
+
+  <node name="tone-normalization" 
+	filter="signal-normalization"
+	type="mean-and-variance"/>
+<!--
+	length="infinite" 
+	right="infinite" />
+-->
+  <link from="tone-cutter" to="tone-normalization"/>
+
+  <node name="tone-synchronization"
+	filter="signal-repeating-frame-prediction"/>
+<!--
+	filter="generic-synchronization"/>
+-->
+  <link from="base-feature-extraction:features" to="tone-synchronization:target"/>
+  <link from="tone-normalization" to="tone-synchronization"/>
+
+  <node name="tone-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="tone-synchronization" to="tone-cache"/>
+
+
+
+<!--
+  Mlp feature cache
+-->
+  <node name="mlp-archive"
+	filter="generic-vector-f32-text-input"
+	file="$(mlp-archive-dir)/$(input-audio-name).xml.gz"
+	sample-rate="16000"/>
+
+  <node name="mlp-cutter" 
+	filter="generic-cutter"
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	id="$(input-audio-name)"/>
+  <link from="mlp-archive" to="mlp-cutter"/>
+
+  <node name="mlp-synchronization"
+	filter="signal-repeating-frame-prediction"/>
+<!--
+	filter="generic-synchronization"/>
+-->
+  <link from="base-feature-extraction:features" to="mlp-synchronization:target"/>
+  <link from="mlp-cutter" to="mlp-synchronization"/>
+
+  <node name="mlp-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="mlp-synchronization" to="mlp-cache"/>
+
+
+
+<!--
+	Concatenate
+-->
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"
+	timestamp-port="features"/>
+  <link from="feature-cache" to="concatenation:features"/>
+  <link from="convert-energy-scalar-to-vector" to="concatenation:energy"/>
+  <link from="tone-cache" to="concatenation:tone"/>
+  <link from="mlp-cache" to="concatenation:mlp"/>
+
+
+  <link from="concatenation" to="network:features"/>
+
+
+</network>

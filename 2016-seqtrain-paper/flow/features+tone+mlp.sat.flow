@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level feature
+-->
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+<!--
+  Get 1. level features
+-->
+  <node name="unadapted"
+	filter="features+tone+mlp.flow"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!--
+  CMLLR-SAT
+-->
+  <node name="affine-transform"
+	filter="sat.cmllr.flow" 
+	id="$(id)"
+        start-time="$(start-time)" 
+	end-time="$(end-time)"
+	speaker="$(speaker)"/>
+  <link from="unadapted:features" to="affine-transform:in"/>
+
+
+<!--
+  Output
+-->
+  <link from="affine-transform:features" to="network:features"/>
+  <link from="unadapted:energies" to="network:energies"/>
+
+</network>

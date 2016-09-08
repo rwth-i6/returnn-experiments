@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<network name="segment-clustering">
+  <in name="in"/>
+  <out name="out"/>
+
+  <param name="alpha"/>
+  <param name="file"/>
+  <param name="lambda"/>
+  <param name="minalpha"/>
+  <param name="maxalpha"/>
+  <param name="id"/>
+
+  <node name="segment-clustering-node" 
+	filter="signal-segment-clustering"
+	id="$(id)"
+	alpha="$(alpha)" 
+	lambda="$(lambda)" 
+	file="$(file)"
+	minalpha="$(minalpha)" 
+	maxalpha="$(maxalpha)"/>
+  <link from="segment-clustering:in" to="segment-clustering-node"/>
+
+  <link from="segment-clustering-node" to="segment-clustering:out"/>
+
+</network>

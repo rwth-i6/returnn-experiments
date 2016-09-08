@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="transforms"/>
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!--
+  CMLLR-SAT
+-->
+  <node name="segment-clustering" 
+	filter="generic-coprus-key-map" 
+	key="$(id)"
+        start-time="$(start-time)" 
+	end-time="$(end-time)"/>
+
+
+  <node name="extend"
+	filter="signal-vector-f32-resize"
+	new-discrete-size="1"
+	initial-value="1.0"
+	relative-change="true"
+	change-front="true"/>
+  <link from="base-feature-extraction:features" to="extend"/>
+
+
+  <node name="multiplication" 
+	filter="signal-matrix-multiplication-f32"
+	file="$(transforms)/$input(corpus-key).matrix"/>
+  <link from="extend" to="multiplication"/>
+  <link from="segment-clustering" to="multiplication:corpus-key"/>
+
+  <node name="feature-normalization"
+        filter="signal-normalization"
+        type="mean-and-variance"/>
+  <link from="multiplication" to="feature-normalization"/>
+
+
+<!--
+  2. feature
+-->
+  <node name="feature-ivector"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)"
+        input-audio-name="$(input-audio-name)"
+        id="$(id)"
+        track="$(track)"
+        start-time="$(start-time)"
+        end-time="$(end-time)"
+        speaker="$(speaker)"/>
+
+  <node name="sync"
+        filter="signal-repeating-frame-prediction"/>
+
+  <node name="ivector-normalization"
+        filter="signal-normalization"
+        type="mean"/>
+        
+    <link from="base-feature-extraction:features" to="sync:target"/>
+    <link from="feature-ivector:features" to="sync"/>
+    <link from="sync" to="ivector-normalization"/>
+  
+<!--
+        aggregate
+-->
+  <node name="concatenation"
+        filter="generic-vector-f32-concat"
+        check-same-length="true"
+        timestamp-port="feature-1"/>
+  <link from="feature-normalization"    to="concatenation:feature-1"/>
+  <link from="ivector-normalization" to="concatenation:feature-2"/>
+  
+  
+<!--
+  Output
+-->
+  <link from="concatenation" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="file-extension"/>
+  
+<!-- load image -->
+ <node name="video" filter="$(video-filter)" 
+        file="$(input-file)$(file-extension)"
+        start-time="$(start-time)"/>
+
+<!-- features: handpatches -->
+  <node name="cropping" filter="image-crop"/>
+  <link from="video" to="cropping"/>
+  <node name="bluring" filter="image-blur-fast"/>
+  <link from="cropping" to="bluring"/>
+  <node name="scaling" filter="image-scale-bresenham"/>
+  <link from="bluring" to="scaling"/>
+
+<!-- features: energy (== |motion|) -->
+  <node name="energy-delay" filter="signal-delay" 
+        max-size="2"
+        right="0"
+        margin-condition="present-not-empty"/>
+  <link from="scaling" to="energy-delay"/>
+
+  <node name="energy-multiplication" filter="generic-vector-f32-multiplication"
+	value="-1"/>
+  <link from="energy-delay:-1" to="energy-multiplication"/>
+
+  <node name="energy-sum" filter="generic-vector-f32-sum"
+        timestamp-port="0"/>
+  <link from="energy-delay:0" to="energy-sum:0"/>
+  <link from="energy-multiplication" to="energy-sum:1"/>
+  
+  <node name="energy-norm" filter="generic-vector-f32-norm" value="2"/>
+  <link from="energy-sum" to="energy-norm"/>
+  
+<!-- output of the network -->
+  <link from="scaling" to="network:features"/>
+  <link from="energy-norm" to="network:energies"/>
+
+</network>

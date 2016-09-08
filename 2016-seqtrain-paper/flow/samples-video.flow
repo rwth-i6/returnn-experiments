@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<network name="samples">
+  <out name="out"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+
+  <param name="file-extension"/>
+  <param name="video-filter"/>
+
+
+  <node name="video"
+	filter="$(video-filter)"
+	file="$(input-file)$(file-extension)"
+	start-time="$(start-time)" 
+	end-time="$(end-time)"/>
+
+  <link from="video" to="samples:out"/>
+
+</network>

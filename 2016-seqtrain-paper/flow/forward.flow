@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+  <param name="id"/>
+  <param name="orthography"/>
+
+
+
+  <node name="feature-extraction-setup" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	input-file="$(input-file)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	track="$(track)"
+	speaker="$(speaker)"/>
+
+  <link from="feature-extraction-setup:features" to="nn-forward"/>
+  
+  <node name="nn-forward" filter="neural-network-forward"/>
+
+  <node name="posterior-cache" 
+	filter="generic-cache"
+        id="$(id)"/>
+
+  <link from="nn-forward" to="posterior-cache"/>
+
+
+<!--
+  Output
+-->
+  <link from="posterior-cache" to="network:features"/>
+  <link from="feature-extraction-setup:energies" to="network:energies"/>
+
+</network>

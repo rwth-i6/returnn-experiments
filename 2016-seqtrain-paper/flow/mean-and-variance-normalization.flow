@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<network name="mean-and-variance-normalization">
+  <in name="in"/>
+  <out name="out"/>
+
+  <node name="mean-normalization" filter="signal-vector-f32-sub-external"/>
+  <link from="mean-and-variance-normalization:in" to="mean-normalization"/>
+
+  <node name="variance-normalization" filter="signal-vector-f32-div-external"/>
+  <link from="mean-normalization" to="variance-normalization"/>
+  
+  <link from="variance-normalization" to="mean-and-variance-normalization:out"/>
+
+</network>

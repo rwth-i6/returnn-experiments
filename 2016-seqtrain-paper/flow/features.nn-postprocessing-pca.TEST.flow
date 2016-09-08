@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+<!--
+  Parameters for the neural network (weight multiplication)
+-->
+  <param name="post-normalisation-mean"/>
+  <param name="post-normalisation-pca"/>
+  <param name="post-normalisation-size"/>
+
+<!--
+  Neural network config: postprocessing
+   - log transformation
+   - external pca transformation (mean norm + matrix multi)
+   - dimension reduction
+-->
+  <node name="nn-feature-extraction"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+<!--
+  principal component analysis (PCA)
+   - mean normalisation
+   - pca matrix multiplication
+   - dimension selection
+-->
+  <node name="post-feature-external-normalisation-by-mean"
+        filter="signal-vector-f32-sub-external"
+	file="$(post-normalisation-mean)"
+        />
+  <link from="nn-feature-extraction:features" to="post-feature-external-normalisation-by-mean"/>
+  <node name="post-feature-principal-component-analysis"
+        filter="signal-matrix-multiplication-f32"
+	file="$(post-normalisation-pca)"
+	/>
+  <link from="post-feature-external-normalisation-by-mean" to="post-feature-principal-component-analysis"/>
+  <node name="post-feature-selection"
+        filter="ann-vector-f32-select"
+	select="0-$(post-normalisation-size)"
+        />
+  <link from="post-feature-principal-component-analysis" to="post-feature-selection"/>
+
+<!--
+  Output
+-->
+<!--  <link from="post-feature-selection" to="network:features"/> -->
+  <link from="post-feature-external-normalisation-by-mean" to="network:features"/>
+  <link from="nn-feature-extraction:energies" to="network:energies"/>
+
+</network>

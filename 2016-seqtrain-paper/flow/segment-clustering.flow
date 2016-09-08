@@ -1,0 +1,29 @@
+<network>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+  <node name="segment-clustering" 
+	filter="clustering.flow"
+	id="$(id)"/>
+  <link from="base-feature-extraction:features" to="segment-clustering:in"/>
+
+  <link from="segment-clustering:out" to="network:features"/>
+
+</network>

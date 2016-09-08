@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<network>
+  <in name="in"/>
+  <in name="corpus-key"/>
+
+  <out name="out"/>
+
+  <param name="transforms"/>
+
+<!--
+  -> see features+tone.flow for bug description
+
+  <node name="extend" 
+	filter="signal-vector-f32-resize"
+      	new-discrete-size="1" 
+	initial-value="1.0"
+	relative-change="true" 
+	change-front="true"/>
+  <link from="network:in" to="extend"/>
+-->
+
+  <node name="multiplication" 
+	filter="signal-matrix-multiplication-f32"
+	file="$(transforms)/$input(corpus-key).matrix"/>
+  <link from="network:corpus-key" to="multiplication:corpus-key"/>
+  <link from="network:in" to="multiplication"/>
+
+
+  <link from="multiplication" to="network:out"/>
+</network>

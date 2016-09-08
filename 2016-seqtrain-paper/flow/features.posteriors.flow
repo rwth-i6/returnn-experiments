@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+  <out name="posteriors"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+  <node name="aggregate" filter="generic-aggregation-vector-f32"/>
+  <link from="base-feature-extraction:features" to="aggregate"/>
+  
+<!-- Posteriors as sparse features -->
+  <node name="sparse-posteriors"
+        filter="state-posterior-feature-scorer"/>
+  <link from="aggregate" to="sparse-posteriors"/>
+  
+<!-- Sparse features -> (normal) features -->
+  <node name="sparse2normal" filter="sparse-to-dense-f32"/>
+  <link from="sparse-posteriors" to="sparse2normal"/> 
+
+<!-- output to the network -->
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+  <link from="sparse2normal" to="network:features"/>
+
+</network>

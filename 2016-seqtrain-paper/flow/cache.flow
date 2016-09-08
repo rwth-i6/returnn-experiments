@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Id: base.cache.lda.flow 5193 2005-09-06 09:48:19Z zolnay $ -->
+<network>
+  <out name="features"/>
+
+  <param name="id"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+
+  <param name="speaker"/>
+
+  <node name="base-feature-extraction-cache" filter="generic-cache" 
+	id="$(id)"/>
+
+  <link from="base-feature-extraction-cache" to="network:features"/>
+</network>

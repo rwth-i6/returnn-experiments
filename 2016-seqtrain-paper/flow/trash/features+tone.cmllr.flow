@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level feature
+-->
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+<!--
+  Get 1. level features
+-->
+  <node name="base-feature-transformation" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+<!--
+  erweiterung fuer cmllr
+-->
+  <node name="extend" filter="signal-vector-f32-resize"
+      new-discrete-size="1" initial-value="1.0"
+      relative-change="true" change-front="true"/>
+  <link from="base-feature-transformation:features" to="extend"/> 
+
+<!--
+  Tone features
+-->
+  <node name="tone-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+  <node name="tone-normalization" 
+	filter="signal-normalization"
+	length="infinite" 
+	right="infinite" 
+	type="mean-and-variance"/>
+  <link from="tone-cache" to="tone-normalization"/>
+
+  <node name="tone-synchronization"
+	filter="signal-repeating-frame-prediction"/>
+
+  <link from="extend" to="tone-synchronization:target"/>
+  <link from="tone-normalization" to="tone-synchronization"/>
+
+  <node name="tone-derivatives" 
+	filter="derivatives.regression.flow"/>
+  <link from="tone-synchronization" to="tone-derivatives:in"/>
+
+
+<!--
+  Concatenate
+-->
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"
+	timestamp-port="transformed-base-features"/>
+  <link from="extend" to="concatenation:transformed-base-features"/> 
+  <link from="tone-synchronization" to="concatenation:tone"/>
+  <link from="tone-derivatives:delta" to="concatenation:tone-delta"/>
+  <link from="tone-derivatives:deltadelta" to="concatenation:tone-deltadelta"/>
+
+<!--
+  SAT, cmllr
+-->
+  <node name="segment-clustering" filter="generic-coprus-key-map" key="$(id)"
+        start-time="$(start-time)" end-time="$(end-time)"/>
+
+  <node name="affine-transform" filter="affine-transform.flow" />
+
+  <link from="segment-clustering" to="affine-transform:corpus-key"/>
+  <link from="concatenation" to="affine-transform:in"/>
+
+<!--
+  output
+  <link from="base-feature-transformation:energies" to="network:energies"/>
+  <link from="feature-tone-idiap-cache" to="network:features"/>
+-->
+  <link from="affine-transform:out" to="network:features"/>
+  <link from="base-feature-transformation:energies" to="network:energies"/>
+
+</network>

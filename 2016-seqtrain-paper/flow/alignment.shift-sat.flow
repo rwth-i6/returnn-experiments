@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+  <out name="alignments"/>
+
+  <param name="input-file"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+  <param name="id"/>
+  <param name="orthography"/>
+
+
+<!--
+  Feature extraction
+-->
+  <node name="feature-extraction-setup"
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)"
+	input-file="$(input-file)"
+	start-time="$(start-time)"
+	end-time="$(end-time)"
+	track="$(track)"
+	speaker="$(speaker)"/>
+
+<!--
+  Alignment
+-->
+  <node name="aggregate"
+	filter="generic-aggregation-vector-f32"/>
+  <link from="feature-extraction-setup:features" to="aggregate"/>
+
+  <node name="alignment-builder"
+	filter="speech-alignment"
+        id="$(id)"
+	orthography="$(orthography)"/>
+  <link from="aggregate"			 to="alignment-builder"/>
+
+  <node name="alignment-cache"
+	filter="generic-cache"
+        id="$(id)"/>
+  <link from="alignment-builder"		 to="alignment-cache"/>
+
+
+<!--
+  Shift-SAT
+-->
+  <node name="feature-shift-adaptor" filter="speech-feature-shift-adaptor"
+	key="$(id)" />
+  <link from="feature-extraction-setup:features" to="feature-shift-adaptor:features"/>
+  <link from="alignment-cache"			 to="feature-shift-adaptor:alignment"/>
+
+
+<!--
+  Output
+-->
+  <link from="feature-extraction-setup:energies" to="network:energies"/>
+  <link from="feature-shift-adaptor"		 to="network:features"/>
+  <link from="alignment-cache"			 to="network:alignments"/>
+
+</network>

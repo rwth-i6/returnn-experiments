@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	select features Slow modulation frequencies of mrasta filtering (Gaussian filtering)
+	- input: base-feature-extraction (e.g. CRBE)
+	- output: mrasta features
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+  <param name="audio-format"/>
+
+  <param name="select-range"/>
+
+<!--
+	base feature extraction
+-->
+  <node name="base-feature-extraction"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)"
+        input-audio-name="$(input-audio-name)"
+        id="$(id)"
+        track="$(track)"
+        start-time="$(start-time)"
+        end-time="$(end-time)"
+        speaker="$(speaker)"/>
+
+<!--
+	select the features spezified by select
+-->
+  <node name="feature-selection"
+  	filter="ann-vector-f32-select"
+	select="$(select-range)"
+	/>
+  <link from="base-feature-extraction:features" to="feature-selection"/>
+
+<!--
+	final Output
+-->
+  <link from="feature-selection" to="network:features"/>
+  <link from="base-feature-extraction:energies" to="network:energies"/>
+
+</network>

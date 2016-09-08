@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <node name="samples"
+	filter="samples.flow"
+	input-file="$(input-file)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	track="$(track)"/>
+
+
+<!--
+  Sync. feature cache
+-->
+  <node name="sync-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+
+<!--
+  Feature extraction
+-->
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+  <link from="samples:out" to="base-feature-extraction:samples"/>
+
+  <node name="feature-synchronization"
+	filter="signal-repeating-frame-prediction"/>
+<!--
+	filter="generic-synchronization"/>
+-->
+  <link from="sync-cache" to="feature-synchronization:target"/>
+  <link from="base-feature-extraction:features" to="feature-synchronization"/>
+
+  <node name="feature-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="feature-synchronization" to="feature-cache"/>
+
+
+
+<!--
+  Output
+-->
+  <link from="feature-cache" to="network:features"/>
+
+
+</network>

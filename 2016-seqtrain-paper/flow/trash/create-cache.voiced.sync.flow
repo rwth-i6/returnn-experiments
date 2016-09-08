@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+
+
+<!--
+  Sync. feature cache
+-->
+  <node name="sync-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+
+<!--
+  Tone feature cache
+-->
+  <node name="tone-archive"
+	filter="generic-vector-f32-text-input"
+	file="$(tone-archive-dir)/$(input-audio-name).xml.gz"
+	sample-rate="16000"/>
+
+  <node name="tone-cutter" 
+	filter="generic-cutter"
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	id="$(input-audio-name)"/>
+  <link from="tone-archive" to="tone-cutter"/>
+
+  <node name="tone-normalization" 
+	filter="signal-normalization"
+	type="mean-and-variance"/>
+<!--
+	length="infinite" 
+	right="infinite" />
+-->
+  <link from="tone-cutter" to="tone-normalization"/>
+
+  <node name="tone-synchronization"
+	filter="signal-repeating-frame-prediction"/>
+<!--
+	filter="generic-synchronization"/>
+-->
+  <link from="sync-cache" to="tone-synchronization:target"/>
+  <link from="tone-normalization" to="tone-synchronization"/>
+
+  <node name="tone-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+  <link from="tone-synchronization" to="tone-cache"/>
+
+
+
+<!--
+	Concatenate
+-->
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"
+	timestamp-port="sync"/>
+  <link from="sync-cache" to="concatenation:sync"/>
+  <link from="tone-cache" to="concatenation:tone"/>
+
+
+  <link from="concatenation" to="network:features"/>
+
+
+</network>

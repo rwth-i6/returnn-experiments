@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+<!--
+  Parameters for the neural network (weight multiplication)
+-->
+  <param name="layer1-weights"/>
+  <param name="layer2-weights"/>
+  <param name="layer3-weights"/>
+  <param name="layer4-weights"/>
+  <param name="activation"/>
+
+
+<!--
+  Neural network config: layer 0 (= input layer)
+   - RAW input features for the neural network
+     - normalisation: Mean
+     - normalisation: Variance
+     - window
+-->
+  <node name="layer0-feature-extraction"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+<!--
+  Neural network config: layer 1
+   - resize input feature for bias
+   - multiply [bias, input features] and weight matrix
+   - apply activation function
+-->
+  <node name="layer1-bias-extend"
+        filter="signal-vector-f32-resize"
+        new-discrete-size="1"
+        initial-value="1.0"
+        relative-change="true"
+        change-front="true"/>
+  <link from="layer0-feature-extraction:features" to="layer1-bias-extend"/>
+
+  <node name="layer1-weight-multiplication"
+        filter="signal-matrix-multiplication-f32"
+        file="$(layer1-weights)"/>
+  <link from="layer1-bias-extend" to="layer1-weight-multiplication"/>
+
+  <node name="layer1-activation"
+        filter="generic-vector-f32-sigmoid"/>
+  <link from="layer1-weight-multiplication" to="layer1-activation"/>
+
+<!--
+  Neural network config: layer 2
+   - resize input feature for bias
+   - multiply [bias, input features] and weight matrix
+   - apply activation function
+-->
+  <node name="layer2-bias-extend"
+        filter="signal-vector-f32-resize"
+        new-discrete-size="1"
+        initial-value="1.0"
+        relative-change="true"
+        change-front="true"/>
+  <link from="layer1-activation" to="layer2-bias-extend"/>
+
+  <node name="layer2-weight-multiplication"
+        filter="signal-matrix-multiplication-f32"
+        file="$(layer2-weights)"/>
+  <link from="layer2-bias-extend" to="layer2-weight-multiplication"/>
+
+  <node name="layer2-activation"
+        filter="generic-vector-f32-sigmoid"/>
+  <link from="layer2-weight-multiplication" to="layer2-activation"/>
+
+<!--
+  Neural network config: layer 3
+   - resize input feature for bias
+   - multiply [bias, input features] and weight matrix
+   - apply activation function
+-->
+  <node name="layer3-bias-extend"
+        filter="signal-vector-f32-resize"
+        new-discrete-size="1"
+        initial-value="1.0"
+        relative-change="true"
+        change-front="true"/>
+  <link from="layer2-activation" to="layer3-bias-extend"/>
+
+  <node name="layer3-weight-multiplication"
+        filter="signal-matrix-multiplication-f32"
+        file="$(layer3-weights)"/>
+  <link from="layer3-bias-extend" to="layer3-weight-multiplication"/>
+
+  <node name="layer3-activation"
+        filter="generic-vector-f32-sigmoid"/>
+  <link from="layer3-weight-multiplication" to="layer3-activation"/>
+
+<!--
+  Neural network config: layer 4
+   - resize input feature for bias
+   - multiply [bias, input features] and weight matrix
+   - apply activation function
+-->
+  <node name="layer4-bias-extend"
+        filter="signal-vector-f32-resize"
+        new-discrete-size="1"
+        initial-value="1.0"
+        relative-change="true"
+        change-front="true"/>
+  <link from="layer3-activation" to="layer4-bias-extend"/>
+
+  <node name="layer4-weight-multiplication"
+        filter="signal-matrix-multiplication-f32"
+        file="$(layer4-weights)"/>
+  <link from="layer4-bias-extend" to="layer4-weight-multiplication"/>
+
+  <node name="layer4-activation"
+        filter="generic-vector-f32-$(activation)"/>
+  <link from="layer4-weight-multiplication" to="layer2-activation"/>
+
+<!--
+  Output
+-->
+  <link from="layer4-activation" to="network:features"/>
+  <link from="layer0-feature-extraction:energies" to="network:energies"/>
+
+</network>

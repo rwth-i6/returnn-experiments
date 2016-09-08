@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level features : transformed base features
+-->
+
+
+<network>
+  <out name="energies"/>
+  <out name="features"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="pre-dir"/>
+
+  <node name="base-feature-extraction" 
+	filter="$(file)"
+	ignore-unknown-parameters="true"
+	input-file="$(input-file)" 
+	input-audio-name="$(input-audio-name)" 
+	id="$(id)" 
+	track="$(track)" 
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	speaker="$(speaker)"/>
+
+
+<!-- LDA window concatenation -->
+  <node name="lda-window"
+	filter="signal-vector-f32-sequence-concatenation"
+	margin-condition="present-not-empty" 
+	expand-timestamp="false"
+	max-size="5"
+	right="2"/>
+  <link from="base-feature-extraction:features" to="lda-window"/>
+
+
+<!--	Zentrum + Ableitungen für alle anderen (fenstergröße ist fest: 5) -->
+<!--	current frame x 2	-->
+  <node name="base-feature-sum"
+        filter="generic-vector-f32-sum"/>
+  <link from="base-feature-extraction:features" to="base-feature-sum:base-1"/>
+  <link from="base-feature-extraction:features" to="base-feature-sum:base-2"/>
+<!--	extended baseline features	-->
+  <node name="feature-expand-concatenation"
+        filter="generic-vector-f32-concat"
+        check-same-length="true"
+        timestamp-port="base-0"/>
+  <link from="base-feature-extraction:features" to="feature-expand-concatenation:base-2"/>
+  <link from="base-feature-extraction:features" to="feature-expand-concatenation:base-1"/>
+  <link from="base-feature-sum:output" to="feature-expand-concatenation:base-0"/>
+  <link from="base-feature-extraction:features" to="feature-expand-concatenation:base+1"/>
+  <link from="base-feature-extraction:features" to="feature-expand-concatenation:base+2"/>
+<!--	negate lda-values	-->
+  <node name="window-negative"
+  	filter="generic-vector-f32-multiplication"
+	value="-1"/>
+  <link from="lda-window" to="window-negative"/>
+<!--	substract all vector for derivatives -->
+  <node name="mean-substraction"
+  	filter="generic-vector-f32-sum"/>
+  <link from="feature-expand-concatenation" to="mean-substraction:base-1"/>
+  <link from="window-negative" to="mean-substraction:base-2"/>
+
+<!-- output -->
+  <link from="base-feature-extraction:energies"	to="network:energies"/>
+  <link from="mean-substraction"		to="network:features"/>
+
+</network>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	CRitical Band Energies (CRBE)
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+  <param name="audio-format"/>
+
+
+<!--
+	Get the input signal from file (samples)
+-->
+ <node name="audio"
+        filter="audio-input-file-wav"
+        file="$(input-file)"
+        start-time="$(start-time)" 
+        end-time="$(end-time)"/>
+  <node name="demultiplex" 
+        filter="generic-vector-s16-demultiplex" 
+        track="$(track)"/>
+  <link from="audio" to="demultiplex"/>
+  <node name="samples" 
+        filter="generic-convert-vector-s16-to-vector-f32"/>
+  <link from="demultiplex" to="samples"/>
+
+
+<!--
+	Create the power spectrum (windowed by hamming)
+-->
+  <node name="window" 
+	filter="signal-window" 
+	type="hamming" 
+	shift=".01" 
+	length="0.02555"/>
+  <link from="samples" to="window"/>
+  <node name="fast-fourier-transform" 
+	filter="signal-real-fast-fourier-transform"
+	maximum-input-size="0.02555"/>
+  <link from="window" to="fast-fourier-transform"/>
+  <node name="amplitude-spectrum" 
+	filter="signal-vector-alternating-complex-f32-amplitude"/>
+  <link from="fast-fourier-transform" to="amplitude-spectrum"/>
+<!--
+	End common part of Energy and CRBE
+-->
+
+<!--
+	CRBE - only
+	
+	Eleminate the normalisation of the power spectrum
+	(no normalisation in "SprachCore")
+	Normalisation is done by sampling rate (here: 16000),
+	so multiplication with sampling rate.
+-->
+  <node name="undo-estimate-continuous"
+	filter="generic-vector-f32-multiplication"
+	value="16000"/>
+  <link from="amplitude-spectrum" to="undo-estimate-continuous"/>
+
+<!--
+	Get the squared power spectrum and add noise
+	(noise: instead of add random value just add length of vector,
+	see Sprachcore for details)
+-->
+  <node name="power-spectrum" 
+	filter="generic-vector-f32-power"
+	value="2"/>
+  <link from="undo-estimate-continuous" to="power-spectrum"/>
+  <node name="noise-spectrum"
+	filter="generic-vector-f32-addition"
+	value="409"/>
+  <link from="power-spectrum" to="noise-spectrum"/>
+
+<!-- 
+	Apply a bark trapeze filterbank (19 filters) to the values.
+	8000 Hz -> 19.708905 Bark; #filters 19 -> spacing = 0.985445321
+	modifications (setStart()/ setEnd()) to the normal trapeze filter,
+	to match with SprachCore software
+-->
+  <node name="filterbank"
+	filter="signal-filterbank"
+	type="trapezeRasta"
+	filter-width="3.8"
+	spacing="0.985445321"
+	boundary="include-boundary"
+	warping-function="bark"
+	warp-differential-unit="false"/>
+  <link from="noise-spectrum" to="filterbank"/>
+
+<!--
+	Equal-loudness-curve compensation
+	40dB compensation like Sprachcore
+	cube root compression at the end
+	(hint: extending of vector to match correct frequency)
+-->
+  <node name="equal-loudness-extend"
+	filter="signal-vector-f32-resize"
+	new-discrete-size="1"
+	initial-value="0.0"
+	relative-change="true"
+	change-front="true"/>
+  <node name="equal-loudness-preemphasis" 
+	filter="signal-vector-f32-continuous-transform"
+	f="nest(nest(disc-to-cont, invert(bark)), equal-loudness-40dB)"
+	operation="multiplies"/>
+  <node name="equal-loudness-trim"
+	filter="signal-vector-f32-resize"
+	new-discrete-size="-1"
+	initial-value="0.0"
+	relative-change="true"
+	change-front="true"/>
+  <node name="intensity-loudness-law" 
+	filter="generic-vector-f32-power"
+	value="0.33"/>
+  <link from="filterbank" to="equal-loudness-extend"/>
+  <link from="equal-loudness-extend" to="equal-loudness-preemphasis"/>
+  <link from="equal-loudness-preemphasis" to="equal-loudness-trim"/>
+  <link from="equal-loudness-trim" to="intensity-loudness-law"/>
+
+
+<!--
+	Copy first and last element for autocorrelation estimation
+-->
+  <node name="split-filterbank" 
+	filter="generic-vector-f32-split"/>
+  <node name="reverse-split-filterbank" 
+	filter="generic-vector-f32-split"
+	reverse="true"/>
+  <node name="copy-first-last-filterbank" 
+	filter="generic-vector-f32-concat"/>
+  <link from="intensity-loudness-law" to="split-filterbank"/>
+  <link from="intensity-loudness-law" to="reverse-split-filterbank"/>
+  <link from="split-filterbank:0" to="copy-first-last-filterbank:first"/>
+  <link from="intensity-loudness-law" to="copy-first-last-filterbank:middle"/>
+  <link from="reverse-split-filterbank:0" to="copy-first-last-filterbank:last"/>
+
+<!--
+	Autocorrelation and autoregression estimation => LPCs
+	autoregression values are normalized by gain
+	(Sprachcore: spec2lpc)
+-->
+  <node name="autocorrelation" 
+	filter="signal-cosine-transform"
+	nr-outputs="13" 
+	input-type="N-plus-one"
+	normalize="true"/>
+  <link from="copy-first-last-filterbank" to="autocorrelation"/>
+
+  <node name="autoregression"
+	filter="signal-autocorrelation-to-autoregression"/>
+  <link from="autocorrelation" to="autoregression"/>
+
+<!--
+	Mapping the LPCs back to time domain
+	autoregression values are normalized by gain
+	(Sprachcore: lpc2spec)
+-->
+  <node name="critical-band-energies"
+	filter="ann-autoregression-to-spectrum"
+	nr-outputs="19"
+	slim="true"/>
+  <link from="autoregression" to="critical-band-energies"/>
+
+<!--
+	logarithm transformation
+-->
+  <node name="nonlinear-crbe"
+	filter="generic-vector-f32-ln"/>
+  <link from="critical-band-energies" to="nonlinear-crbe"/>
+
+
+  <node name="crbe-normalization" 
+	filter="signal-normalization"
+	type="mean-and-variance"/>
+<!--
+	length="infinite" 
+	right="infinite"/>
+-->
+  <link from="nonlinear-crbe" to="crbe-normalization"/>
+
+<!-- 
+	Energy (only)
+-->
+  <node name="energy"
+	filter="generic-vector-f32-norm"
+	value="1"/>
+  <link from="amplitude-spectrum" to="energy"/>
+
+  <node name="convert-energy-to-vector"
+	filter="generic-convert-f32-to-vector-f32"/>
+  <link from="energy" to="convert-energy-to-vector"/>
+
+  <node name="energy-normalization" 
+	filter="signal-normalization"
+	type="divide-by-mean"/>
+<!--
+	length="infinite" 
+	right="infinite"/>
+-->
+  <link from="convert-energy-to-vector" to="energy-normalization"/>
+
+
+  <node name="convert-energy-vector-to-scalar" 
+	filter="generic-convert-vector-f32-to-f32"/>
+  <link from="energy-normalization" to="convert-energy-vector-to-scalar"/>
+
+
+  <node name="energy-synchronization"
+	filter="generic-synchronization"/>
+<!--  <link from="autocorrelation" to="energy-synchronization:target"/> -->
+  <link from="samples:out" to="energy-synchronization:target"/>
+  <link from="convert-energy-vector-to-scalar" to="energy-synchronization"/>
+
+
+
+<!--
+  Final Output
+-->
+  <link from="crbe-normalization" to="network:features"/>
+  <link from="energy-synchronization" to="network:energies"/>
+
+</network>

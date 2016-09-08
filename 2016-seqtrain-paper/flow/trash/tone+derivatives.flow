@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  2. level feature: tone feature with derivatives
+-->
+
+<network>
+  <param name="id"/>
+
+  <out name="features"/>
+
+
+<!--
+  Tone feature
+-->
+  <node name="tone-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+  <node name="tone-derivatives" 
+	filter="derivatives.regression.flow"/>
+  <link from="tone-cache" to="tone-derivatives:in"/>
+
+
+<!--
+  Concatenate
+-->
+  <node name="concatenation" 
+	filter="generic-vector-f32-concat"
+	check-same-length="true"/>
+  <link from="tone-cache" to="concatenation:tone"/>
+  <link from="tone-derivatives:delta" to="concatenation:tone-delta"/>
+  <link from="tone-derivatives:deltadelta" to="concatenation:tone-deltadelta"/>
+
+
+  <link from="concatenation" to="network:features"/>
+
+</network>

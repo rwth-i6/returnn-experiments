@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level features
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="track"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="speaker"/>
+
+  <param name="audio-format"/>
+
+<!--
+  [*.feature-extraction]
+# voicedness feature
+  voicedness-window-size		= 0.04
+-->
+  <param name="voicedness-window-size"/>
+
+
+<!--
+  Signal
+	input-file="$(input-file)$(audio-format)"
+-->
+  <node name="samples"
+	filter="samples.flow"
+	input-file="$(input-file)"
+	start-time="$(start-time)" 
+	end-time="$(end-time)" 
+	track="$(track)"/>
+
+
+<!--
+  Voiced feature
+-->
+
+  <node name="voicedness-window" 
+	filter="signal-window" 
+	type="rectangular" 
+	shift=".010" 
+	length="$(voicedness-window-size)"/>
+  <link from="samples:out" to="voicedness-window"/>
+
+
+  <node name="voicedness-padded-window" 
+	filter="signal-vector-f32-resize" 
+	new-size="$(voicedness-window-size)"/>
+  <link from="voicedness-window" to="voicedness-padded-window"/>
+
+
+  <node name="voicedness-autocorrelation" 
+	filter="signal-cross-correlation"
+	begin="0" 
+	end="$(voicedness-window-size)" 
+	normalization="unbiased-estimate" 
+	similarity-function="multiplication" 
+	use-fft="true"/>
+  <link from="voicedness-padded-window" to="voicedness-autocorrelation:x"/>
+  <link from="voicedness-padded-window" to="voicedness-autocorrelation:y"/>
+
+
+  <node name="voicedness-peak-detection" 
+	filter="signal-peak-detection"
+	min-position=".0025" 
+	max-position=".0167"/>
+  <link from="voicedness-autocorrelation" to="voicedness-peak-detection"/>
+
+
+  <node name="voicedness-convert-to-vector" 
+	filter="generic-convert-f32-to-vector-f32"/>
+  <link from="voicedness-peak-detection:maximal-peak-value" to="voicedness-convert-to-vector"/>
+
+
+<!--
+  Energy cache
+-->
+  <node name="energy-cache"
+	filter="generic-cache"
+	id="$(id)"/>
+
+
+<!--
+  Output
+-->
+  <link from="voicedness-convert-to-vector" to="network:features"/>
+  <link from="energy-cache" to="network:energies"/>
+
+</network>

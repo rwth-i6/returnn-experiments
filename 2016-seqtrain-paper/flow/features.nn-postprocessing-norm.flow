@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  0. level feature
+-->
+
+<network>
+  <out name="features"/>
+  <out name="energies"/>
+
+  <param name="input-file"/>
+  <param name="input-audio-name"/>
+  <param name="id"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="track"/>
+  <param name="speaker"/>
+
+  <param name="post-feature-normalisation-mean"/>
+  <param name="post-feature-normalisation-variance"/>
+
+<!--
+  Neural network config: postprocessing
+   - log transformation
+   - external pca transformation (mean norm + matrix multi)
+   - dimension reduction
+-->
+  <node name="nn-feature-extraction"
+        filter="$(file)"
+        ignore-unknown-parameters="true"
+        input-file="$(input-file)" 
+        input-audio-name="$(input-audio-name)" 
+        id="$(id)" 
+        track="$(track)" 
+        start-time="$(start-time)" 
+        end-time="$(end-time)" 
+        speaker="$(speaker)"/>
+
+<!--
+  Neural network config: layer 1
+   - resize input feature for bias
+   - multiply [bias, input features] and weight matrix
+   - apply activation function
+-->
+  <node name="postNN-feature-external-normalisation-by-mean"
+        filter="signal-vector-f32-sub-external"
+        file="$(post-feature-normalisation-mean)"
+        />
+  <link from="nn-feature-extraction:features" to="postNN-feature-external-normalisation-by-mean"/>
+  <node name="postNN-feature-external-normalisation-by-variance"
+        filter="signal-vector-f32-mul-external"
+        file="$(post-feature-normalisation-variance)"
+        />
+  <link from="postNN-feature-external-normalisation-by-mean" to="postNN-feature-external-normalisation-by-variance"/>
+
+<!--
+  Output
+-->
+  <link from="postNN-feature-external-normalisation-by-variance" to="network:features"/>
+  <link from="nn-feature-extraction:energies" to="network:energies"/>
+
+</network>
