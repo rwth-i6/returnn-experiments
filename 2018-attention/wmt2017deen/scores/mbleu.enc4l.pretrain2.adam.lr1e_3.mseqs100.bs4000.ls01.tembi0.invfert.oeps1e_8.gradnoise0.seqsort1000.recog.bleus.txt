@@ -1,0 +1,15 @@
+epoch  80: 29.9
+epoch 100: 30.4
+epoch 106: 30.3
+epoch 112: 30.4
+epoch 115: 30.6
+epoch 125: 29.0
+epoch 135: 29.5
+epoch 160: 30.4
+epoch 191: 31.0
+epoch 195: 31.0
+epoch 196: 31.0
+epoch 197: 31.1
+epoch 198: 31.0
+epoch 199: 31.0
+epoch 200: 31.1

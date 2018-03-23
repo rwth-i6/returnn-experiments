@@ -1,0 +1,6 @@
+epoch  80: 29.5
+epoch 140: 30.3
+epoch 149: 30.2
+epoch 150: 30.2
+epoch 160: 30.2
+epoch 200: 30.1
