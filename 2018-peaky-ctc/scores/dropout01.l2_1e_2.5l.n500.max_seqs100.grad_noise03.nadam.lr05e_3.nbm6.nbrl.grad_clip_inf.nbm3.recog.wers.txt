@@ -1,0 +1,6 @@
+epoch  20: 17.0
+epoch  40: 15.5
+epoch  53: 15.1
+epoch  65: 15.1
+epoch  77: 15.0
+epoch  80: 15.1
