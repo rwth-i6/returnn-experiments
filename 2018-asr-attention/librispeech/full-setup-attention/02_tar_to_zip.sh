@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ev
+set -ex
 
 # Convert tar.gz files to zip files.
 # This is what we use in RETURNN dataset, because
@@ -15,7 +15,6 @@ echo "zip dir: $zipdir"
 echo "TMPDIR = $TMPDIR"
 
 function tar_to_zip() {
-  set -ev
   name="$1"
   tarf="$tardir/$name.tar.gz"
   zipf="$name.zip"

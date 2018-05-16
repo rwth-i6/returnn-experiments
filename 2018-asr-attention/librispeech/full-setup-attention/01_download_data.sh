@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ev
+set -ex
 
 test -d data || mkdir data
 cd data
