@@ -1,0 +1,5 @@
+better_exchook
+numpy
+h5py
+tensorflow-gpu
+theano==0.9
