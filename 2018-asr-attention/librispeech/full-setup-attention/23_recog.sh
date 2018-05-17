@@ -2,6 +2,9 @@
 
 set -exv
 
-# TODO: Better way to select some epochs, based on dev scores...
+epochs=$(./tools/recommend-recog-epochs.py)
 
-./tools/search.py returnn 100
+for epoch in $epochs; do
+  echo "recog of epoch $epoch"
+  ./tools/search.py returnn $epoch
+done
