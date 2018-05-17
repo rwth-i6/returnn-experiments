@@ -2,14 +2,17 @@
 
 set -exv
 
-test -e data/exp-returnn/train-scores.data
+experiment=returnn
+test -e data/exp-$experiment  # experiment existing?
+test -e data/exp-$experiment/train-scores.data  # some epochs trained?
 
-epochs=$(./tools/recommend-recog-epochs.py)
+epochs=$(./tools/recommend-recog-epochs.py --experiment $experiment)
+extra_args="-- ++batch_size 2000"  # such that it fits on your GPU
 
 for epoch in $epochs; do
   echo "recog of epoch $epoch"
-  ./tools/search.py returnn $epoch --data dev-clean
-  ./tools/search.py returnn $epoch --data dev-other
-  ./tools/search.py returnn $epoch --data test-clean
-  ./tools/search.py returnn $epoch --data test-other
+  ./tools/search.py $experiment $epoch --data dev-clean $extra_args
+  ./tools/search.py $experiment $epoch --data dev-other $extra_args
+  ./tools/search.py $experiment $epoch --data test-clean $extra_args
+  ./tools/search.py $experiment $epoch --data test-other $extra_args
 done
