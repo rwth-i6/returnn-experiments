@@ -10,6 +10,7 @@ import re
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("--experiment", default="returnn")
+argparser.add_argument("--beam_size", default=12, type=int)
 args = argparser.parse_args()
 exp_dir = "data/exp-%s" % args.experiment
 assert os.path.exists(exp_dir)
@@ -17,8 +18,10 @@ assert os.path.exists(exp_dir)
 datasets = ["dev-clean", "dev-other", "test-clean", "test-other"]
 dev_dataset = "dev-other"
 # Files via tools/search.py script.
-files = glob("%s/search.%s.*.recog.scoring.wer" % (exp_dir, dev_dataset))
+files = glob("%s/search.%s.*.beam%i.recog.scoring.wer" % (exp_dir, dev_dataset, args.beam_size))
 assert files, "no recog done yet?"
+print("Experiment %r: Found %i recogs with beam size %i." % (args.experiment, len(files), args.beam_size))
+print()
 files_and_scores = [(float(open(fn).read()), fn) for fn in files]
 
 for i, (score, fn) in enumerate(sorted(files_and_scores)[:2]):
