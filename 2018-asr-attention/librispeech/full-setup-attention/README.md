@@ -7,7 +7,7 @@ The raw dataset files will be downloaded to `data/dataset-raw` (about 58GB). Thi
 All the prepared dataset files will be in `data/dataset` (about 60GB).
 
 Note that the dataset should be on a fast file system. NFS will make the training much slower!
-(At our chair, we use NFS together with the CacheManager software.
+(At our chair, we use NFS together with the [CacheManager software](https://www-i6.informatik.rwth-aachen.de/~rybach/cache-manager.php).
  RETURNN has the option `use_cache_manager` in the `LibriSpeechCorpus` to use that.)
 
 The RETURNN training/model config `returnn.config` is based on `../attention/exp3.ctc.config`
