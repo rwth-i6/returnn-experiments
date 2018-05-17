@@ -18,3 +18,6 @@ The RETURNN training/model config `returnn.config` is based on `../attention/exp
 and adapted for the data pathes here.
 See `../attention/scores` for reference what train/dev scores to expect,
 and also what recognition word-error-rate (WER) to expect.
+
+Training takes 37 min / epoch on average with a GTX 1080 Ti in our environment.
+We train for 250 epochs. One epoch corresponds to 1/20 of the whole training data, thus the training sees the data over 12 times.
