@@ -1,5 +1,5 @@
 This is a complete setup pipeline to end up with an encoder-attention-decoder system
-on [LibriSpeech 1000h](http://www.openslr.org/12/)
+on the speech recognition task [LibriSpeech 1000h](http://www.openslr.org/12/)
 using [RETURNN](https://github.com/rwth-i6/returnn),
 as it is described in our paper [Improved training of end-to-end attention models for speech recognition](https://arxiv.org/abs/1805.03294),
 which yields very competitive results;
