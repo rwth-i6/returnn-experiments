@@ -1,6 +1,6 @@
 This is a complete setup pipeline to end up with an encoder-attention-decoder system on LibriSpeech 1000h,
-as it is described in our paper Improved training of end-to-end attention models for speech recognition.
-It also includes the dataset preparation.
+as it is described in our paper [Improved training of end-to-end attention models for speech recognition](https://arxiv.org/abs/1805.03294).
+It also includes the dataset download and preparation.
 
 All the data will be created in a `data` subdirectory.
 The raw dataset files will be downloaded to `data/dataset-raw` (about 58GB). This can be deleted once the dataset preparation is finished.
