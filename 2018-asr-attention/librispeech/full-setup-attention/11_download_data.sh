@@ -2,7 +2,6 @@
 
 set -ex
 
-test -d data || mkdir data
 cd data
 test -d dataset-raw || mkdir dataset-raw
 cd dataset-raw
