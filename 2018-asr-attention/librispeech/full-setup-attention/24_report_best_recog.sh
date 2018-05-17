@@ -4,5 +4,4 @@ set -exv
 
 # select recog based on best dev-other
 
-# TODO...
-
+./tools/report-best-recog.py
