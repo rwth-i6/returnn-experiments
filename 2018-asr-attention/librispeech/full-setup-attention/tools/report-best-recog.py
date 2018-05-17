@@ -6,11 +6,13 @@ better_exchook.install()
 import argparse
 from glob import glob
 import os
+import sys
 import re
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("--experiment", default="returnn")
 argparser.add_argument("--beam_size", default=12, type=int)
+argparser.add_argument("--print_epoch_only", action="store_true")
 args = argparser.parse_args()
 exp_dir = "data/exp-%s" % args.experiment
 assert os.path.exists(exp_dir)
@@ -20,9 +22,17 @@ dev_dataset = "dev-other"
 # Files via tools/search.py script.
 files = glob("%s/search.%s.*.beam%i.recog.scoring.wer" % (exp_dir, dev_dataset, args.beam_size))
 assert files, "no recog done yet?"
+files_and_scores = [(float(open(fn).read()), fn) for fn in files]
+
+if args.print_epoch_only:
+  fn = sorted(files_and_scores)[0][1]
+  m1 = re.match(".*/search\\.%s\\.ep([0-9]+)\\.beam.*" % dev_dataset, fn)
+  epoch = int(m1.group(1))
+  print(epoch)
+  sys.exit()
+
 print("Experiment %r: Found %i recogs with beam size %i." % (args.experiment, len(files), args.beam_size))
 print()
-files_and_scores = [(float(open(fn).read()), fn) for fn in files]
 
 for i, (score, fn) in enumerate(sorted(files_and_scores)[:2]):
   print("%i.-best recog by dataset %s, %s%% WER:" % (i + 1, dev_dataset, score))
