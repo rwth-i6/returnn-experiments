@@ -21,3 +21,9 @@ and also what recognition word-error-rate (WER) to expect.
 
 Training takes 37 min / epoch on average with a GTX 1080 Ti in our environment.
 We train for 250 epochs. One epoch corresponds to 1/20 of the whole training data, thus the training sees the data over 12 times.
+
+The recognition will automatically select a few interesting epochs (via cross validation scores).
+Then it will select the best model by the best WER from the dev-other dataset.
+
+You can also run an interactive demo with that final best model.
+
