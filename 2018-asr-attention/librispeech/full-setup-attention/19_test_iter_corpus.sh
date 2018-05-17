@@ -9,6 +9,6 @@ set -exv
 # 209/281241, 3:05:31 [ 0.07% ]
 
 ./returnn/tools/dump-dataset.py \
-  "{'class':'LibriSpeechCorpus', 'bpe':{'bpe_file':'data/dataset/trans.bpe.codes', 'vocab_file':'data/dataset/trans.bpe.vocab'}, 'path':'data/dataset', 'audio':{}, 'prefix': 'train', 'use_zip': True}" \
+  "{'class':'LibriSpeechCorpus', 'bpe':{'bpe_file':'data/dataset/trans.bpe.codes', 'vocab_file':'data/dataset/trans.bpe.vocab'}, 'path':'data/dataset', 'audio':{'norm_mean':'data/dataset/stats.mean.txt', 'norm_std_dev':'data/dataset/stats.std_dev.txt'}, 'prefix': 'train', 'use_zip': True}" \
   --endseq -1 --type null
 

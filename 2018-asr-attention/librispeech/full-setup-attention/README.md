@@ -9,3 +9,8 @@ All the prepared dataset files will be in `data/dataset` (about 60GB).
 Note that the dataset should be on a fast file system. NFS will make the training much slower!
 (At our chair, we use NFS together with the CacheManager software.
  RETURNN has the option `use_cache_manager` in the `LibriSpeechCorpus` to use that.)
+
+The RETURNN training/model config `returnn.config` is based on `../attention/exp3.ctc.config`
+and adapted for the data pathes here.
+See `../attention/scores` for reference what train/dev scores to expect,
+and also what recognition word-error-rate (WER) to expect.
