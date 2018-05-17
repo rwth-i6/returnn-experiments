@@ -60,6 +60,12 @@ recog_words_file = "%s.words" % recog_prefix
 recog_wer_file = "%s.scoring.wer" % recog_prefix
 
 
+if os.path.exists(recog_wer_file):
+    print("Final recog WER file already exists:", recog_wer_file)
+    print("Exiting now. Please delete that file to rerun.")
+    sys.exit()
+
+
 def check_recog_bpe_file():
     with open(recog_bpe_file, "w") as f:
         f.close()
