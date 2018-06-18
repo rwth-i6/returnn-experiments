@@ -4,7 +4,9 @@ using [RETURNN](https://github.com/rwth-i6/returnn),
 as it is described in our paper [Improved training of end-to-end attention models for speech recognition](https://arxiv.org/abs/1805.03294),
 which yields very competitive results;
 when used together with a LSTM language model, this is currently state-of-the-art.
-It also includes the dataset download and preparation.
+See also ["WER are we"](https://github.com/syhw/wer_are_we) for a comparison.
+
+This setup also includes the dataset download and preparation.
 
 All the data will be created in a `data` subdirectory.
 The raw dataset files will be downloaded to `data/dataset-raw` (about 58GB). This can be deleted once the dataset preparation is finished.
@@ -21,6 +23,7 @@ and also what recognition word-error-rate (WER) to expect.
 
 Training takes 37 min / epoch on average with a GTX 1080 Ti in our environment.
 We train for 250 epochs. One epoch corresponds to 1/20 of the whole training data, thus the training sees the data over 12 times.
+Note that the training is not deterministic, so there will be some slight variance in the results.
 
 The recognition will automatically select a few interesting epochs (via cross validation scores).
 Then it will select the best model by the best WER from the dev-other dataset.
