@@ -1,0 +1,11 @@
+epoch  34: 33.7
+epoch  42: 30.4
+epoch  46: 29.4
+epoch  50: 27.1
+epoch  83: 23.3
+epoch  84: 23.1
+epoch  85: 23.1
+epoch  95: 23.0
+epoch 103: 22.7
+epoch 107: 22.9
+epoch 108: 22.9

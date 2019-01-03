@@ -1,0 +1,5 @@
+epoch  25: 36.8
+epoch 111: 27.9
+epoch 115: 27.8
+epoch 123: 27.8
+epoch 126: 27.9

@@ -1,0 +1,5 @@
+epoch  30: 28.0
+epoch  64: 20.7
+epoch  70: 20.3
+epoch  80: 20.0
+epoch 123: 20.4

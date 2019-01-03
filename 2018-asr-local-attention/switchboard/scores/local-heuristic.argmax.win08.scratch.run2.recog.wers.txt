@@ -1,0 +1,8 @@
+epoch  40: 37.4
+epoch  80: 26.9
+epoch  86: 26.7
+epoch 103: 26.3
+epoch 111: 26.2
+epoch 123: 26.2
+epoch 124: 26.2
+epoch 127: 26.2
