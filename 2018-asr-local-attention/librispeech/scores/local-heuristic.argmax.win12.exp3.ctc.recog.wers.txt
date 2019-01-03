@@ -1,0 +1,17 @@
+epoch 250: 16.53
+epoch 251: 16.28
+epoch 252: 16.21
+epoch 253: 16.31
+epoch 254: 17.42
+epoch 255: 18.34
+epoch 257: 17.05
+epoch 258: 16.89
+epoch 259: 15.96
+epoch 261: 15.66
+epoch 263: 15.51
+epoch 264: 15.44
+epoch 265: 15.55
+epoch 267: 15.46
+epoch 268: 15.51
+epoch 269: 15.47
+epoch 270: 15.46

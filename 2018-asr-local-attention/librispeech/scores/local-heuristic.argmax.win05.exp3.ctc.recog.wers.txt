@@ -1,0 +1,11 @@
+epoch 250: 229.77
+epoch 251: 60.78
+epoch 252: 63.58
+epoch 253: 73.17
+epoch 254: 93.38
+epoch 255: 84.63
+epoch 263: 68.03
+epoch 266: 66.41
+epoch 267: 66.30
+epoch 268: 65.52
+epoch 269: 64.49
