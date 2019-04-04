@@ -1,17 +1,18 @@
 Our paper:
-[Improved training of end-to-end attention models for speech recognition](https://www-i6.informatik.rwth-aachen.de/publications/download/1068/Zeyer--2018.pdf)
+[A comprehensive analysis on attention models](https://www-i6.informatik.rwth-aachen.de/publications/download/1091/Zeyer-NIPS%20IRASL-2018.pdf)
 
 Bibtex:
 ```
-@InProceedings { zeyer2018:asr-attention,
-author= {Zeyer, Albert and Irie, Kazuki and Schlüter, Ralf and Ney, Hermann},	
-title= {Improved training of end-to-end attention models for speech recognition},	
-booktitle= {Interspeech},	
+@InProceedings { zeyer2018:attanalysis,
+author= {Zeyer, Albert and Merboldt, André and Schlüter, Ralf and Ney, Hermann},	
+title= {A comprehensive analysis on attention models},	
+booktitle= {Interpretability and Robustness in Audio, Speech, and Language (IRASL) Workshop, Conference on Neural Information Processing Systems (NeurIPS)},	
 year= 2018,	
-address= {Hyderabad, India},	
-month= sep,	
-booktitlelink= {http://interspeech2018.org/},	
-pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1068&row=pdf}
+address= {Montreal, Canada},	
+month= dec,	
+booktitlelink= {https://irasl.gitlab.io/},	
+pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1091&row=pdf},	
+url = {http://openreview.net/forum?id=S1gp9v_jsm}
 }
 ```
 
