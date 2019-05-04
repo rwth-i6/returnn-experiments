@@ -1,0 +1,17 @@
+epoch   1 dev_error_decision: 0.0
+epoch   1 dev_error_output: 0.8497218507103953
+epoch   1 dev_score: 4.72746821150976
+epoch   1 learning_rate: 0.0001
+epoch   2 learning_rate: 0.00014444444444444444
+epoch   3 learning_rate: 0.00018888888888888888
+epoch   4 learning_rate: 0.00023333333333333333
+epoch   5 learning_rate: 0.0002777777777777778
+epoch   6 learning_rate: 0.0003222222222222222
+epoch   7 learning_rate: 0.00036666666666666667
+epoch   8 learning_rate: 0.0004111111111111111
+epoch   9 learning_rate: 0.00045555555555555556
+epoch  10 learning_rate: 0.0005
+epoch   1 train_error: 0.894739313947393
+epoch   1 train_score: 5.275462605254626
+num params: 56203126
+average epoch time 'GeForce GTX 1080 Ti': 0:30:09

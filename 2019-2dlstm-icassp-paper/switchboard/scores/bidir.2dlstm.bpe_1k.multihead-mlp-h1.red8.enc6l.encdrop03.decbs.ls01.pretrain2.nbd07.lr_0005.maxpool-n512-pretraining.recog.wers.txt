@@ -1,0 +1,7 @@
+epoch 109: 20.5
+epoch 116: 20.4
+epoch 124: 20.4
+epoch 130: 20.4
+epoch 133: 20.4
+epoch 140: 20.4
+epoch 146: 20.4

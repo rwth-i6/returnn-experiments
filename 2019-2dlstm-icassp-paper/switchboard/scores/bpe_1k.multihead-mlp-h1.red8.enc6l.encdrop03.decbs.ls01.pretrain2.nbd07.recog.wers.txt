@@ -1,0 +1,15 @@
+epoch  71: 19.8
+epoch  76: 20.1
+epoch  77: 19.8
+epoch  80: 19.7
+epoch  83: 19.6
+epoch  86: 19.6
+epoch  89: 19.6
+epoch  90: 19.6
+epoch  96: 19.5
+epoch 110: 19.5
+epoch 111: 19.6
+epoch 115: 19.5
+epoch 116: 19.6
+epoch 117: 19.6
+epoch 118: 19.5
