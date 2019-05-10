@@ -1,0 +1,3 @@
+Pre-trained models can be downloaded from [here](http://www-i6.informatik.rwth-aachen.de/~irie/models/librispeech/2019-lm-transformers/word)
+
+If you make use of these models, please cite...
