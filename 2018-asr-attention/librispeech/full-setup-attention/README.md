@@ -1,10 +1,21 @@
 This is a complete setup pipeline to end up with an encoder-attention-decoder system
 on the speech recognition task [LibriSpeech 1000h](http://www.openslr.org/12/)
 using [RETURNN](https://github.com/rwth-i6/returnn),
-as it is described in our paper [Improved training of end-to-end attention models for speech recognition](https://arxiv.org/abs/1805.03294),
+as it is described in our paper [Improved training of end-to-end attention models for speech recognition](https://www-i6.informatik.rwth-aachen.de/publications/download/1068/Zeyer--2018.pdf),
 which yields very competitive results;
 when used together with a LSTM language model, this is currently state-of-the-art.
 See also ["WER are we"](https://github.com/syhw/wer_are_we) for a comparison.
+
+    @InProceedings { zeyer2018:asr-attention,
+    author= {Zeyer, Albert and Irie, Kazuki and Schlüter, Ralf and Ney, Hermann},	
+    title= {Improved training of end-to-end attention models for speech recognition},	
+    booktitle= {Interspeech},	
+    year= 2018,	
+    address= {Hyderabad, India},	
+    month= sep,	
+    booktitlelink= {http://interspeech2018.org/},	
+    pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1068&row=pdf}
+    }
 
 This setup also includes the dataset download and preparation.
 
