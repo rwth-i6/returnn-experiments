@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="alignments"/>
+  <out name="features"/>
+  <param name="id"/>
+  <param name="TASK"/>
+  <node filter="generic-cache" id="$(id)" name="alignment-cache" path="`cf /u/luescher/setups/librispeech/2018-12-18--960h/work/mm/alignment/AlignmentJob.uPtxlMbFI4lx/output/alignment.cache.bundle`"/>
+  <node filter="generic-cache" id="$(id)" name="cache" path="`cf /u/luescher/setups/librispeech/2018-12-18--960h/work/features/extraction/FeatureExtraction.Gammatone.de79otVcMWSK/output/gt.cache.bundle`"/>
+  <link from="cache" to="network:features"/>
+  <link from="alignment-cache" to="network:alignments"/>
+</network>

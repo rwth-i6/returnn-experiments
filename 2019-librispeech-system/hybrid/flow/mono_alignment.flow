@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="alignments"/>
+  <out name="features"/>
+  <param name="id"/>
+  <param name="TASK"/>
+  <node filter="generic-cache" id="$(id)" name="cache" path="`cf /u/luescher/setups/librispeech/2018-01--baseline/work/features/extraction/FeatureExtraction.MFCC.FVwQz773HrDT/output/mfcc.cache.$(TASK)`"/>
+  <node filter="signal-delay" margin-condition="present-not-empty" max-size="5" name="delay" right="2"/>
+  <link from="cache" to="delay"/>
+  <node filter="signal-regression" name="deltadelta" order="2" timestamp-port="0"/>
+  <link from="delay:-2" to="deltadelta:-2"/>
+  <link from="delay:-1" to="deltadelta:-1"/>
+  <link from="delay:0" to="deltadelta:0"/>
+  <link from="delay:1" to="deltadelta:1"/>
+  <link from="delay:2" to="deltadelta:2"/>
+  <node filter="generic-cache" id="$(id)" name="alignment-cache" path="`cf /u/luescher/setups/librispeech/2018-01--baseline/work/mm/alignment/AlignmentJob.LfSbTmtEHqCw/output/alignment.cache.$(TASK)`"/>
+  <node filter="signal-regression" name="delta" order="1" timestamp-port="0"/>
+  <link from="delay:-2" to="delta:-2"/>
+  <link from="delay:-1" to="delta:-1"/>
+  <link from="delay:0" to="delta:0"/>
+  <link from="delay:1" to="delta:1"/>
+  <link from="delay:2" to="delta:2"/>
+  <node filter="generic-vector-f32-concat" name="concat"/>
+  <link from="cache" to="concat:in-1"/>
+  <link from="delta" to="concat:in-2"/>
+  <link from="deltadelta" to="concat:in-3"/>
+  <node file="`cf /u/luescher/setups/librispeech/2018-01--baseline/work/features/normalization/CovarianceNormalizationJob.zpTvXPvSpXCx/output/normalization.matrix`" filter="signal-matrix-multiplication-f32" name="linear-transform"/>
+  <link from="concat" to="linear-transform"/>
+  <link from="linear-transform" to="network:features"/>
+  <link from="alignment-cache" to="network:alignments"/>
+</network>

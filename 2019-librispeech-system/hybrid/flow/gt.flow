@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="features"/>
+  <param name="start-time"/>
+  <param name="end-time"/>
+  <param name="input-file"/>
+  <param name="TASK"/>
+  <param name="track"/>
+  <param name="id"/>
+  <node end-time="$(end-time)" file="$(input-file)" filter="audio-input-file-wav" name="samples" start-time="$(start-time)"/>
+  <node filter="generic-vector-s16-demultiplex" name="demultiplex" track="$(track)"/>
+  <link from="samples" to="demultiplex"/>
+  <node filter="generic-convert-vector-s16-to-vector-f32" name="convert"/>
+  <link from="demultiplex" to="convert"/>
+  <node filter="signal-dc-detection" max-dc-increment="0.9" min-dc-length="0.01" min-non-dc-segment-length="0.021" name="dc-detection"/>
+  <link from="convert" to="dc-detection"/>
+  <node alpha="1.0" filter="signal-preemphasis" name="preemphasis"/>
+  <link from="dc-detection" to="preemphasis"/>
+  <node channels="50" filter="signal-gammatone" maxfreq="7500" minfreq="100" name="gammatone"/>
+  <link from="preemphasis" to="gammatone"/>
+  <node filter="signal-temporalintegration" flush-before-gap="true" length="0.025" name="temporal-integration" shift="0.01" type="hanning"/>
+  <link from="gammatone" to="temporal-integration"/>
+  <node filter="generic-convert-vector-vector-f32-to-vector-f32" name="typeconvert"/>
+  <link from="temporal-integration" to="typeconvert"/>
+  <node filter="generic-vector-f32-multiplication" name="scaling" value="0.00035"/>
+  <link from="typeconvert" to="scaling"/>
+  <node filter="generic-vector-f32-power" name="nonlinear" value="0.1"/>
+  <link from="scaling" to="nonlinear"/>
+  <node filter="signal-cosine-transform" name="cos_transform" nr-outputs="50"/>
+  <link from="nonlinear" to="cos_transform"/>
+  <node filter="signal-normalization" length="infinity" name="gt-normalization" right="infinity" type="mean-and-variance"/>
+  <link from="cos_transform" to="gt-normalization"/>
+  <node filter="generic-cache" id="$(id)" name="feature-cache-gt" path="gt.cache.$(TASK)"/>
+  <link from="gt-normalization" to="feature-cache-gt"/>
+  <link from="feature-cache-gt" to="network:features"/>
+</network>

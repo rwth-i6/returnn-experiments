@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="features"/>
+  <out name="alignments"/>
+  <param name="orthography"/>
+  <param name="TASK"/>
+  <param name="id"/>
+  <node filter="generic-cache" id="$(id)" name="cache" path="`cf /u/luescher/setups/librispeech/2018-12-18--960h/work/features/extraction/FeatureExtraction.MFCC.FVwQz773HrDT/output/mfcc.cache.$(TASK)`"/>
+  <node expand-timestamp="false" filter="signal-vector-f32-sequence-concatenation" margin-condition="present-not-empty" max-size="9" name="context-window" right="4"/>
+  <link from="cache" to="context-window"/>
+  <node file="`cf /u/luescher/setups/librispeech/2018-12-18--960h/work/lda/estimate/EstimateLDAMatrixJob.WfcdOPhARjka/output/lda.matrix`" filter="signal-matrix-multiplication-f32" name="linear-transform"/>
+  <link from="context-window" to="linear-transform"/>
+  <node filter="generic-aggregation-vector-f32" name="aggregate"/>
+  <link from="linear-transform" to="aggregate"/>
+  <node filter="speech-alignment" id="$(id)" name="alignment" orthography="$(orthography)"/>
+  <link from="aggregate" to="alignment"/>
+  <node filter="generic-cache" id="$(id)" name="alignment-cache" path="alignment.cache.$(TASK)"/>
+  <link from="alignment" to="alignment-cache"/>
+  <link from="linear-transform" to="network:features"/>
+  <link from="alignment-cache" to="network:alignments"/>
+</network>
