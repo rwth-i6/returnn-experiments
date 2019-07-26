@@ -1,4 +1,4 @@
-Pre-trained models can be downloaded from [here](http://www-i6.informatik.rwth-aachen.de/~irie/models/librispeech/2019-lm-transformers)
+**Pre-trained models** can be downloaded from [here](http://www-i6.informatik.rwth-aachen.de/~irie/models/librispeech/2019-lm-transformers).
 
 If you make use of these configs and/or models, please cite this paper:
 ```
