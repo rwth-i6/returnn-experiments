@@ -1,11 +1,14 @@
 Pre-trained models can be downloaded from [here](http://www-i6.informatik.rwth-aachen.de/~irie/models/librispeech/2019-lm-transformers)
 
-If you make use of these models, please cite this paper:
+If you make use of these configs and/or models, please cite this paper:
 ```
-@article{irie2019language,
-  title={Language Modeling with Deep Transformers},
-  author={Irie, Kazuki and Zeyer, Albert and Schl{\"u}ter, Ralf and Ney, Hermann},
-  journal={arXiv preprint arXiv:1905.04226, submitted to INTERSPEECH 2019},
-  year={2019}
+@inproceedings {irie19:trafolm,
+author= {Irie, Kazuki and Zeyer, Albert and Schl\"uter, Ralf and Ney, Hermann},	
+title= {Language Modeling with Deep Transformers},	
+booktitle= {Interspeech},	
+year= 2019,	
+address= {Graz, Austria},	
+month= sep,	
+url = {http://arxiv.org/pdf/1905.04226.pdf}
 }
 ```
