@@ -2,7 +2,7 @@ These are configs for encoder-decoder-attention models.
 
 * As an update, we added a more recent config, `base2.conv2l.specaug.curric3`,
   which makes use of [SpecAugment](https://arxiv.org/abs/1904.08779).
-  This config gets 10.7% WER on dev-other in epoch 250.
+  This config gets 10.7% WER on dev-other in epoch 250 (without LM).
 
 * The best config from the paper (without LM) is `base3.retrain2`, epoch 166,
   with 12.93% WER on dev-other.
