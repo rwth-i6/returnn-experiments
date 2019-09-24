@@ -15,5 +15,11 @@ These are configs for encoder-decoder-attention models.
 * `base2` is basically the same as `base.red6.pretrain-start2l-red6-below-grow3`.
 
 * `base.red6.pretrain-start2l-red6-below-grow3` is the best LibriSpeech result as reported
-  in the [A comprehensive analysis on attention models](https://www-i6.informatik.rwth-aachen.de/publications/download/1091/Zeyer-NIPS%20IRASL-2018.pdf) paper,
+  in the [A comprehensive analysis on attention models](https://www-i6.informatik.rwth-aachen.de/publications/download/1091/Zeyer-NIPS%20IRASL-2018.pdf) 2018 NIPS IRASL paper,
   with 13.95% WER on dev-other in epoch 239.
+  Related files can also be found [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2018-nips-irasl-paper/librispeech).
+  
+* Older setups from the [Improved training of end-to-end attention models for speech recognition](https://www-i6.informatik.rwth-aachen.de/publications/download/1068/Zeyer--2018.pdf) 2018 Interspeech paper
+  can be found [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2018-asr-attention/librispeech/attention).
+  A full training pipeline including preprocessing is [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2018-asr-attention/librispeech/full-setup-attention)
+  which can be adopted with these new configs.
