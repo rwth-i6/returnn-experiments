@@ -1,0 +1,8 @@
+__pycache__
+
+# We could handle these as submodules. However, we don't want to fix it to one specific revision.
+# We just want to handle these as independent Git repositories.
+/subword-nmt
+/returnn
+
+# Keep separate experiments here.
