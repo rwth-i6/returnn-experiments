@@ -3,6 +3,8 @@ These are configs for encoder-decoder-attention models.
 * As an update, we added a more recent config, `base2.conv2l.specaug.curric3`,
   which makes use of [SpecAugment](https://arxiv.org/abs/1904.08779).
   This config gets 10.7% WER on dev-other in epoch 250 (without LM).
+  See [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2019-asr-e2e-trafo-vs-lstm/librispeech)
+  for more recent configs, and [this corresponding paper](https://www-i6.informatik.rwth-aachen.de/publications/download/1119/Zeyer-ASRU-2019.pdf).
 
 * The best config from the paper (without LM) is `base3.retrain2`, epoch 166,
   with 12.93% WER on dev-other.
