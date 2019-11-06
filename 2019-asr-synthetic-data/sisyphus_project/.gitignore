@@ -1,0 +1,11 @@
+.*.swp
+*.pyc
+__pycache__
+.idea
+*.history*
+
+work/
+src/
+alias/
+output/
+data/
