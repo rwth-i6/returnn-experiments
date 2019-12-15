@@ -1,0 +1,6 @@
+better_exchook
+numpy
+h5py
+psutil
+ipython
+tensorflow-gpu==0.13.1
