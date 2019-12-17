@@ -13,3 +13,6 @@ cd ffmpeg-4.1.4
 
 ./configure --disable-x86asm --enable-libvorbis
 make -j 4
+
+cp ffmpeg ../../bin/ffmpeg
+rm ../ffmpeg-4.1.4.tar.gz

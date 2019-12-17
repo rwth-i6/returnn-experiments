@@ -15,3 +15,5 @@ git clone https://github.com/rwth-i6/sisyphus.git src/sisyphus
 
 # enables autocompletion for sisyphus when opening the experiment folder with PyCharm
 ln -s src/sisyphus/sisyphus sisyphus
+
+./install_ffmpeg.sh

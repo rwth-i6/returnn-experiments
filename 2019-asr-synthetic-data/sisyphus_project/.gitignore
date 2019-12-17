@@ -9,3 +9,4 @@ src/
 alias/
 output/
 data/
+bin/ffmpeg
