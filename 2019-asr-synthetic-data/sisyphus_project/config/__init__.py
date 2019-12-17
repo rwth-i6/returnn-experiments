@@ -1,4 +1,5 @@
 from sisyphus import *
+import copy
 
 Path = setup_path(__package__)
 
@@ -6,6 +7,8 @@ from recipe.corpus.librispeech import LibriSpeechToBliss
 from recipe.corpus import BlissToZipDataset
 from recipe.text.bliss import BlissExtractRawText
 from recipe.text.subword_units import CreateSubwordsAndVocab
+
+from recipe.default_values import FFMPEG_BINARY
 
 def prepare_data():
 
@@ -109,7 +112,6 @@ def main():
     'ext_num_classes': num_classes
   }
 
-
   initial_checkpoint_training_params = {
     'ext_partition_epoch': 20,
     'ext_training_zips': [zip_dict['train-clean-100']],
@@ -118,10 +120,64 @@ def main():
     'ext_num_epochs': 80
   }
 
+  baseline_training_params = copy.deepcopy(initial_checkpoint_training_params)
+  baseline_training_params['ext_num_epochs'] = 170
+
   initial_checkpoint_training_params.update(asr_global_parameter_dict)
 
   asr_training_config = Path("returnn_configs/asr/train-clean-100.exp3.ctc.ogg.lrwarmupextra10.config")
-
   initial_training_job = train_asr_config(asr_training_config, "librispeech-100-initial-training",
                              initial_checkpoint_training_params)
+
+  baseline_training_params['import_model_train_epoch1'] = initial_training_job.models[80].model
+  baseline_training_params.update(asr_global_parameter_dict)
+  continued_training_job = train_asr_config(asr_training_config, "librispeech-100-baseline-training",
+                                            baseline_training_params)
+
+  tts_bliss_dict = {k:v for k,v in bliss_dict.items() if k in ['dev-clean', 'train-clean-100']}
+  tts_bliss_corpora = prepare_tts_data(tts_bliss_dict)
+
+
+def process_corpus(bliss_corpus, char_vocab, silence_duration, name=None):
+  """
+  process a bliss corpus to be suited for TTS training
+  :param self:
+  :param bliss_corpus:
+  :param name:
+  :return:
+  """
+  from recipe.text.bliss import ProcessBlissText
+  ljs = ProcessBlissText(bliss_corpus, [('end_token',{'token': '~'})],
+                         vocabulary=char_vocab)
+
+  from recipe.corpus.ffmpeg import BlissFFMPEGJob
+
+  filter_string = '-af "silenceremove=stop_periods=-1:window=%f:stop_threshold=-40dB"' % silence_duration
+
+  ljs_nosilence = BlissFFMPEGJob(ljs.out, filter_string, ffmpeg_binary=FFMPEG_BINARY, output_format="wav")
+  ljs_nosilence.rqmt['time'] = 24
+
+  return ljs_nosilence.out
+
+def prepare_tts_data(bliss_dict):
+  """
+
+  :param dict bliss_dict:
+  :return:
+  """
+
+  from recipe.returnn.vocabulary import BuildCharacterVocabulary
+  build_char_vocab_job = BuildCharacterVocabulary(uppercase=True)
+  char_vocab = build_char_vocab_job.out
+
+  processed_corpora = {}
+  for name, corpus in bliss_dict.items():
+    tts_name = "tts-" + name
+    processed_corpus = process_corpus(bliss_corpus=corpus,
+                                      char_vocab=char_vocab,
+                                      silence_duration=0.1,
+                                      name=tts_name)
+    processed_corpora[tts_name] = processed_corpus
+    tk.register_output("data/bliss/%s.xml.gz" % name, processed_corpus)
+
 

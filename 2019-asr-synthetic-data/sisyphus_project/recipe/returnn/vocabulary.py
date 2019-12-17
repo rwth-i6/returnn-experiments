@@ -1,9 +1,9 @@
-__all__ = ['BuildCharacterVocab']
+__all__ = ['BuildCharacterVocabulary']
 
 from sisyphus import *
 import pickle
 
-class BuildCharacterVocab(Job):
+class BuildCharacterVocabulary(Job):
   """
   Build a character vocbulary for Returnn
   """

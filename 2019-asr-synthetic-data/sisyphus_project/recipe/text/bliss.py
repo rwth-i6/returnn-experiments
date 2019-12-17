@@ -3,6 +3,120 @@ from sisyphus import *
 import gzip
 
 from recipe.lib.corpus import Corpus
+import gzip
+import re
+import pickle
+from sisyphus import *
+from recipe.lib.corpus import *
+import string
+
+
+class PP_Module(object):
+
+  def __init__(self, **kwargs):
+    pass
+
+  def process(self, orth: str):
+    return orth
+
+
+class Lowercase(PP_Module):
+  def process(self, orth: str):
+    return orth.lower()
+
+class Uppercase(PP_Module):
+  def process(self, orth: str):
+    return orth.upper()
+
+class End_Token(PP_Module):
+  def __init__(self, token):
+    super().__init__()
+    self.token = token
+    assert len(token) == 1 and isinstance(token, str)
+
+  def process(self, orth: str):
+    return orth + self.token
+
+class RemoveSymbol(PP_Module):
+  def __init__(self, symbol):
+    super().__init__()
+    self.symbol = symbol
+    assert len(symbol) == 1
+
+  def process(self, orth: str):
+    return orth.replace(self.symbol, "")
+
+class RemovePunctuation(PP_Module):
+
+  def __init__(self):
+    super().__init__()
+    self.converter = str.maketrans('', '', string.punctuation)
+
+  def process(self, orth: str):
+    return orth.translate(self.converter)
+
+class RegexReplace(PP_Module):
+  def __init__(self, search, replace):
+    super().__init__()
+    self.regex_search = search
+    self.regex_replace = replace
+
+  def process(self, orth: str):
+    return re.sub(self.regex_search, self.regex_replace, orth)
+
+
+module_dict = {'lowercase': Lowercase,
+               'uppercase': Uppercase,
+               'end_token': End_Token,
+               'remove_symbol': RemoveSymbol,
+               'regex_replace': RegexReplace,
+               'remove_punctuation': RemovePunctuation}
+
+
+class ProcessBlissText(Job):
+  """
+  Provides a set of processing modules to process the orth tags in a bliss corpus file
+  """
+
+  def __init__(self, corpus, process_list, vocabulary=None):
+    """
+
+    :param Path corpus: path to the corpus file
+    :param list[(str, dict)] process_list: list of module tuples with (module_name, parameter_dict)
+    :param Path vocabulary: a character vocabulary to be used as whitelist
+    """
+    self.corpus = corpus
+    self.process_list = process_list
+    self.out = self.output_path("pp_corpus.xml.gz")
+    self.vocabulary = vocabulary
+
+    self.module_instances = []
+    for (module, params) in process_list:
+      assert module in module_dict.keys(), "module %s was not in the list of available modules %s" % (module, sorted(module_dict.keys()))
+      module_instance = module_dict[module](**params)
+      self.module_instances.append(module_instance)
+
+  def tasks(self):
+    yield Task('run', mini_task=True)
+
+  def run(self):
+    corpus = Corpus()
+    corpus.load(tk.uncached_path(self.corpus))
+
+    if self.vocabulary:
+      vocab = pickle.load(open(tk.uncached_path(self.vocabulary), "rb"))
+
+    for recording in corpus.all_recordings():
+      for segment in recording.segments:
+        orth = segment.orth.strip()
+        for module_instance in self.module_instances:
+          orth = module_instance.process(orth)
+        if self.vocabulary:
+          orth = "".join([c for c in orth if c in vocab.keys()])
+        segment.orth = orth
+
+    corpus.dump(tk.uncached_path(self.out))
+
 
 class BlissExtractRawText(Job):
   """
@@ -45,3 +159,30 @@ class BlissExtractRawText(Job):
         outfile.write(orth)
 
     outfile.close()
+
+class BlissRecoverDuration(Job):
+  """
+  this job can be used to recover incorrect recording durations when manipulating the length with FFMPEG
+  """
+
+  def __init__(self, bliss_corpus):
+    self.bliss_corpus = bliss_corpus
+    self.out = self.output_path("corpus.xml.gz")
+
+  def tasks(self):
+    yield Task('run', mini_task=True)
+
+  def run(self):
+    import soundfile
+    c = corpus.Corpus()
+    c.load(tk.uncached_path(self.bliss_corpus))
+
+    for r in c.all_recordings():
+      assert len(r.segments) == 1, "needs to be a single segment recording"
+      old_duration = r.segments[0].end
+      data, sample_rate = soundfile.read(open(r.audio, "rb"))
+      new_duration = len(data) / sample_rate
+      print("%s: %f vs. %f" % (r.segments[0].name, old_duration, new_duration))
+      r.segments[0].end = new_duration
+
+    c.dump(tk.uncached_path(self.out))
