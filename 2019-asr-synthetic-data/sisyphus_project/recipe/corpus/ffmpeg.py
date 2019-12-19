@@ -72,3 +72,27 @@ class BlissFFMPEGJob(Job):
     p.map(self.perform_ffmpeg, c.recordings)
 
     nc.dump(tk.uncached_path(self.out))
+
+class BlissRecoverDuration(Job):
+
+  def __init__(self, bliss_corpus):
+    self.bliss_corpus = bliss_corpus
+    self.out = self.output_path("corpus.xml.gz")
+
+  def tasks(self):
+    yield Task('run', mini_task=True)
+
+  def run(self):
+    import soundfile
+    c = corpus.Corpus()
+    c.load(tk.uncached_path(self.bliss_corpus))
+
+    for r in c.all_recordings():
+      assert len(r.segments) == 1, "needs to be a single segment recording"
+      old_duration = r.segments[0].end
+      data, sample_rate = soundfile.read(open(r.audio, "rb"))
+      new_duration = len(data) / sample_rate
+      print("%s: %f vs. %f" % (r.segments[0].name, old_duration, new_duration))
+      r.segments[0].end = new_duration
+
+    c.dump(tk.uncached_path(self.out))

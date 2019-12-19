@@ -111,6 +111,10 @@ class RETURNNTrainingFromFile(Job):
         v = "\"%s\"" % str(v).replace(" ", "")
       else:
         v = str(v)
+
+      if v.startswith("-"):
+        v = "-- " + v
+
       parameter_list.append("++%s" % k)
       parameter_list.append(v)
 
