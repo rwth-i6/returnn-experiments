@@ -8,6 +8,16 @@ The following table documents which files correspond to which model:
 | baseline (global)  | `exp3.ctc`  |
 | local (argmax)  | `local-heuristic.argmax.win{02,05,08,10,12,15,20}.exp3.ctc`  |
 
+Unfortunately the configs are slightly buggy, and do not work correctly with a more recent RETURNN version (2019-12-27).
+It should be easy to fix, though. Change this:
+
+    "p_t_in": {"class": "eval", "from": "prev:att_weights", "eval": "tf.squeeze(tf.argmax(source(0), axis=1, output_type=tf.int32), axis=1)",
+      "out_type": {"shape": (), "batch_dim_axis": 0, "dtype": "float32"}},
+
+To:
+
+    "p_t_in": {"class": "reduce", "from": "prev:att_weights", "mode": "argmax", "axis": "t"},
+
 ---
 
 Also see the configs from our 2019 LibriSpeech system paper from the same year
