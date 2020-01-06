@@ -14,7 +14,7 @@ from recipe.default_values import RETURNN_PYTHON_EXE, RETURNN_SRC_ROOT
 class RETURNNSearchFromFile(Job):
   def __init__(self, returnn_config_file, parameter_dict, output_mode="py",
                time_rqmt=4, mem_rqmt=4,
-               returnn_python_exe=None, returnn_root=None):
+               returnn_python_exe=RETURNN_PYTHON_EXE, returnn_root=RETURNN_SRC_ROOT):
 
     self.returnn_python_exe = returnn_python_exe
     self.returnn_root = returnn_root
@@ -110,7 +110,10 @@ class GetBestEpoch(Job):
     with open(self.learning_rates.get_path(), 'rt') as f:
       text = f.read()
 
-    data = eval(text)
+    import math
+    data = eval(text, {'inf': math.inf,
+                       'nan': math.nan,
+                       'EpochData': EpochData})
 
     epochs = list(sorted(data.keys()))
 

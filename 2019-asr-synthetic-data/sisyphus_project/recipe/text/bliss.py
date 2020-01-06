@@ -160,29 +160,58 @@ class BlissExtractRawText(Job):
 
     outfile.close()
 
-class BlissRecoverDuration(Job):
+
+class BlissExtractTextDictionary(Job):
   """
-  this job can be used to recover incorrect recording durations when manipulating the length with FFMPEG
+  Extract the Text from a Bliss corpus to fit the "{key: text}" structure
   """
 
-  def __init__(self, bliss_corpus):
-    self.bliss_corpus = bliss_corpus
-    self.out = self.output_path("corpus.xml.gz")
+  def __init__(self, corpus, segments=None, segment_key_only=True):
+    """
+
+    :param corpus: bliss corpus file
+    :param segments: a segment file as optional whitelist
+    :param segment_key_only: if true, only the segment is used as key, instead of corpus/recording/segment
+    """
+    self.corpus_path = corpus
+    self.out = self.output_path("text.py")
+    self.segments_file_path = segments
+
+    self.segment_key_only = segment_key_only
 
   def tasks(self):
     yield Task('run', mini_task=True)
 
+
   def run(self):
-    import soundfile
-    c = corpus.Corpus()
-    c.load(tk.uncached_path(self.bliss_corpus))
+    import pprint
+    corpus = Corpus()
+    corpus.load(tk.uncached_path(self.corpus_path))
 
-    for r in c.all_recordings():
-      assert len(r.segments) == 1, "needs to be a single segment recording"
-      old_duration = r.segments[0].end
-      data, sample_rate = soundfile.read(open(r.audio, "rb"))
-      new_duration = len(data) / sample_rate
-      print("%s: %f vs. %f" % (r.segments[0].name, old_duration, new_duration))
-      r.segments[0].end = new_duration
+    dictionary = {}
 
-    c.dump(tk.uncached_path(self.out))
+    segments = None
+    if self.segments_file_path:
+      if tk.uncached_path(self.segments_file_path).endswith("gz"):
+        segment_file = gzip.open(tk.uncached_path(self.segments_file_path), "rb")
+      else:
+        segment_file = open(tk.uncached_path(self.segments_file_path), "rt")
+      segments = [line.decode().strip() for line in segment_file]
+
+    for recording in corpus.all_recordings():
+      for segment in recording.segments:
+        orth = segment.orth.strip()
+        full_segment_key = "/".join([corpus.name, recording.name, segment.name])
+        key = segment.name if self.segment_key_only else full_segment_key
+
+        if segments:
+          if full_segment_key not in segments:
+            continue
+
+        dictionary[key] = orth
+
+    dictionary_string = pprint.pformat(dictionary, width=1000)
+
+    outfile = open(tk.uncached_path(self.out), "wt")
+    outfile.write(dictionary_string)
+    outfile.close()
