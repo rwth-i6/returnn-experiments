@@ -4,27 +4,30 @@ from sisyphus import *
 Path = setup_path(__package__)
 
 import os
-import stat
 import subprocess as sp
 
 from recipe.default_values import RETURNN_PYTHON_EXE, RETURNN_SRC_ROOT
+from recipe.returnn.job_template import RETURNNJob
 
 
+class RETURNNSearchFromFile(RETURNNJob):
+  """
+  Run a returnn search directly from a prepared config file.
 
-class RETURNNSearchFromFile(Job):
+  Currently it requires "ext_model" and "ext_load_epoch" to be set.
+  """
+
   def __init__(self, returnn_config_file, parameter_dict, output_mode="py",
                time_rqmt=4, mem_rqmt=4,
                returnn_python_exe=RETURNN_PYTHON_EXE, returnn_root=RETURNN_SRC_ROOT):
 
-    self.returnn_python_exe = returnn_python_exe
-    self.returnn_root = returnn_root
+    super().__init__(parameter_dict,
+                     returnn_config_file,
+                     returnn_python_exe,
+                     returnn_root)
 
-    self.returnn_config_file_in = returnn_config_file
-    self.parameter_dict = parameter_dict
-    if self.parameter_dict is None:
-      self.parameter_dict = {}
-
-    self.returnn_config_file = self.output_path('returnn.config')
+    assert 'ext_model' in parameter_dict
+    assert 'ext_load_epoch' in parameter_dict
 
     self.rqmt = { 'gpu' : 1, 'cpu' : 2, 'mem' : mem_rqmt, 'time' : time_rqmt }
 
@@ -47,37 +50,6 @@ class RETURNNSearchFromFile(Job):
   def tasks(self):
     yield Task('create_files', mini_task=True)
     yield Task('run', resume='run', rqmt=self.rqmt)
-
-  def get_parameter_list(self):
-    parameter_list = []
-    for k,v in sorted(self.parameter_dict.items()):
-      if isinstance(v, tk.Variable):
-        v = str(v.get())
-      elif isinstance(v, tk.Path):
-        v = tk.uncached_path(v)
-      else:
-        v = str(v)
-      if k == "ext_model" and not v.endswith("/epoch"):
-        v = v + "/epoch"
-      parameter_list.append("++%s" % k)
-      parameter_list.append(v)
-
-    return parameter_list
-
-  def create_files(self):
-    # returnn
-    self.sh("cp {returnn_config_file_in} {returnn_config_file}")
-
-    parameter_list = self.get_parameter_list()
-
-    with open('rnn.sh', 'wt') as f:
-      f.write('#!/usr/bin/env bash\n%s' % ' '.join([tk.uncached_path(self.returnn_python_exe), os.path.join(tk.uncached_path(self.returnn_root), 'rnn.py'), self.returnn_config_file.get_path()] + parameter_list))
-    os.chmod('rnn.sh', stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH | stat.S_IWUSR | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-
-  def run(self):
-    parameter_list = self.get_parameter_list()
-
-    sp.check_call([tk.uncached_path(self.returnn_python_exe), os.path.join(tk.uncached_path(self.returnn_root), 'rnn.py'), self.returnn_config_file.get_path()] + parameter_list)
 
   @classmethod
   def hash(cls, kwargs):

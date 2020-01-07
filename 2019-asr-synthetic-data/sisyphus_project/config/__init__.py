@@ -8,8 +8,10 @@ Path = setup_path(__package__)
 
 
 def main():
+  # prepare the datasets in bliss and zip format
   bliss_dict, zip_dict, transcription_text_dict = prepare_data_librispeech()
 
+  # compute the subword codes and the ASR vocabulary
   bpe_codes, bpe_vocab, num_classes = build_subwords([bliss_dict['train-clean-100'],
                                                       bliss_dict['train-clean-360']], num_segments=10000,
                                                      name="librispeech-460")
