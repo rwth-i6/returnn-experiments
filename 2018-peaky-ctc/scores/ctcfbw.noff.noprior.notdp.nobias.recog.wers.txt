@@ -1,6 +1,0 @@
-epoch   1: 93.7
-epoch   2: 93.9
-epoch   5: 93.8
-epoch  40: 93.9
-epoch  80: 93.8
-epoch 120: 93.8
