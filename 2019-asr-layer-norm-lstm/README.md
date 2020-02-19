@@ -9,7 +9,6 @@ booktitle= {IEEE International Conference on Acoustics, Speech, and Signal Proce
 year= 2020,
 address= {Barcelona, Spain},
 month= may,
-note= {To appear},
 booktitlelink= {https://2020.ieeeicassp.org/},
 pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1127&row=pdf}
 }
