@@ -1,3 +1,19 @@
+Paper: [Generating Synthetic Audio Data for Attention-Based Speech Recognition Systems](https://www-i6.informatik.rwth-aachen.de/publications/download/1128/Rossenbach-ICASSP-2020.pdf)
+
+Please cite as:
+```
+@InProceedings { rossenbach:ICASSP2020,
+author= {Rossenbach, Nick and Zeyer, Albert and Schlüter, Ralf and Ney, Hermann},
+title= {Generating Synthetic Audio Data for Attention-Based Speech Recognition Systems},
+booktitle= {IEEE International Conference on Acoustics, Speech, and Signal Processing},
+year= 2020,
+address= {Barcelona, Spain},
+month= may,
+booktitlelink= {https://2020.ieeeicassp.org/},
+pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1128&row=pdf}
+}
+```
+
 *the sisyphus setup is still under construction, but the RETURNN configurations for the ASR and TTS model can be found under sisyphus_project/config/returnn_configs/*
 
 
