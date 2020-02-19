@@ -1,2 +1,2 @@
-Configs for the paper A COMPREHENSIVE STUDY OF RESIDUAL CNNS FOR ACOUSTIC MODELING IN ASR.
+Configs for the paper `A comprehensive study of Residual CNNs for acoustic modeling in ASR`.
 
