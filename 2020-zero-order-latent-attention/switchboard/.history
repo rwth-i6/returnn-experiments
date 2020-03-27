@@ -1,0 +1,67 @@
+2020-03-05.18-52-12.americium lt
+2020-03-05.18-53-41.americium gedit hmm.py
+2020-03-05.18-53-42.americium lt
+2020-03-05.18-54-11.americium gedit exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 
+2020-03-05.18-54-26.americium less hmm.py
+2020-03-05.18-55-47.americium gedit exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 
+2020-03-05.18-55-51.americium lt
+2020-03-05.18-55-57.americium cat ~/bin/train_local.sh 
+2020-03-05.18-55-59.americium source /u/bahar/settings/python3-returnn-tf1.9/bin/activate
+2020-03-05.18-56-00.americium export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda-7.0/lib64:/usr/local/cudnn-8.0-v7.0/lib64 
+2020-03-05.19-15-56.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config ++device 'cpu' --task 'train'
+2020-03-05.19-20-00.americium meld trafo.specaugNew.12l.ffdim2.pretrain3a.lr0008.ctc.dr0.2.wu10-prior-k6.config exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 
+2020-03-05.19-37-16.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config ++device 'cpu' --task 'train'
+2020-03-05.20-17-08.americium lt
+2020-03-05.20-17-37.americium gedit exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 
+2020-03-05.20-20-42.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config ++device 'cpu' --task 'train'
+2020-03-06.13-14-44.americium exit
+2020-03-06.15-36-03.americium q
+2020-03-27.11-30-39.americium lt
+2020-03-27.11-30-46.americium source /u/bahar/settings/python3-returnn-tf1.9/bin/activate
+2020-03-27.11-30-48.americium export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda-7.0/lib64:/usr/local/cudnn-8.0-v7.0/lib64 
+2020-03-27.11-51-19.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config ++device 'cpu' --task 'train'
+2020-03-27.12-05-36.americium meld exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config hmm.py 
+2020-03-27.12-26-05.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config ++device 'cpu' --task 'train'
+2020-03-27.12-27-20.americium less /u/bahar/workspace/asr/switchboard/20190614--transfo/config/training.config 
+2020-03-27.12-27-50.americium zless /work/asr3/irie/data/switchboard/corpora/train.corpus.gz
+2020-03-27.12-28-04.americium less /u/bahar/workspace/asr/switchboard/20190614--transfo/dependencies/seg_cv_head3000 
+2020-03-27.12-30-07.americium gedit exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config
+2020-03-27.12-50-37.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config ++device 'cpu' --task 'train'
+2020-03-27.12-56-40.americium lt
+2020-03-27.12-57-06.americium less sprint.log 
+2020-03-27.12-58-19.americium less sprint.log 
+2020-03-27.12-58-21.americium lt /u/tuske/work/ASR/switchboard/feature.extraction/gt40_40/data/
+2020-03-27.12-58-47.americium less sprint.log 
+2020-03-27.14-14-17.americium lt
+2020-03-27.14-14-21.americium rm sprint.log 
+2020-03-27.14-14-23.americium rm hmm.py 
+2020-03-27.14-14-42.americium mv exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config attention-lstm.config
+2020-03-27.14-15-00.americium mv trafo.specaugNew.12l.ffdim2.pretrain3a.lr0008.ctc.dr0.2.wu10-prior-k6.config latentattention-transforemr.config 
+2020-03-27.14-15-04.americium lt\
+2020-03-27.14-15-04.americium lt
+2020-03-27.14-15-14.americium mv attention-lstm.config latent-attention-lstm.config
+2020-03-27.14-15-20.americium mv latentattention-transforemr.config latent-attention-transforemr.config
+2020-03-27.14-15-21.americium lt
+2020-03-27.14-16-55.americium meld latent-attention-lstm.config ../tedlium-v2/latent-attention-lstm.config 
+2020-03-27.14-16-56.americium lt
+2020-03-27.14-17-51.americium meld latent-attention-transforemr.config ../tedlium-v2/latent-attention-transformer.config 
+2020-03-27.14-17-52.americium lt
+2020-03-27.14-18-05.americium lt
+2020-03-27.14-18-32.americium less latent-attention-transforemr.config
+2020-03-27.14-19-17.americium cp ~/workspace/asr/switchboard/20190612--transfo/config-train/trafo.specaug.12l.n512.ffdim4.pretrain.lr0008.noctc.config .
+2020-03-27.14-20-00.americium cp ~/workspace/asr/switchboard/20190614--transfo/config-train/base2.smlp2.specaug.datarndperm_noscale.bs20k.curric3.config .
+2020-03-27.14-20-46.americium cp ~/workspace/asr/switchboard/20190116-test/config-train/trafo.specaug.12l.ffdim2.pretrain3a.lr0008.ctc.dr0.2.wu10.config .
+2020-03-27.14-20-59.americium cp ~/workspace/asr/switchboard/20190116-test/config-train/trafo.specaugNew.12l.ffdim2.pretrain3a.lr0008.ctc.dr0.2.wu10.config .
+2020-03-27.14-21-00.americium lt
+2020-03-27.14-22-39.americium meld latent-attention-lstm.config base2.smlp2.specaug.datarndperm_noscale.bs20k.curric3.config
+2020-03-27.14-22-40.americium lt
+2020-03-27.14-24-15.americium meld latent-attention-transforemr.config trafo.specaugNew.12l.ffdim2.pretrain3a.lr0008.ctc.dr0.2.wu10.config
+2020-03-27.14-24-17.americium lt
+2020-03-27.14-24-27.americium mv trafo.specaugNew.12l.ffdim2.pretrain3a.lr0008.ctc.dr0.2.wu10.config attention-transforemr.config
+2020-03-27.14-24-27.americium lt
+2020-03-27.14-24-37.americium rm trafo.specaug.12l.ffdim2.pretrain3a.lr0008.ctc.dr0.2.wu10.config trafo.specaug.12l.n512.ffdim4.pretrain.lr0008.noctc.config
+2020-03-27.14-24-38.americium lt
+2020-03-27.14-24-47.americium mv base2.smlp2.specaug.datarndperm_noscale.bs20k.curric3.config attention-lstm.config
+2020-03-27.14-24-48.americium lt
+2020-03-27.14-25-27.americium meld attention-lstm.config latent-attention-lstm.config
+2020-03-27.14-25-29.americium lt

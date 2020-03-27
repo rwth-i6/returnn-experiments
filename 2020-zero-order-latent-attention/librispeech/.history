@@ -1,0 +1,121 @@
+2020-03-27.12-58-55.americium lt
+2020-03-27.12-59-05.americium cp ../switchboard/hmm.py .
+2020-03-27.13-00-05.americium grep ~/workspace/asr/librispeech/test-20190121/data-recog/exp3.ctc.ogg-posteriorAtt-lr0005-k10-n512.234/scoring-dev-other.scoring.wer 
+2020-03-27.13-00-09.americium grep "" ~/workspace/asr/librispeech/test-20190121/data-recog/exp3.ctc.ogg-posteriorAtt-lr0005-k10-n512.234/scoring-dev-other.scoring.wer 
+2020-03-27.13-00-25.americium grep "" ~/workspace/asr/librispeech/test-20190121/data-recog/*/scoring-dev-other.scoring.wer 
+2020-03-27.13-01-31.americium cp ~/workspace/asr/librispeech/test-20190121/config-train/exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config  .
+2020-03-27.13-01-32.americium lt
+2020-03-27.13-02-27.americium meld exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ../switchboard/exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 
+2020-03-27.13-02-42.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-03-02.americium meld exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ../switchboard/exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 
+2020-03-27.13-03-05.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-03-27.americium ln -s ~/workspace/asr/librispeech/test-20190121/dataset/ .
+2020-03-27.13-03-29.americium lt
+2020-03-27.13-03-35.americium ln -s . base
+2020-03-27.13-03-36.americium lt
+2020-03-27.13-06-03.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-06-29.americium meld exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ../switchboard/exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 
+2020-03-27.13-06-30.americium lt
+2020-03-27.13-08-35.americium meld exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ../switchboard/exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 
+2020-03-27.13-08-48.americium grep HMM /u/bahar/src/python/returnn-remote-main-github/returnn/*py
+2020-03-27.13-09-19.americium grep hmm_factorization /u/bahar/src/python/returnn-remote-main-github/returnn/*py
+2020-03-27.13-10-15.americium grep HMM /u/bahar/src/python/returnn-merge-prior--11092019/returnn/*py
+2020-03-27.13-12-21.americium less /u/bahar/src/python/returnn-merge-prior--11092019/returnn/TFNetworkLayer.py
+2020-03-27.13-15-39.americium gedit exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config 
+2020-03-27.13-15-53.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-16-01.americium lt
+2020-03-27.13-16-11.americium less hmm.py 
+2020-03-27.13-17-03.americium meld hmm.py /u/bahar/src/python/returnn-merge-prior--11092019/returnn/TFNetworkHMMFactorization.py 
+2020-03-27.13-18-36.americium less /u/bahar/src/python/returnn-merge-prior--11092019/returnn/TFNetworkLayer.py
+2020-03-27.13-19-02.americium gedit exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config 
+2020-03-27.13-19-19.americium less /u/bahar/src/python/returnn-merge-prior--11092019/returnn/TFNetworkLayer.py
+2020-03-27.13-19-35.americium lt /u/bahar/src/python/returnn-merge-prior--11092019/returnn/extern_private/
+2020-03-27.13-19-50.americium less /u/bahar/src/python/returnn-merge-prior--11092019/returnn/TFNetworkLayer.py | grep extern_private
+2020-03-27.13-20-13.americium gedit exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config 
+2020-03-27.13-20-21.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-20-49.americium gedit exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config 
+2020-03-27.13-22-30.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-22-33.americium lt
+2020-03-27.13-25-17.americium gedit exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config 
+2020-03-27.13-25-21.americium rm hmm.py 
+2020-03-27.13-25-28.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-25-51.americium lt ../
+2020-03-27.13-27-48.americium gedit exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config 
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-33-59.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config ++device 'cpu' --task 'train'
+2020-03-27.13-34-03.americium deactivate 
+2020-03-27.13-34-04.americium lt
+2020-03-27.13-51-51.americium lt
+2020-03-27.13-51-54.americium pwd
+2020-03-27.13-56-52.americium lt
+2020-03-27.13-56-57.americium rm -rf net-model/
+2020-03-27.13-56-58.americium lt
+2020-03-27.13-57-35.americium mv trafo.specaug.datarndperm_noscale.12l.ffdim4.pretrain3.config attention-transformer.config
+2020-03-27.13-57-48.americium mv trafo.specaug.datarndperm_noscale.12l.ffdim4.pretrain3-prior-k6-bs20k.config latent-attention-transformer.config 
+2020-03-27.13-58-07.americium less ../tedlium-v2/attention-lstm.config
+2020-03-27.13-58-16.americium less ../tedlium-v2/latent-attention-lstm.config 
+2020-03-27.13-59-22.americium meld attention-transformer.config latent-attention-transformer.config 
+2020-03-27.13-59-27.americium lt
+2020-03-27.14-00-48.americium meld attention-transformer.config latent-attention-transformer.config 
+2020-03-27.14-00-49.americium lt
+2020-03-27.14-00-54.americium lt /u/bahar/workspace/asr/librispeech/test-20190121/dataset/
+2020-03-27.14-00-56.americium lt
+2020-03-27.14-02-01.americium meld latent-attention-transformer.config exp3.ctc.ogg-priorAtt-lr0005-k6-specAug.config
+2020-03-27.14-02-02.americium lt
+2020-03-27.14-02-17.americium mv exp3.ctc.ogg-priorAtt-lr0005-k6-specAug.config latent-attention-lstm.config 
+2020-03-27.14-02-51.americium cp ~/workspace/asr/librispeech/test-20190121/config-train/base2.specaug.bs18k.curric3.config .
+2020-03-27.14-03-05.americium mv base2.specaug.bs18k.curric3.config attention-lstm.config 
+2020-03-27.14-03-06.americium lt
+2020-03-27.14-04-06.americium meld latent-attention-lstm.config attention-lstm.config
+2020-03-27.14-04-23.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-05-01.americium meld latent-attention-lstm.config attention-lstm.config
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-07-24.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-08-54.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py attention-transformer.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-11-41.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-lstm.config ++device 'cpu' --task 'train'
+2020-03-27.14-14-01.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-transformer.config ++device 'cpu' --task 'train'
+2020-03-27.14-14-01.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-transformer.config ++device 'cpu' --task 'train'
+2020-03-27.14-14-01.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-transformer.config ++device 'cpu' --task 'train'
+2020-03-27.14-14-01.americium python ~/src/python/returnn-remote-main-github/returnn/rnn.py latent-attention-transformer.config ++device 'cpu' --task 'train'
+2020-03-27.14-14-02.americium lt
+2020-03-27.14-14-08.americium rm -rf data-train/
+2020-03-27.14-14-10.americium lt
+2020-03-27.14-14-13.americium rm exp3.ctc.ogg-priorAtt-lr0005-k10-specAug.config 
+2020-03-27.14-14-14.americium lt
