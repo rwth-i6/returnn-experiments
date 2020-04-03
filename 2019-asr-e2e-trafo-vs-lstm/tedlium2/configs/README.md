@@ -6,6 +6,6 @@ From the Tedlium table 4 in the paper:
 * LSTM (12.4%): `base2.specaug.bs18k.curric3.pfixedlr.lrd07.eos.config`
 * LSTM + Conv (12.6%): `base2.conv2l.specaug.curric3.eos.config`
 * LSTM + ExpV (11.7%): `base2.smlp2.specaug4.bs18k.curric3.eos.config`
-* LSTM + ExpV + LM (10.5%): `base2.smlp2.specaug4.bs18k.curric3.eos.all.nopos_transfo_30_d0.4096_768.8h.lr1.cl1.config`
-* LSTM + ExpV + LM-EOS (10.3%): `base2.smlp2.specaug4.bs18k.curric3.eos.all.nopos_transfo_30_d0.4096_768.8h.lr1.cl1.tune_eos.config`
+* LSTM + ExpV + LM (10.5%): `base2.smlp2.specaug4.bs18k.curric3.eos.all.nopos_transfo_30_d0.4096_768.8h.lr1.cl1.config` (just for recognition, not for training)
+* LSTM + ExpV + LM-EOS (10.3%): `base2.smlp2.specaug4.bs18k.curric3.eos.all.nopos_transfo_30_d0.4096_768.8h.lr1.cl1.tune_eos.config` (just for recognition, not for training)
 * DecLSTM (18.3%): `declstmindep.specaug4.decl2.nowfb.dotatt.eos.config`
