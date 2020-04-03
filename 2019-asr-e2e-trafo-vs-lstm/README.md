@@ -1,3 +1,7 @@
+[Paper: A comparison of Transformer and LSTM encoder decoder models for ASR](https://www-i6.informatik.rwth-aachen.de/publications/download/1119/Zeyer-ASRU-2019.pdf),
+presented at ASRU 2019.
+
+Cite as:
 ```
 @InProceedings { zeyer2019:trafo-vs-lstm-asr,
 author= {Zeyer, Albert and Bahar, Parnia and Irie, Kazuki and Schlüter, Ralf and Ney, Hermann},
