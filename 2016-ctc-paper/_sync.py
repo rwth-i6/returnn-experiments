@@ -21,6 +21,7 @@ base_files = [
 	"train.q.sh",
 	"theano-cuda-activate.sh",
 	"config/training.config",
+	"config/ctc.train.config",
 	"config/setup.base.config",
 	"config/network.config",
 	"config/shared/lexicon.config",
