@@ -1,6 +1,6 @@
 Configuration files for the experiments from Table 3 in the paper:
 
-####Effect of dropout and L2 in ResNet
+### Effect of dropout and L2 in ResNet
 
 | Dropout | L2 | WER [%] |
 | :----------- | ----------: | ----------: |
