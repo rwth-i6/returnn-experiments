@@ -1,6 +1,6 @@
 Configuration files for the experiments from Table 5 in the paper:
 
-###Investing SpecAugment data augmentation, and comparing different feature types.
+### Investing SpecAugment data augmentation, and comparing different feature types.
 
 | Model  | Spec Augm. | LogMel ∆+∆∆ WER [%] | GT WER [%] |
 | :----------- | ----------: | ----------: | -----------: |
