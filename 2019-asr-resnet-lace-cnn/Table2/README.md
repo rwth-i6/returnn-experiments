@@ -1,6 +1,6 @@
 Configuration files for the experiments from Table 3 in the paper:
 
-####Effect of the training method and the learning rate in ResNet and LACE.
+#### Effect of the training method and the learning rate in ResNet and LACE.
 
 | Model | Method | Mom. value | Epsilon | Learning rate | WER [%] |
 | :----------- | ----------: | ----------: | ----------: | ----------: | ----------: |
