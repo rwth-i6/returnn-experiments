@@ -1,8 +1,3 @@
-from sisyphus import *
-
-import gzip
-
-from recipe.lib.corpus import Corpus
 import gzip
 import re
 import pickle
@@ -12,13 +7,11 @@ import string
 
 
 class PP_Module(object):
-
   def __init__(self, **kwargs):
     pass
 
   def process(self, orth: str):
     return orth
-
 
 class Lowercase(PP_Module):
   def process(self, orth: str):
@@ -174,7 +167,7 @@ class BlissExtractTextDictionary(Job):
     :param segment_key_only: if true, only the segment is used as key, instead of corpus/recording/segment
     """
     self.corpus_path = corpus
-    self.out = self.output_path("text.py")
+    self.out = self.output_path("text_dictionary.py")
     self.segments_file_path = segments
 
     self.segment_key_only = segment_key_only

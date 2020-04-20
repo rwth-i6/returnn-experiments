@@ -1,4 +1,4 @@
-from sisyphus import Job, tk
+from sisyphus import *
 
 import os
 import shutil
@@ -14,6 +14,13 @@ class RETURNNJob(Job):
                returnn_config_file,
                returnn_python_exe,
                returnn_root):
+    """
+
+    :param dict parameter_dict:
+    :param Path returnn_config_file:
+    :param Path|str returnn_python_exe:
+    :param Path|str returnn_root:
+    """
 
     self.returnn_config_file_in = returnn_config_file
     self.returnn_config_file = self.output_path('returnn.config')
@@ -37,6 +44,8 @@ class RETURNNJob(Job):
       else:
         v = str(v)
 
+      if k == "ext_model" and not v.endswith("/epoch"):
+        v = v + "/epoch"
       if v.startswith("-"):
         v = "-- " + v
 

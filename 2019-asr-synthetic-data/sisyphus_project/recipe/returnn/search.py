@@ -65,8 +65,6 @@ class RETURNNSearchFromFile(RETURNNJob):
 
 class GetBestEpoch(Job):
 
-  __sis_hash_exclude__ = {'key': None}
-
   def __init__(self, model_dir, learning_rates, index=0, key=None):
     self.model_dir = model_dir
     self.learning_rates = learning_rates
@@ -99,7 +97,6 @@ class GetBestEpoch(Job):
 
     sorted_scores = list(sorted(dev_scores, key=lambda x: x[1]))
 
-    print(sorted_scores)
 
     self.out_var.set(sorted_scores[self.index][0])
 

@@ -4,6 +4,7 @@ import gzip
 import os
 
 from recipe.lib import corpus
+from recipe.util import chunks
 
 
 class BlissToZipDataset(Job):
@@ -83,3 +84,102 @@ class BlissToZipDataset(Job):
 
     zip_file.write(dict_file_path, dict_file_path)
     zip_file.close()
+
+
+class MergeCorpora(Job):
+  """
+  Merges Bliss Corpora into a single file as subcorpora
+  This is preferably done after using corpus compression
+
+  :param Iterable[Path] corpora: any iterable of bliss corpora file paths to merge
+  :param name: name of the new corpus (subcorpora will keep the original names)
+  """
+  def __init__(self, corpora, name, subcorpora=True):
+
+    self.corpora = corpora
+    self.name = name
+    self.subcorpora = subcorpora
+    self.merged_corpus = self.output_path("merged.xml.gz")
+
+  def tasks(self):
+    yield Task('run', mini_task=True)
+
+  def run(self):
+    merged_corpus = corpus.Corpus()
+    merged_corpus.name = self.name
+    for corpus_path in self.corpora:
+      c = corpus.Corpus()
+      c.load(str(corpus_path))
+      if self.subcorpora:
+        merged_corpus.add_subcorpus(c)
+      else:
+        for rec in c.all_recordings():
+          merged_corpus.add_recording(rec)
+
+    merged_corpus.dump(tk.uncached_path(self.merged_corpus))
+
+
+class SegmentCorpus(Job):
+  def __init__(self, corpus_path, num_segments, use_fullname=False):
+    self.set_vis_name('Segment Corpus')
+
+    self.corpus_path = corpus_path
+    self.num_segments = num_segments
+    self.use_fullname = use_fullname
+    self.segment_files = [self.output_path('segments.%d' % i) for i in range(num_segments)]
+
+  def tasks(self):
+    yield Task('run', resume='run', mini_task=True)
+
+  def run(self):
+    c = corpus.Corpus()
+    c.load(tk.uncached_path(self.corpus_path))
+
+    all_segments = list(c.segments())
+
+    for idx, segments in enumerate(chunks(all_segments, self.num_segments)):
+      with open(self.segment_files[idx].get_path(), 'wt') as segment_file:
+        for segment in segments:
+          if self.use_fullname:
+            segment_file.write(segment.fullname() + '\n')
+          else:
+            segment_file.write(segment.name + '\n')
+
+
+class BlissAddTextFromBliss(Job):
+
+  """
+  This Job is used to add the text to a bliss corpus containing only audio from another bliss corpus
+  containing the same sequences.
+  """
+
+  def __init__(self, empty_bliss_corpus, bliss_corpus):
+    self.empty_bliss_corpus = empty_bliss_corpus
+    self.bliss_corpus = bliss_corpus
+
+    self.out = self.output_path("corpus.xml.gz")
+
+  def tasks(self):
+    yield Task('run', mini_task=True)
+
+  def run(self):
+    orth_c = corpus.Corpus()
+    orth_c.load(tk.uncached_path(self.bliss_corpus))
+
+    orths = {}
+    for r in orth_c.all_recordings():
+      assert len(r.segments) == 1, "needs to be a single segment recording"
+      orth = r.segments[0].orth
+      tag = r.segments[0].name
+      orths[tag] = orth
+
+    c = corpus.Corpus()
+    c.load(tk.uncached_path(self.empty_bliss_corpus))
+
+    for r in c.all_recordings():
+      assert len(r.segments) == 1, "needs to be a single segment recording"
+      tag = r.segments[0].name
+      orth = orths[tag]
+      r.segments[0].orth = orth
+
+    c.dump(tk.uncached_path(self.out))

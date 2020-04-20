@@ -21,16 +21,6 @@ class RETURNNForwardFromFile(RETURNNJob):
                      returnn_python_exe,
                      returnn_root)
 
-    self.returnn_python_exe = returnn_python_exe
-    self.returnn_root = returnn_root
-
-    self.returnn_config_file_in = returnn_config_file
-    self.parameter_dict = parameter_dict
-    if self.parameter_dict is None:
-      self.parameter_dict = {}
-
-    self.returnn_config_file = self.output_path('returnn.config')
-
     self.rqmt = { 'gpu' : 1, 'cpu' : 2, 'mem' : mem_rqmt, 'time' : time_rqmt }
 
     self.parameter_dict['forward_override_hdf_output'] = True
@@ -68,7 +58,6 @@ class RETURNNForwardFromFile(RETURNNJob):
     d = { 'returnn_config_file'     : kwargs['returnn_config_file'],
           'parameter_dict'     : kwargs['parameter_dict'],
           'returnn_python_exe' : kwargs['returnn_python_exe'],
-          'returnn_root'       : kwargs['returnn_root'],
-          'output_mode': kwargs['output_mode']}
+          'returnn_root'       : kwargs['returnn_root'],}
 
     return super().hash(d)

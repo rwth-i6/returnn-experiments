@@ -28,7 +28,7 @@ def process_corpus(bliss_corpus, char_vocab, silence_duration, name=None):
   return ljs_nosilence_recover.out
 
 
-def prepare_tts_data(bliss_dict):
+def prepare_ttf_data(bliss_dict):
   """
 
   :param dict bliss_dict:
@@ -55,7 +55,7 @@ def prepare_tts_data(bliss_dict):
   return processed_corpora, processed_zip_corpora, char_vocab
 
 
-def get_tts_dataset_stats(zip_dataset):
+def get_ttf_dataset_stats(zip_dataset):
 
   config = {'train':
               {'class': 'OggZipDataset',
@@ -83,7 +83,7 @@ def get_tts_dataset_stats(zip_dataset):
   return mean, std_dev
 
 
-def train_tts_config(config, name, parameter_dict=None):
+def train_ttf_config(config, name, parameter_dict=None):
   from recipe.returnn import RETURNNTrainingFromFile
   asr_train = RETURNNTrainingFromFile(config, parameter_dict=parameter_dict, mem_rqmt=16)
   asr_train.add_alias("tts_training/" + name)
@@ -96,3 +96,52 @@ def train_tts_config(config, name, parameter_dict=None):
   tk.register_output("tts_training/" + name + "_model", asr_train.model_dir)
   tk.register_output("tts_training/" + name + "_training-scores", asr_train.learning_rates)
   return asr_train
+
+def generate_speaker_embeddings(config_file, model_dir, epoch, zip_corpus, name, default_parameter_dict=None):
+  from recipe.returnn.forward import RETURNNForwardFromFile
+
+
+  parameter_dict = {'ext_gen_speakers': True,
+                    'ext_model': model_dir,
+                    'ext_load_epoch': epoch,
+                    'ext_eval_zip': zip_corpus}
+
+  parameter_dict.update(default_parameter_dict)
+
+  generate_speaker_embeddings_job = RETURNNForwardFromFile(config_file,
+                                                           parameter_dict=parameter_dict,
+                                                           hdf_outputs=['speaker_embeddings'],
+                                                           mem_rqmt=8)
+  generate_speaker_embeddings_job.add_alias("tts_speaker_generation/" + name)
+  tk.register_output("tts_speaker_generation/" + name + "_speakers.hdf",
+                     generate_speaker_embeddings_job.outputs['speaker_embeddings'])
+
+  return generate_speaker_embeddings_job.outputs['speaker_embeddings']
+
+def decode_with_speaker_embeddings(config_file, model_dir, epoch, zip_corpus, speaker_hdf, name,
+                                   default_parameter_dict=None, segment_file=None):
+  from recipe.returnn.forward import RETURNNForwardFromFile
+  from recipe.tts.toolchain import ConvertFeatures
+
+  parameter_dict = {'ext_forward': True,
+                    'ext_model': model_dir,
+                    'ext_load_epoch': epoch,
+                    'ext_eval_zip': zip_corpus,
+                    'ext_speaker_embeddings': speaker_hdf,
+                    'ext_forward_segment_file': segment_file}
+
+  parameter_dict.update(default_parameter_dict)
+
+  decode_with_speakers_job = RETURNNForwardFromFile(config_file,
+                                                           parameter_dict=parameter_dict,
+                                                           hdf_outputs=['stacked_features'],
+                                                           mem_rqmt=8)
+
+  decode_with_speakers_job.rqmt['qsub_args'] = '-l h_fsize=200G'
+
+  decode_with_speakers_job.add_alias("tts_decode_with_speakers/" + name)
+
+  convert_features_job = ConvertFeatures(decode_with_speakers_job.outputs['stacked_features'], 3)
+  convert_features_job.add_alias("tts_convert_features/" + name)
+
+  return convert_features_job.out, decode_with_speakers_job, convert_features_job

@@ -150,3 +150,29 @@ def chunks(l, n):
     end = start + block_size + (1 if i < bigger_count else 0)
     yield l[start:end]
     start = end
+
+
+class AutoCleanup(Job):
+
+  def __init__(self, job_list, trigger):
+    """
+    :param list[Job] job_list:
+    :param tk.Path trigger:
+    """
+    self.job_list = job_list
+    self.trigger = trigger
+    self.out = self.output_path("cleanup_complete")
+
+    # you can not delete the job which is the trigger
+    assert trigger.creator not in job_list
+
+  def tasks(self):
+    yield Task('run', mini_task=True)
+
+  def run(self):
+    import shutil
+    for job in self.job_list:
+      print("remove %s" % str(job))
+      shutil.rmtree(job._sis_path(abspath=True))
+
+    self.sh("touch {out}")

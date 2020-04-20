@@ -78,31 +78,32 @@ def decode_and_evaluate_asr_config(name,
   :return:
   """
 
-  path_prefix = "asr_evaluation/"
-  if training_name:
-    path_prefix += training_name + "/"
+  with tk.block("evaluation"):
+    path_prefix = "asr_evaluation/"
+    if training_name:
+      path_prefix += training_name + "/"
 
-  local_parameter_dict = {'ext_eval_zip': zip_corpus,
-                    'ext_decoding': True,
-                    'ext_model': model_path,
-                    'ext_load_epoch': epoch,
-                   }
-  local_parameter_dict.update(parameter_dict)
-  asr_recog_job = RETURNNSearchFromFile(config_file, parameter_dict=local_parameter_dict, mem_rqmt=12, time_rqmt=1,
-                                 output_mode="py")
+    local_parameter_dict = {'ext_eval_zip': zip_corpus,
+                      'ext_decoding': True,
+                      'ext_model': model_path,
+                      'ext_load_epoch': epoch,
+                     }
+    local_parameter_dict.update(parameter_dict)
+    asr_recog_job = RETURNNSearchFromFile(config_file, parameter_dict=local_parameter_dict, mem_rqmt=12, time_rqmt=1,
+                                   output_mode="py")
 
-  # TODO: Remove, this is for SGE only
-  asr_recog_job.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
+    # TODO: Remove, this is for SGE only
+    asr_recog_job.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
 
-  asr_recog_job.add_alias(path_prefix + "search_%s/recognition" % name)
-  tk.register_output(path_prefix + "search_%s/asr_out" % name, asr_recog_job.out)
+    asr_recog_job.add_alias(path_prefix + "search_%s/recognition" % name)
+    tk.register_output(path_prefix + "search_%s/asr_out" % name, asr_recog_job.out)
 
-  bpe_to_words_job = SearchBPEtoWords(asr_recog_job.out)
-  bpe_to_words_job.add_alias(path_prefix + "search_%s/bpe_to_words" % name)
-  tk.register_output(path_prefix + "search_%s/words_out" % name, bpe_to_words_job.out)
+    bpe_to_words_job = SearchBPEtoWords(asr_recog_job.out)
+    bpe_to_words_job.add_alias(path_prefix + "search_%s/bpe_to_words" % name)
+    tk.register_output(path_prefix + "search_%s/words_out" % name, bpe_to_words_job.out)
 
-  wer_score_job = ReturnnScore(bpe_to_words_job.out, text)
-  wer_score_job.add_alias(path_prefix + "search_%s/wer_scoring" % name)
-  tk.register_output(path_prefix + "search_%s/WER" % name, wer_score_job.out)
+    wer_score_job = ReturnnScore(bpe_to_words_job.out, text)
+    wer_score_job.add_alias(path_prefix + "search_%s/wer_scoring" % name)
+    tk.register_output(path_prefix + "search_%s/WER" % name, wer_score_job.out)
 
-  return wer_score_job.out
+    return wer_score_job.out
