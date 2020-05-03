@@ -89,8 +89,7 @@ def train_ttf_config(config, name, parameter_dict=None):
   asr_train = RETURNNTrainingFromFile(config, parameter_dict=parameter_dict, mem_rqmt=16)
   asr_train.add_alias("tts_training/" + name)
 
-  # TODO: Remove
-  asr_train.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
+  # asr_train.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
 
   asr_train.rqmt['time'] = 167
   asr_train.rqmt['cpu'] = 8

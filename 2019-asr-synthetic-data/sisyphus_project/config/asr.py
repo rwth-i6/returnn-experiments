@@ -44,8 +44,7 @@ def train_asr_config(config, name, parameter_dict=None):
   asr_train_job = RETURNNTrainingFromFile(config, parameter_dict=parameter_dict, mem_rqmt=16)
   asr_train_job.add_alias("asr_training/" + name)
 
-  # TODO: Remove, this is for SGE only
-  asr_train_job.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
+  # asr_train_job.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
 
   asr_train_job.rqmt['time'] = 167
   asr_train_job.rqmt['cpu'] = 8
@@ -96,8 +95,7 @@ def decode_and_evaluate_asr_config(name,
     asr_recog_job = RETURNNSearchFromFile(config_file, parameter_dict=local_parameter_dict, mem_rqmt=12, time_rqmt=1,
                                    output_mode="py")
 
-    # TODO: Remove, this is for SGE only
-    asr_recog_job.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
+    # asr_recog_job.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
 
     asr_recog_job.add_alias(path_prefix + "search_%s/recognition" % name)
     tk.register_output(path_prefix + "search_%s/asr_out" % name, asr_recog_job.out)

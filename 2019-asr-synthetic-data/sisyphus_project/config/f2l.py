@@ -5,8 +5,7 @@ def train_f2l_config(config_file, name, parameter_dict=None):
   f2l_train = RETURNNTrainingFromFile(config_file, parameter_dict=parameter_dict, mem_rqmt=16)
   f2l_train.add_alias("f2l_training/" + name)
 
-  # TODO: Remove
-  f2l_train.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
+  # f2l_train.rqmt['qsub_args'] = '-l qname=%s' % "*080*"
 
   f2l_train.rqmt['time'] = 96
   f2l_train.rqmt['cpu'] = 8
