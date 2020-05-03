@@ -14,13 +14,12 @@ pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1
 }
 ```
 
-*the sisyphus setup is still under construction, but the RETURNN configurations for the ASR and TTS model can be found under sisyphus_project/config/returnn_configs/*
-
 
 These configs are intended to help reproducing the results of the submitted ICASSP paper "GENERATING SYNTHETIC AUDIO DATA FOR ATTENTION-BASED SPEECH RECOGNITION SYSTEMS".
 Although the full setup can not be published, this configs are intended to reproduce the most basics results on LibriSpeech-100h using TTS data for ASR.
 External language models are not included.
 The sisyphus setup is derived from the internal setup used to produce all presented results in the paper, and is still under construction.
+For any specific questions or problems regarding the usage of this setup, please open an issue.
 
 The models are trained with [**RETURNN**](https://www.github.com/rwth-i6/returnn) and the experiments are designed 
 with [**Sisyphus**](https://www.github.com/rwth-i6/sisyphus). The "raw" RETURNN configs for the ASR and TTS models can
@@ -61,13 +60,43 @@ _4. Extract the downloaded data:_
 ```
 Again, uncommend the line for LibriSpeech-500h if necessary.
 
+#### GPU Training Setup
+
+Using RETURNN requires a CUDA installation that is compatible with Tensorflow.
+The correct paths have to be set in `bin/returnn_launcher.sh` in order to run the GPU training.
+
 #### Running Sisyphus
 
 The execution can be started by calling:
+
+```
+./05_run_sisyphus.sh
+```
+
+This will run for multiple days, but can be stopped and continued at any time.
+The manager will display all running, crashed or interrupted jobs.
+
+The manual command for running the Sisyphus manager is:
+
 ```
 ./sis.sh m
 ```
 `m` is a shortcut for `mananger` which is the main module of sisyphus organizing and launching the jobs. When 
 providing `-r`, the execution will directly start without a prompt.
+The jobs created by sisyphus will be stored with hashed names in a `work` subfolder,
+and can be accessed by their given name via the `alias` folder.
+Finished files, such as data, models, scores etc. are linked in the `output` folder.
+
+The Sisyphus console can be started with `c` and allows for further interactions.
+For the full Sisyphus documentation, please refer to https://sisyphus-workflow-manager.readthedocs.io/en/latest/ .
+
+#### Display Results
+
+If an ASR evaluation is complete, a `.wer` file will appear in `outputs/results/` which contains the WER scores.
+All scores can be printed at once using:
+
+```
+./06_show_results.sh
+``` 
 
 
