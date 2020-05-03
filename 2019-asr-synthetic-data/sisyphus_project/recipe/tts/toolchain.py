@@ -1,9 +1,10 @@
 from sisyphus import *
+
 import h5py
-from multiprocessing import pool
 import numpy
 import os
 
+from multiprocessing import pool
 from recipe.lib.hdf import SimpleHDFWriter
 from recipe.tts.lib.griffin_lim import GLConverter
 
@@ -50,6 +51,9 @@ class ConvertFeatures(Job):
 
 
 class GriffinLim(Job):
+  """
+  Run Griffin & Lim algorithm on linear spectogram features with specified audio settings
+  """
 
   def __init__(self,
                linear_features,

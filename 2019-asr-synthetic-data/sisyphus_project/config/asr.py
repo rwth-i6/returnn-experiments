@@ -88,6 +88,10 @@ def decode_and_evaluate_asr_config(name,
                       'ext_model': model_path,
                       'ext_load_epoch': epoch,
                      }
+    if model_path == None:
+      local_parameter_dict.pop("ext_model")
+      local_parameter_dict.pop("ext_load_epoch")
+
     local_parameter_dict.update(parameter_dict)
     asr_recog_job = RETURNNSearchFromFile(config_file, parameter_dict=local_parameter_dict, mem_rqmt=12, time_rqmt=1,
                                    output_mode="py")

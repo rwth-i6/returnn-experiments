@@ -1,9 +1,11 @@
-from recipe.corpus import BlissToZipDataset
+from recipe.corpus import BlissToZipDataset, BlissAddTextFromBliss
 from recipe.default_values import FFMPEG_BINARY
-from sisyphus import tk
+from sisyphus import tk, Path
+
+from config.f2l import convert_with_f2l, griffin_lim_ogg
 
 
-def process_corpus(bliss_corpus, char_vocab, silence_duration, name=None):
+def process_corpus(bliss_corpus, char_vocab, silence_duration):
   """
   process a bliss corpus to be suited for TTS training
   :param self:
@@ -17,7 +19,7 @@ def process_corpus(bliss_corpus, char_vocab, silence_duration, name=None):
 
   from recipe.corpus.ffmpeg import BlissFFMPEGJob, BlissRecoverDuration
 
-  filter_string = '-af "silenceremove=stop_periods=-1:window=%f:stop_duration=0.01:stop_threshold=-40dB"' % \
+  filter_string = '-af "silenceremove=stop_periods=-1:stop_duration=%f:stop_threshold=-40dB"' % \
                   silence_duration
 
   ljs_nosilence = BlissFFMPEGJob(ljs.out, filter_string, ffmpeg_binary=FFMPEG_BINARY, output_format="wav")
@@ -45,8 +47,7 @@ def prepare_ttf_data(bliss_dict):
     tts_name = "tts-" + name
     processed_corpus = process_corpus(bliss_corpus=corpus,
                                       char_vocab=char_vocab,
-                                      silence_duration=0.1,
-                                      name=tts_name)
+                                      silence_duration=0.1)
     processed_corpora[tts_name] = processed_corpus
     tk.register_output("data/bliss/%s.processed.xml.gz" % name, processed_corpus)
 
@@ -130,6 +131,9 @@ def decode_with_speaker_embeddings(config_file, model_dir, epoch, zip_corpus, sp
                     'ext_speaker_embeddings': speaker_hdf,
                     'ext_forward_segment_file': segment_file}
 
+  if segment_file == None:
+      parameter_dict.pop('ext_forward_segment_file')
+
   parameter_dict.update(default_parameter_dict)
 
   decode_with_speakers_job = RETURNNForwardFromFile(config_file,
@@ -145,3 +149,37 @@ def decode_with_speaker_embeddings(config_file, model_dir, epoch, zip_corpus, sp
   convert_features_job.add_alias("tts_convert_features/" + name)
 
   return convert_features_job.out, decode_with_speakers_job, convert_features_job
+
+
+
+def evaluate_tts(ttf_config_file, ttf_model_dir, ttf_epoch,
+                 f2l_config_file, f2l_model_dir, f2l_epoch,
+                 train_zip_corpus, test_zip_corpus, test_bliss_corpus, test_text,
+                 default_parameter_dict, name):
+
+    embedding_hdf = generate_speaker_embeddings(ttf_config_file, ttf_model_dir, ttf_epoch, train_zip_corpus,
+                                             name=name, default_parameter_dict=default_parameter_dict)
+
+    from recipe.tts.corpus import DistributeSpeakerEmbeddings
+    dist_speaker_embeds_job = DistributeSpeakerEmbeddings(test_bliss_corpus, embedding_hdf,
+                                                          use_full_seq_name=False, options=None)
+    dist_embeddings_hdf = dist_speaker_embeds_job.out
+
+    unstacked_feature_hdf, _, _ =  decode_with_speaker_embeddings(ttf_config_file, ttf_model_dir, ttf_epoch, test_zip_corpus,
+                                   dist_embeddings_hdf, name, default_parameter_dict)
+
+    linear_features, _ = convert_with_f2l(f2l_config_file, name, f2l_model_dir, f2l_epoch, unstacked_feature_hdf)
+
+    generated_audio_bliss, _ = griffin_lim_ogg(linear_features, name)
+
+    asr_bliss = BlissAddTextFromBliss(generated_audio_bliss, test_bliss_corpus).out
+
+    from recipe.corpus import BlissToZipDataset
+    asr_zip = BlissToZipDataset("test", asr_bliss, use_full_seq_name=False).out
+
+    from config.asr import decode_and_evaluate_asr_config
+    # ASR EVALUATION
+    trafo_specaug = Path(
+        "/u/rossenbach/experiments/switchboard_test/config/alberts_configs/trafo.specaug4.12l.ffdim4.pretrain3.natctc_recognize_pretrained.config")
+
+    decode_and_evaluate_asr_config("test-%s" % name, trafo_specaug, None, 0, asr_zip, test_text, {})

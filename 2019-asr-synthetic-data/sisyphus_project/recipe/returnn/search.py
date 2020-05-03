@@ -26,8 +26,8 @@ class RETURNNSearchFromFile(RETURNNJob):
                      returnn_python_exe,
                      returnn_root)
 
-    assert 'ext_model' in parameter_dict
-    assert 'ext_load_epoch' in parameter_dict
+    #assert 'ext_model' in parameter_dict
+    #assert 'ext_load_epoch' in parameter_dict
 
     self.rqmt = { 'gpu' : 1, 'cpu' : 2, 'mem' : mem_rqmt, 'time' : time_rqmt }
 
