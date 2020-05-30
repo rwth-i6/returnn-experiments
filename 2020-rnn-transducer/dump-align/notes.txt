@@ -1,0 +1,66 @@
+
+ctcalignfix1 (not peaky, fixed prior):
+rna3c-attlstmr-irielm2.nohdf.attwb5.dec5la.mlr50.emit.rep.ctcalign.ctcpriora.epoch-150.extern_prior.prior-1
+
+ctcalignfix2peaky (peaky, but not enforced):
+rna3c-attlstmr-irielm2.nohdf.attwb5.dec5la.mlr50.emit.rep.ctcalign.epoch-150
+
+ctcalignfix3peaky (peaky, but not enforced, based on ctcpriora; good model, but looks still peaky):
+rna3c-attlstmr-irielm2.nohdf.attwb5.dec5la.mlr50.emit.rep.ctcalign.ctcpriora.epoch-150
+
+Slightly (very little) non-peaky:
+rna3c-attlstmr-irielm2.nohdf.attwb5.dec5la.mlr50.emit.emitsgrada01.rep.ctcalign.ctcpriora.epoch-150
+
+Non-peaky:
+rna3c-attlstmr-irielm2.nohdf.attwb5.dec5la.mlr50.emit.rep.ctcalign.ctcpriora.epoch-150.prior-1
+
+
+
+
+ctcalignfix-ctcalign-p0-4la: ctcalign.prior0.lstm4la.withchar.lrkeyfix.epoch-150
+ctcalignfix-ctcalign-p0-6l: ctcalign.prior0.lstm6l.withchar.lrkeyfix.epoch-150
+ctcalignfix-ctcalign-p05-6l: ctcalign.prior05.lstm6l.withchar.lrkeyfix.epoch-150
+ctcalignfix-ctcalign-p0-6l-wavenet: ctcalign.prior0.lstm6l.with-wavenet.withchar.lrkeyfix.lrd09.epoch-250
+ctcalignfix-ctcalign-p0-wavenet-dil1-c16: ctcalign.prior0.wavenet-dil1-c16.withchar.lrkeyfix.lrd09.epoch-200
+ctcalignfix-ulstm6l: ctcalign.prior0.ulstm6l.with-small-ulstm.withchar.lrkeyfix.lrd09.devtrain.epoch-250
+
+ctcalignfix-ctcalign-p0-res6l: ctcalign.prior0.reslstm6l.withchar.lrkeyfix.lrd09.epoch-200
+ctcalignfix-ctcalign-p0-6l-extprior: ctcalign.prior0.lstm6l.withchar.lrkeyfix.epoch-150.extern_prior.prior-1
+ctcalignfix-ctcalign-p0-6l-extprior05: ctcalign.prior0.lstm6l.withchar.lrkeyfix.epoch-150.extern_prior.prior-0_5
+
+ctcalignfix-ctcalign-norep-4l: ctcalign.norep.lstm4l.withchar.lrkeyfix.epoch-150
+    Unfortunately there was a bug in the config, so alignment was actually *with* rep (but training without).
+    This is renamed to ctcalignfix-ctcalign-norepold-4l (norepold): ctcalign.norepold.lstm4l.withchar.lrkeyfix.epoch-150
+    New one is called ctcalignfix-ctcalign-norepfix-4l (norepfix): ctcalign.norepfix.lstm4l.withchar.lrkeyfix.epoch-150
+
+ctcalignfix-ctcalign-p0-6l-wslstm: ctcalign.prior0.lstm6l.with-small-lstm.withchar.lrkeyfix.lrd09.devtrain.epoch-250
+ctcalignfix-ctcalign-p0-6l-n600x3: ctcalign.prior0.lstm6l-n600-x3.withchar.lrkeyfix.lrd09.epoch-250
+ctcalignfix-ctcalign-p0-6l-chunk: ctcalign.prior0.chunk10a-lstm6l.with-small-chunk-lstm.withchar.lrkeyfix.lrd09.devtrain.epoch-250
+
+ctcalignfix-ctcalign-p0-6l-lrd05: ctcalign.prior0.lstm6l.with-small-lstm.withchar.lrkeyfix.lrd05.devtrain.epoch-100
+ctcalignfix-ctcalign-p0-6l-lrd05-prep2: ctcalign.prior0.lstm6l.with-small-lstm.withchar.lrkeyfix.lrd05.pretrain-rep2.devtrain.epoch-60
+
+ctcalignfix-base2-150: base2.conv2l.specaug4a.ctc.devtrain.epoch-150
+ctcalignfix-base2-200: base2.conv2l.specaug4a.ctc.epoch-200
+
+TODO norep-align based on rep train
+
+
+ctcalignfixsame usually means that if an CTC encoder is emported, the alignment from the same model is used.
+ctcalignfixsame unfortunately used incorrectly in many rna3c-lm*, and is actually ctcalignfix-ctcalign-p0-6l-wavenet.
+
+
+Note that we have strong overfitting, and this seems to hurt when we use such an alignment. E.g.:
+ctcalign.prior0.lstm6l.with-small-lstm.withchar.lrkeyfix.lrd09.devtrain overfitting:
+    epoch 250 dev_error_ctc: 0.17430423458200794
+    epoch 250 dev_error_output/output_prob: 0.04450721368940992
+    epoch 250 dev_score_ctc: 1.6913219260791923
+    epoch 250 devtrain_error_ctc: 0.11004308952771372
+    epoch  69 devtrain_error_ctc: 0.1746952460424063
+    epoch 250 devtrain_error_output/output_prob: 0.028986350021584457
+    epoch  74 devtrain_error_output/output_prob: 0.044680020182310466
+    epoch 250 devtrain_score_ctc: 1.0440903107176633
+    epoch  67 devtrain_score_ctc: 1.6912322073448045
+
+
+rna-align-blank0-scratch-swap: /u/merboldt/setups/2020-01-08--rnnt-rna/dump-align/data/rna-tf2.blank0.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50.epoch-150.swap
