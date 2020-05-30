@@ -35,9 +35,17 @@ or [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2018-asr-at
 The latter setup also includes the recognition setup,
 which you can use as-is for all experiments (no matter if attention or transducer; even for CTC).
 
+All the configs (always unified for training, recognition, alignment) are in [`configs`](configs).
+
 You would first start the training of the setups needed to create alignments (e.g. the CTC model, or RNN-T/RNA full-sum).
-Then you would use the script in
-[`dump-align`](https://github.com/rwth-i6/returnn-experiments/tree/master/2020-rnn-transducer/dump-align)
+Then you would use the script in [`dump-align`](dump-align)
 to dump the (Viterbi) alignment to a file.
 
 Then you can start the training of all remaining setups.
+
+For recognition experiments on longer (concatenated) sequences,
+you can use the script in [`concat-seqs`](concat-seqs) to prepare the recognition corpora.
+
+For recognition experiments with varying beam sizes,
+you would just pass another beam size to RETURNN
+(or the [`search.py`](https://github.com/rwth-i6/returnn-experiments/blob/master/2018-asr-attention/librispeech/full-setup-attention/tools/search.py) script).
