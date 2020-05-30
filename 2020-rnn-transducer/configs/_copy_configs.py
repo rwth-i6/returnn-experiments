@@ -111,28 +111,34 @@ configs = [
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.attwb5_am.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-ctcalign-p0-4la.chunk60.encctc.devtrain", # 14.7
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-ctcalign-p0-4la.chunk60.encctc.devtrain", # 14.3
 # CTC-align 4l & 14.7 & 14.3 \\ \hline
+"ctcalign.prior0.lstm4la.withchar.lrkeyfix",
 
 #  baseline:
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.attwb5_am.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-ctcalign-p0-6l.chunk60.encctc.devtrain", # 14.7 (not 14.5)
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-ctcalign-p0-6l.chunk60.encctc.devtrain", # 14.5
 # CTC-align 6l & 14.7 & 14.5 \\ \hline
+"ctcalign.prior0.lstm6l.withchar.lrkeyfix",
 
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.attwb5_am.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-ctcalign-p0-6l-extprior.chunk60.encctc.devtrain", # (non-peaky) 15.4
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-ctcalign-p0-6l-extprior.chunk60.encctc.devtrain", # (non-peaky) 14.9
 # CTC-align 6l with prior (non-peaky) & 15.4 & 14.9 \\ \hline
+"ctcalign.prior0.lstm6l.withchar.lrkeyfix",  # same as before; but dump-align uses an external prior
 
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.attwb5_am.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-ctcalign-p0-6l-lrd05-prep2.chunk60.encctc.devtrain", # (less training, only 60 ep) 14.6
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-ctcalign-p0-6l-lrd05-prep2.chunk60.encctc.devtrain", # (less training, only 60 ep) 14.6
 # CTC-align 6l, less training & 14.6 & 14.6 \\ \hline
+"ctcalign.prior0.lstm6l.with-small-lstm.withchar.lrkeyfix.lrd05.pretrain-rep2.devtrain",
 
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.attwb5_am.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-base2-150.chunk60.encctc.devtrain", # 14.4
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.ctcalignfix-base2-150.chunk60.encctc.devtrain", # 14.2
 # Att. + CTC-align & 14.4 & 14.2 \\ \hline
+"base2.conv2l.specaug4a.ctc.devtrain",
 
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.attwb5_am.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.rna-align-blank0-scratch-swap.encctc.devtrain", # 14.2
 # % ep142: (hub5_00_avg=14.2  hub5_00_swb=9.4   hub5_00_ch=19.0  hub5_01=13.8 )
 "rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.rep.fixmask.rna-align-blank0-scratch-swap.chunk60.encctc.devtrain", # 14.1
 # Transducer-align & 14.2 & 14.1 \\
+"rna-tf2.blank0.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50",
 
 
 # ----------
