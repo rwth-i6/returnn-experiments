@@ -312,7 +312,9 @@ def main():
 
     for config in configs:
         fn = get_config_filename(config)
-        shutil.copy(fn, ".")
+        local_fn = "%s.config" % config
+        if not os.path.exists(local_fn):
+            shutil.copy(fn, local_fn)
 
 
 if __name__ == "__main__":
