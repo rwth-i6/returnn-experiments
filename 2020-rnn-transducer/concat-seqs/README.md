@@ -1,5 +1,6 @@
 This is for the recognition experiments on longer seqs,
-where we just concated seqs within one Switchboard recording.
+where we just concated seqs within one Switchboard recording
+(for recognition only, not for training).
 
 This was part of a more complex [Sisyphus](https://github.com/rwth-i6/sisyphus) pipeline.
 For now, we don't publish the whole pipeline (this is work in progress - we plan to do later)
