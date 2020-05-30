@@ -306,6 +306,10 @@ def get_config_filename(config):
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    for base_dir in base_dirs:
+        assert os.path.exists(base_dir)
+
     for config in configs:
         fn = get_config_filename(config)
         shutil.copy(fn, ".")
