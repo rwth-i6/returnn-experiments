@@ -13,3 +13,12 @@ You need to create a couple symlinks here:
 
 See `notes.txt` for random custom notes on alignments which were created by us.
 The alignments are not published here, but the training configs are all there, and it should be simple to reproduce.
+
+Used alignments in the paper:
+
+* CTC-align 4l: name `ctcalignfix-ctcalign-p0-4la`, config `ctcalign.prior0.lstm4la.withchar.lrkeyfix`
+* CTC-align 6l: name `ctcalignfix-ctcalign-p0-6l`, config `ctcalign.prior0.lstm6l.withchar.lrkeyfix`
+* CTC-align 6l with prior (non-peaky): name `ctcalignfix-ctcalign-p0-6l-extprior`, config `ctcalign.prior0.lstm6l.withchar.lrkeyfix` (+ prior)
+* CTC-align 6l, less training: name `ctcalignfix-ctcalign-p0-6l-lrd05-prep2`, config `ctcalign.prior0.lstm6l.with-small-lstm.withchar.lrkeyfix.lrd05.pretrain-rep2.devtrain`
+* Att. + CTC-align: name `ctcalignfix-base2-150`, config `base2.conv2l.specaug4a.ctc.devtrain`
+* Transducer-align: name `rna-align-blank0-scratch-swap`, config `rna-tf2.blank0.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50`
