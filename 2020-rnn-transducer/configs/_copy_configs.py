@@ -18,8 +18,9 @@ In this Latex code, all the used configs files for each experiment are documente
 
 """
 
+import os
+import shutil
 import better_exchook
-better_exchook.install()
 
 
 base_dirs = [
@@ -294,4 +295,23 @@ configs = [
 
 ]
 
+
+def get_config_filename(config):
+    for base_dir in base_dirs:
+        fn = "%s/config-train/%s.config" % (base_dir, config)
+        if os.path.exists(fn):
+            return fn
+    raise Exception("not found: %s" % config)
+
+
+def main():
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    for config in configs:
+        fn = get_config_filename(config)
+        shutil.copy(fn, ".")
+
+
+if __name__ == "__main__":
+    better_exchook.install()
+    main()
 
