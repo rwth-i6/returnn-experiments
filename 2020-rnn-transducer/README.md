@@ -25,7 +25,7 @@ To reproduce our results, you would need
 and a copy of the Switchboard 300h audio corpus from LDC.
 For the feature extraction,
 we used [RASR](https://www-i6.informatik.rwth-aachen.de/rwth-asr/)
-with [these configs for Gammatone features](https://github.com/rwth-i6/returnn-experiments/tree/master/2016-lstm-paper/switchboard).
+with [these RASR configs for Gammatone features (see `config` and `flow`)](https://github.com/rwth-i6/returnn-experiments/tree/master/2016-lstm-paper/switchboard).
 
 The attention baseline is mostly based on [this](https://github.com/rwth-i6/returnn-experiments/tree/master/2019-asr-e2e-trafo-vs-lstm/switchboard).
 
