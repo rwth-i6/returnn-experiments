@@ -329,7 +329,7 @@ void HtkLatticeRescorer::RescoreLattice() {
           const int target_word = link.word;
           const int word_index = hypothesis.history_word_index;
           new_hypothesis.score -= log((1. - nn_lambda_) * exp(-link.lm_score) +
-            nn_lambda_ * exp(TF_ComputeLogProbability(session_, tensor_names_, history_word, target_word, word_index))/
+            nn_lambda_ * exp(TF_ComputeLogProbability(session_, tensor_names_, history_word, target_word, word_index)) /
             (link.word == unk_index_ ? num_oov_words_ + 1. : 1.)) * lm_scale_;
           new_hypothesis.history_word_index = hypothesis.history_word_index+1;
           // Extracts the new value of state variables and store them in the corresponding hypothesis.
