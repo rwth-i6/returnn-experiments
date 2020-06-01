@@ -1,0 +1,6 @@
+extern_data/placeholders/delayed/delayed_dim0_size
+extern_data/placeholders/delayed/delayed
+epoch_step
+output/output_batch_major
+post_control_dependencies
+output/rec/while_loop_body/global_tensor_global_rec_step_offset/global_rec_step_offset
