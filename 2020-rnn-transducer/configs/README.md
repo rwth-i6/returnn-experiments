@@ -10,3 +10,5 @@ The transducer full-sum pure TF implementation (for RNA and CTC label topology) 
 
 An exact mapping of all experiments in the paper (every line in all the tables) to all the config files
 can be found in [_copy_configs.py](_copy_configs.py).
+
+The final best config is [this](rna3c-lm4a.convtrain.switchout6.l2a_1e_4.nohdf.encbottle256.attwb5_am.dec1la-n128.decdrop03.decwdrop03.pretrain_less2_rep6.mlr50.emit2.fl2.fixmask.rna-align-blank0-scratch-swap.encctc.devtrain.retrain1.config).
