@@ -1,0 +1,12 @@
+2020-06-29.15-13-52.americium cp ~/workspace/st/librispeech/2019-06-18--end2end-st-specAug/config-train/st.lstm.specaug* .
+2020-06-29.15-13-53.americium lt
+2020-06-29.15-14-05.americium rm *py
+2020-06-29.15-15-14.americium meld st.lstm.specaug4.ctc.smallvoc.config  ~/workspace/st/iwslt2020/st--20200130/config-train/direct-ctc-specaug4-32k-pretrain-adaptor-asr2.config 
+2020-06-29.15-15-15.americium lt
+2020-06-29.15-16-21.americium meld st.lstm.specaug.nofreq.time40.ctc.smallvoc.extract.config st.lstm.specaug.nofreq.time40.ctc.smallvoc.config 
+2020-06-29.15-16-30.americium rm st.lstm.specaug.nofreq.time40.ctc.smallvoc.extract.config *-v2.config
+2020-06-29.15-16-30.americium lt
+2020-06-29.15-17-00.americium meld st.lstm.specaug.nofreq.time200-num2.ctc.smallvoc.config st.lstm.specaug.nofreq.time200-num5.ctc.smallvoc.config 
+2020-06-29.15-17-12.americium rm st.lstm.specaug.nofreq.time200-num2.ctc.smallvoc.config 
+2020-06-29.15-17-52.americium meld st.lstm.specaug.nofreq.time200-num5.ctc.smallvoc.config st.lstm.specaug4.ctc.smallvoc.config
+2020-06-29.15-19-15.americium meld st.lstm.specaug.freq8.time60-num2.ctc.smallvoc.config st.lstm.specaug.nofreq.time20-num2.ctc.smallvoc.config

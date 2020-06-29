@@ -1,0 +1,99 @@
+2019-05-04.14-32-23.americium lt
+2019-05-04.14-32-45.americium mkdir 2019-2dlstm-icassp-paper
+2019-05-04.14-32-51.americium git status
+2019-05-04.14-33-07.americium lt
+2019-05-04.14-36-57.americium cp -r ~/src/returnn-experiments/speech-recognition/switchboard/ 2019-2dlstm-icassp-paper/.
+2019-05-04.14-38-06.americium lt
+2019-05-04.14-38-11.americium rm 2019-2dlstm-icassp-paper/.history 
+2019-05-04.14-38-16.americium rm 2019-2dlstm-icassp-paper/switchboard/.history 
+2019-05-04.14-38-22.americium git status
+2019-05-04.14-38-28.americium git add 2019-2dlstm-icassp-paper/
+2019-05-04.14-38-29.americium git status
+2019-05-04.14-39-06.americium git commit -m "2dlstm-asr some configs and scores added"
+2019-05-04.14-39-15.americium git pull
+2019-05-04.14-39-28.americium git push
+2019-05-08.22-20-03.americium lt
+2019-10-22.10-45-12.cluster-cn-01 lt
+2019-10-22.10-45-21.cluster-cn-01 git
+2019-10-22.10-45-29.cluster-cn-01 git pull
+2019-10-22.10-45-33.cluster-cn-01 lt
+2019-10-22.10-46-11.cluster-cn-01 mkdir 2020-zero-order-latent-attention
+2019-10-22.10-46-15.cluster-cn-01 lt 2020-zero-order-latent-attention/
+2019-10-22.10-46-27.cluster-cn-01 git add 2018-asr-attention/
+2019-10-22.10-46-34.cluster-cn-01 git add 2020-zero-order-latent-attention/
+2019-10-22.10-46-37.cluster-cn-01 git status
+2019-10-22.10-47-23.cluster-cn-01 git status
+2019-10-22.10-47-47.cluster-cn-01 git add 2020-zero-order-latent-attention/
+2019-10-22.10-47-49.cluster-cn-01 lt 2020-zero-order-latent-attention/
+2019-10-22.10-47-52.cluster-cn-01 git status
+2019-10-22.10-48-31.cluster-cn-01 lt 
+2019-10-22.10-49-08.cluster-cn-01 git commit -m "create zero-order-latent-attention"
+2019-10-22.10-49-34.cluster-cn-01 rm -rf 2020-zero-order-latent-attention/
+2019-10-22.10-49-43.cluster-cn-01 mkdir 2020-zero-order-latent-attention/
+2019-10-22.10-50-04.cluster-cn-01 mkdir 2020-zero-order-latent-attention/switchboard
+2019-10-22.10-50-10.cluster-cn-01 mkdir 2020-zero-order-latent-attention/librispeech
+2019-10-22.10-50-16.cluster-cn-01 mkdir 2020-zero-order-latent-attention/tedlium-v2
+2019-10-22.10-50-20.cluster-cn-01 lt 2020-zero-order-latent-attention/
+2019-10-22.10-50-25.cluster-cn-01 git stsus
+2019-10-22.10-50-29.cluster-cn-01 git status
+2019-10-22.10-51-01.cluster-cn-01 git rm 2020-zero-order-latent-attention/.history
+2019-10-22.10-51-09.cluster-cn-01 lt
+2019-10-22.10-51-13.cluster-cn-01 lt 2020-zero-order-latent-attention/
+2019-10-22.10-51-20.cluster-cn-01 git add 2020-zero-order-latent-attention/*
+2019-10-22.10-51-24.cluster-cn-01 git status
+2019-10-22.10-51-46.cluster-cn-01 git commit -m "zero-order-latent-attention"
+2019-10-22.10-52-16.cluster-cn-01 git log
+2019-10-22.10-52-17.cluster-cn-01 git log
+2019-10-22.10-52-29.cluster-cn-01 git push
+2019-10-22.10-54-10.cluster-cn-01 lt ~/workspace/asr/switchboard/
+2019-10-22.10-54-45.cluster-cn-01 cp  ~/workspace/asr/switchboard/20190116-test/config-train/exp3.ctc.ogg-priorAtt-lr001-k6-specAugnew-ctc.config 2020-zero-order-latent-attention/switchboard/.
+2019-10-22.10-55-32.cluster-cn-01 cp  ~/workspace/asr/switchboard/20190116-test/config-train/trafo.specaugNew.12l.ffdim2.pretrain3a.lr0008.ctc.dr0.2.wu10-prior-k6.config 2020-zero-order-latent-attention/switchboard/.
+2019-10-22.10-55-39.cluster-cn-01 git status
+2019-10-22.10-55-48.cluster-cn-01 git add 2020-zero-order-latent-attention/*
+2019-10-22.10-56-00.cluster-cn-01 git commit -m "seb configd"
+2019-10-22.10-56-10.cluster-cn-01 git commit -m "swb configs"
+2019-10-22.10-56-34.cluster-cn-01 git log 
+2019-10-22.10-57-19.cluster-cn-01 git commit --amend
+2019-10-22.10-57-39.cluster-cn-01 git push
+2019-12-15.22-17-22.mangan lt
+2019-12-15.22-18-19.mangan mkdir 2019-st-comparision-asru-paper
+2019-12-15.22-38-03.mangan lt
+2019-12-15.22-38-20.mangan git status
+2019-12-15.22-38-38.mangan git add 2019-st-comparision-asru-paper/iwslt/*.config
+2019-12-15.22-38-41.mangan git status
+2019-12-15.22-39-08.mangan git commit -m "st task configs added"
+2019-12-15.22-39-19.mangan git push
+2019-12-15.22-40-23.mangan git pull
+2019-12-15.22-41-27.mangan git push
+2020-03-05.18-44-58.americium lt
+2020-03-05.18-45-14.americium git status
+2020-03-05.18-45-25.americium git pull
+2020-03-05.18-45-30.americium lt
+2020-03-27.11-30-28.americium lt
+2020-05-08.11-21-56.americium lt
+2020-05-08.11-22-08.americium git pull
+2020-05-08.11-22-46.americium mkdir 2019-st-spectaugment
+2020-05-08.11-22-47.americium lt
+2020-05-08.11-22-52.americium git add 2019-st-spectaugment/
+2020-05-08.11-23-11.americium git status
+2020-05-08.11-23-29.americium lt
+2020-05-08.11-23-54.americium git add 2019-st-spectaugment/*
+2020-05-08.11-24-00.americium git status
+2020-05-08.11-24-14.americium realpath 2019-st-spectaugment/
+2020-06-29.14-25-46.americium lt
+2020-06-29.14-25-52.americium git pull
+2020-06-29.14-25-57.americium lt
+2020-06-29.14-36-47.americium lt
+2020-06-29.14-36-51.americium git status
+2020-06-29.14-37-03.americium git add 2019-asr-e2e-trafo-vs-lstm/switchboard/trafo.12l.n512.ffdim4.pretrain.lr0008.ctc.dr0.2.config 2019-asr-e2e-trafo-vs-lstm/switchboard/trafo.specaug4.12l.ffdim4.pretrain3a.lr0008.ctc.dr0.3.wu8.config 2019-asr-e2e-trafo-vs-lstm/switchboard/trafo.specaug4.enc36l.dec12l.ffdim2.pretrain3a.lr0008.noctc.dr0.2.wu8.nolstm.posenc.config 2019-asr-e2e-trafo-vs-lstm/switchboard/trafo.specaug4.enc36l.dec12l.n512.ffdim2.pretrain.lr0008.ctc.dr0.2.wu.acc3.config 2019-asr-e2e-trafo-vs-lstm/switchboard/trafo.specaug4.enc36l.dec12l.n512.ffdim2.pretrain.lr0008.ctc.dr0.2.wu.acc3.conv2l.config 
+2020-06-29.14-37-23.americium git commit -m "transformer configs for SWB"
+2020-06-29.14-37-36.americium git push
+2020-06-29.15-12-47.americium lt
+2020-06-29.15-19-34.americium git status
+2020-06-29.15-19-50.americium git add 2019-st-spectaugment/librispeech/st.lstm.specaug4.ctc.smallvoc.config 
+2020-06-29.15-19-58.americium git add 2019-st-spectaugment/librispeech/st.lstm.specaug.freq8.time40-num2.ctc.smallvoc-pretraining-adaptor.config
+2020-06-29.15-20-04.americium git add 2019-st-spectaugment/librispeech/st.lstm.specaug.freq8.time40-num2.ctc.smallvoc.config 
+2020-06-29.15-20-15.americium git add 2019-st-spectaugment/librispeech/st.lstm.specaug.freq8.time80-num1.ctc.smallvoc.config .
+2020-06-29.15-20-23.americium git add 2019-st-spectaugment/librispeech/st.lstm.specaug.step1M.step2M.ctc.smallvoc.config .
+2020-06-29.15-20-30.americium git add 2019-st-spectaugment/librispeech/st.lstm.specaug.notime.freq40-num5.ctc.smallvoc.config .
+2020-06-29.15-20-43.americium git add 2019-st-spectaugment/librispeech/st.lstm.specaug.nofreq.time40.ctc.smallvoc.config .
