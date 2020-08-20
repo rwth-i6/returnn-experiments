@@ -9,14 +9,17 @@ The paper is a submission to Interspeech 2020.
 
 Cite as:
 ```
-@misc{zeyer2020transducer,
-    title={A New Training Pipeline for an Improved Neural Transducer},
-    author={Albert Zeyer and André Merboldt and Ralf Schlüter and Hermann Ney},
-    year={2020},
-    howpublished={Preprint arXiv:2005.09319}
+@InProceedings { zeyer2020:transducer,
+author= {Zeyer, Albert and Merboldt, André and Schlüter, Ralf and Ney, Hermann},
+title= {A New Training Pipeline for an Improved Neural Transducer},
+booktitle= {Interspeech},
+year= 2020,
+address= {http://www.interspeech2020.org/},
+month= oct,
+note= {to appear},
+pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1145&row=pdf}
 }
 ```
-(This will be updated if the paper gets accepted for Interspeech.)
 
 ---
 
