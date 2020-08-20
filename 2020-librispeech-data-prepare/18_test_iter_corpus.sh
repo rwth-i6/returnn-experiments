@@ -13,9 +13,9 @@ audio="{'norm_mean':'data/dataset/stats.mean.txt', 'norm_std_dev':'data/dataset/
 
 files=""
 for part in train-clean-100 train-clean-360 train-other-500; do
-  test -e ../dataset-ogg/$part.zip
-  test -e ../dataset-ogg/$part.txt.gz
-  files="$files'../dataset-ogg/$part.zip', '../dataset-ogg/$part.txt.gz', "
+  test -e data/dataset-ogg/$part.zip
+  test -e data/dataset-ogg/$part.txt.gz
+  files="$files'data/dataset-ogg/$part.zip', 'data/dataset-ogg/$part.txt.gz', "
 done
 
 ./returnn/tools/dump-dataset.py \
