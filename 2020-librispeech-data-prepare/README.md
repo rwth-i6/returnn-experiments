@@ -6,8 +6,9 @@ with some components from [here](https://github.com/rwth-i6/returnn-experiments/
 
 All the data will be created in a `data` subdirectory.
 The raw dataset files will be downloaded to `data/dataset-raw` (about 58GB).
-This can be deleted once the dataset preparation is finished.
-All the prepared dataset files will be in `data/dataset` (about 60GB).
+This can be deleted once the dataset preparation is finished
+(e.g. via `13_cleanup_data.sh`).
+All the prepared dataset files will be in `data/dataset` and `data/dataset-ogg` (about 16GB).
 
 Note that the dataset should be on a fast file system. NFS will make the training much slower!
 (At our chair, we use NFS together with the [CacheManager software](https://github.com/pavelgolik/cache-manager).
