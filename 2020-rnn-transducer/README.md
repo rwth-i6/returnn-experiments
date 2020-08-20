@@ -55,6 +55,7 @@ you would just pass another beam size to RETURNN
 The best pipeline we came up with in the paper is:
 
 * Full-sum training for 25 epochs, simple model, RNA label topology, [this config](https://github.com/rwth-i6/returnn-experiments/blob/master/2020-rnn-transducer/configs/rna-tf2.blank0.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50.config).
+  (Note: In RETURNN, we split the epochs. In this config, into 6 parts. So RETURNN reports that it trains for 150 (sub) epochs. Which effectively means that it trains for 25 (real/full) epochs.)
 
 * Extract alignments using the final full-sum trained model, using the script [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2020-rnn-transducer/dump-align).
 
