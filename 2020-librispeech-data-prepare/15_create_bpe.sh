@@ -4,7 +4,7 @@ set -ex
 mydir=$(pwd)
 cd data/dataset
 
-test -s train-trans-all.txt || { $mydir/tools/collect-train-text.py > train-trans-all.txt; }
+test -s train-trans-all.txt
 wc -l train-trans-all.txt
 test $(wc -l train-trans-all.txt | awk {'print $1'}) -eq 281241
 
