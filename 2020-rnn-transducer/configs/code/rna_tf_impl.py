@@ -767,7 +767,7 @@ def tf_forward_shifted_rna(log_probs, labels, input_lengths=None, label_lengths=
     return i+1, res_loop_ta.write(i, elem)
 
   _, ll_ta = tf.while_loop(
-    lambda i, res_ta: i < n_batch,
+    lambda i, res_ta: tf.less(i, n_batch),
     ta_read_body, (tf.constant(0, tf.int32), res_ta)
   )
   if with_alignment:

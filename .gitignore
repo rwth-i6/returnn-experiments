@@ -1,4 +1,6 @@
 *.history.*
+.history
 __pycache__
 *.pyc
 .*.swp
+/.idea
