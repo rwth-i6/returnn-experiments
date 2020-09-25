@@ -4,4 +4,4 @@ h5py
 psutil
 ipython
 soundfile
-tensorflow-gpu==1.13.1
+tensorflow-gpu==1.15.4
