@@ -16,3 +16,9 @@ Cite as:
   pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1153&row=pdf}
 }
 ```
+
+To reproduce our results, you would need to use [RETURNN](https://github.com/rwth-i6/returnn). 
+Training the models, as well as decoding with the simplified decoder is done using RETURNN. 
+For Switchboard, we used [RASR](https://github.com/rwth-i6/rasr) to extract gammatones features. 
+For Librispeech, feature extraction is done using `librosa` in RETURNN. 
+We also used RASR for the advanced decoder (prefix-tree label-synchronous decoder).
