@@ -1,0 +1,1 @@
+cat /proc/$$/fd/0 | python3 decoder.py --returnn_config tacotron2_ljspeech.config --vocab_file data/cmu_vocab.pkl --pronunciation_lexicon data/cmudict.dict --pwg_config mb_melgan.v2.yaml --pwg_checkpoint mb_melgan_models/checkpoint-1000000steps.pkl
