@@ -35,14 +35,21 @@ class _ReturnnAudioFeatureExtractor:
     self.tf_audio_placeholder = None
     self.tf_log_mel = None
 
+  def __repr__(self):
+    return f"{self.__class__.__name__}{self.opts.items() if self.opts else 'uninitialized'}"
+
   def setup(self, opts: Params):
     if self.opts:
       self.opts.assert_same(opts)
       return
+    self.opts = opts
 
     with tf.compat.v1.Graph().as_default() as g:
-      self.tf_audio_placeholder = tf.compat.v1.placeholder(name="audio", dtype=tf.float32, shape=(None, 1))
-      self.tf_log_mel = extract_log_mel_features_from_audio(self.tf_audio_placeholder, **opts.items())
+      self.tf_audio_placeholder = tf.compat.v1.placeholder(name="audio", dtype=tf.float32, shape=(None,))
+      log_mel = extract_log_mel_features_from_audio(self.tf_audio_placeholder, **opts.items())
+      log_mel = tf.squeeze(log_mel, axis=0)
+      log_mel = tf.squeeze(log_mel, axis=-1)
+      self.tf_log_mel = log_mel
       self.tf_session = tf.compat.v1.Session(graph=g)
 
   def extract(self, *, audio, num_feature_filters, sample_rate, **_other):
@@ -187,6 +194,7 @@ class MelAsrFrontend:
   def make_params(cls):
     p = Params()
     p.name = 'frontend'
+    p.define("random_seed", 0)
     p.define('sample_rate', 16000.0, 'Sample rate in Hz')
     p.define('channel_count', 1, 'Number of channels.')
     p.define('frame_size_ms', 25.0,
@@ -533,7 +541,7 @@ class Params:
   def __init__(self):
     self._params = {}
 
-  def define(self, key, default_value, _comment):
+  def define(self, key, default_value, _comment=None):
     self._params[key] = default_value
 
   def update(self, d: Dict[str]):
