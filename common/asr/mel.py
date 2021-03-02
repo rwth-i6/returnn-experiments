@@ -20,39 +20,103 @@ Also see `create_asr_features <https://github.com/tensorflow/lingvo/blob/master/
 # limitations under the License.
 # ==============================================================================
 
+from __future__ import annotations
 import collections
 import math
-from typing import Dict
+from typing import Dict, Optional
 from returnn.tf.util.basic import get_shape
 import tensorflow as tf
 
 
-def extract_log_mel_features(wav_bytes_t, static_sample_rate=16000):
+class _ReturnnAudioFeatureExtractor:
+  def __init__(self):
+    self.opts = None  # type: Optional[Params]
+    self.tf_session = None  # type: Optional[tf.compat.v1.Session]
+    self.tf_audio_placeholder = None
+    self.tf_log_mel = None
+
+  def setup(self, opts: Params):
+    if self.opts:
+      self.opts.assert_same(opts)
+      return
+
+    with tf.compat.v1.Graph().as_default() as g:
+      self.tf_audio_placeholder = tf.compat.v1.placeholder(name="audio", dtype=tf.float32, shape=(None, 1))
+      self.tf_log_mel = extract_log_mel_features_from_audio(self.tf_audio_placeholder, **opts.items())
+      self.tf_session = tf.compat.v1.Session(graph=g)
+
+  def extract(self, *, audio, num_feature_filters, sample_rate, **_other):
+    assert sample_rate == self.opts.sample_rate
+    assert num_feature_filters == self.opts.num_bins
+    return self.tf_session.run(self.tf_log_mel, feed_dict={self.tf_audio_placeholder: audio})
+
+
+_global_returnn_audio_feature_extractor = _ReturnnAudioFeatureExtractor()
+
+
+def make_returnn_audio_features_func(cached=_global_returnn_audio_feature_extractor, **opts):
+  """
+  This can be used for ExtractAudioFeatures in RETURNN,
+  e.g. in OggZipDataset or LibriSpeechCorpus or others.
+
+  This is cached by default, but you can disable this by setting cached=None.
+  """
+  if cached:
+    extractor = cached
+  else:
+    extractor = _ReturnnAudioFeatureExtractor()
+  p = default_asr_frontend_params()
+  p.update(opts)
+  extractor.setup(p)
+  return extractor.extract
+
+
+def default_asr_frontend_params(num_bins=80, sample_rate=16000):
+  p = MelAsrFrontend.make_params()
+  p.sample_rate = float(sample_rate)
+  p.frame_size_ms = 25.
+  p.frame_step_ms = 10.
+  p.num_bins = num_bins
+  p.lower_edge_hertz = 125.
+  p.upper_edge_hertz = 7600.
+  p.preemph = 0.97
+  p.noise_scale = 0.
+  p.pad_end = False
+  return p
+
+
+def extract_log_mel_features_from_audio(audio, **opts):
+  """Create Log-Mel Filterbank Features from audio samples.
+  Args:
+    audio: Tensor representing audio samples.
+      It is currently assumed that the wav file is encoded at 16KHz.
+      Shape [num_frames] or [num_frames,1].
+  Returns:
+    A Tensor representing three stacked log-Mel filterbank energies, sub-sampled
+    every three frames.
+  """
+  assert isinstance(audio, tf.Tensor)
+  if audio.shape.ndims >= 2:
+    # Remove channel dimension, since we have a single channel.
+    audio = tf.squeeze(audio, axis=1)
+  audio = tf.expand_dims(audio, axis=0)  # [B,num_frames]
+  p = default_asr_frontend_params()
+  p.update(opts)
+  mel_frontend = MelAsrFrontend(**p.items())
+  log_mel, _ = mel_frontend.fprop(audio)
+  return log_mel
+
+
+def extract_log_mel_features_from_wav(wav_bytes_t, **opts):
   """Create Log-Mel Filterbank Features from raw bytes.
   Args:
     wav_bytes_t: Tensor representing raw wav file as a string of bytes. It is
       currently assumed that the wav file is encoded at 16KHz (see DecodeWav,
       below).
-    static_sample_rate:
   Returns:
     A Tensor representing three stacked log-Mel filterbank energies, sub-sampled
     every three frames.
   """
-
-  def _create_asr_frontend():
-    """Parameters corresponding to default ASR frontend."""
-    p = MelAsrFrontend.make_params()
-    p.sample_rate = static_sample_rate
-    p.frame_size_ms = 25.
-    p.frame_step_ms = 10.
-    p.num_bins = 80
-    p.lower_edge_hertz = 125.
-    p.upper_edge_hertz = 7600.
-    p.preemph = 0.97
-    p.noise_scale = 0.
-    p.pad_end = False
-    return MelAsrFrontend(**p.items())
-
   result = tf.audio.decode_wav(wav_bytes_t)
   sample_rate, audio = result.sample_rate, result.audio
   audio *= 32768
@@ -60,9 +124,11 @@ def extract_log_mel_features(wav_bytes_t, static_sample_rate=16000):
   audio = tf.squeeze(audio, axis=1)
   # TODO(drpng): make batches.
   audio = tf.expand_dims(audio, axis=0)
-  mel_frontend = _create_asr_frontend()
+  p = default_asr_frontend_params()
+  p.update(opts)
+  mel_frontend = MelAsrFrontend(**p.items())
   with tf.control_dependencies(
-        [tf.assert_equal(sample_rate, static_sample_rate)]):
+        [tf.assert_equal(sample_rate, int(p.sample_rate))]):
     log_mel, _ = mel_frontend.fprop(audio)
   return log_mel
 
@@ -478,7 +544,15 @@ class Params:
   def items(self):
     return self._params
 
+  def __repr__(self):
+    return "Params{%r}" % (self._params,)
+
   def __getattr__(self, item):
     if item not in self._params:
       raise AttributeError("Params: key %r unknown" % item)
     return self._params[item]
+
+  def assert_same(self, other: Params):
+    assert sorted(self._params.keys()) == sorted(other._params.keys()), f"{self} vs {other}"
+    for key in self._params.keys():
+      assert self._params[key] == other._params[key], f"param {key}: {self._params[key]} vs {other._params[key]}"
