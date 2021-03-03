@@ -70,7 +70,8 @@ def random_mask(x, batch_axis, axis, min_num, max_num, max_dims, mask_value=0.):
   return x
 
 
-def transform(source, **kwargs):
+# Use this for an EvalLayer
+def specaugment(source, **kwargs):
   from returnn.tf.compat import v1 as tf
   data = source(0, as_data=True)
   time_factor = 1  # for switchout == 6
