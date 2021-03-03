@@ -141,31 +141,6 @@ def extract_log_mel_features_from_wav(wav_bytes_t, **opts):
   return log_mel
 
 
-# AsrFrontendConfig which defines characteristics of the frontend that may
-# be relevant to interfacing code which needs to reason about inputs and
-# outputs.
-# Fields:
-#   is_null: Whether this is the NullAsrFrontend.
-#   src_type: Interpretation of the src_inputs. Can be one of 'none' or 'pcm'.
-#   src_pcm_scale: If src_type is 'pcm', then this is the scale of each sample.
-#     If normalized, this should be 1.0. If unnormalized from int16, then it
-#     should be 32768.0.
-#   src_pcm_sample_rate: Sample rate of the expected src PCM frames.
-#   output_dim: Dimension of the output. Typically the number of mel bands
-#     or equiv. May be -1 for unknown.
-#   input_frame_ratio: Approximate ratio of the number of
-#     input_frames / output_frames. Intended to be multiplied by output frames
-#     (i.e. as part of bucket_bounds to arrive at input frames to the frontend).
-AsrFrontendConfig = collections.namedtuple('AsrFrontendConfig', [
-    'is_null',
-    'src_type',
-    'src_pcm_scale',
-    'src_pcm_sample_rate',
-    'output_dim',
-    'input_frame_ratio',
-])
-
-
 def _next_power_of_two(i):
   return math.pow(2, math.ceil(math.log(i, 2)))
 
@@ -241,20 +216,6 @@ class MelAsrFrontend:
     p.define('use_divide_stream', False,
              'Whether use a divide stream to the input signal.')
     return p
-
-  @staticmethod
-  def get_config_from_params(params):
-    """Returns an AsrFrontendConfig namedtuple with vital config settings."""
-    context_size = params.stack_left_context + params.stack_right_context + 1
-    subsample_factor = params.num_bins * context_size
-    frame_step = round(params.sample_rate * params.frame_step_ms / 1000.0)
-    return AsrFrontendConfig(
-        is_null=False,
-        src_type='pcm',
-        src_pcm_scale=32768.0,
-        src_pcm_sample_rate=16000.0,
-        output_dim=subsample_factor,
-        input_frame_ratio=frame_step * subsample_factor)
 
   def __init__(self, **kwargs):
     """
@@ -540,7 +501,7 @@ class Params:
   Dummy class to emulate Lingvo `Params` as simple as possible.
   """
   def __init__(self):
-    self._params = {}
+    self._params = {"name": None}
 
   def define(self, key, default_value, _comment=None):
     self._params[key] = default_value
@@ -556,7 +517,16 @@ class Params:
   def __repr__(self):
     return "Params{%r}" % (self._params,)
 
+  def __setattr__(self, key, value):
+    if key == "_params":
+      super(Params, self).__setattr__(key, value)
+      return
+    assert key in self._params
+    self._params[key] = value
+
   def __getattr__(self, item):
+    if item == "_params":
+      raise AttributeError("__init__ not yet called")
     if item not in self._params:
       raise AttributeError("Params: key %r unknown" % item)
     return self._params[item]
