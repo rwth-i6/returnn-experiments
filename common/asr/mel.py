@@ -95,7 +95,7 @@ def default_asr_frontend_params(num_bins=80, sample_rate=16000):
 def extract_log_mel_features_from_audio(audio, **opts):
   """Create Log-Mel Filterbank Features from audio samples.
   Args:
-    audio: Tensor representing audio samples.
+    audio: Tensor representing audio samples (normalized in [-1,1)).
       It is currently assumed that the wav file is encoded at 16KHz.
       Shape [num_frames] or [num_frames,1].
   Returns:
@@ -103,6 +103,7 @@ def extract_log_mel_features_from_audio(audio, **opts):
     every three frames.
   """
   assert isinstance(audio, tf.Tensor)
+  audio *= 32768  # that's what it expects...
   if audio.shape.ndims >= 2:
     # Remove channel dimension, since we have a single channel.
     audio = tf.squeeze(audio, axis=1)
