@@ -6,8 +6,11 @@ import_("github.com/rwth-i6/returnn-experiments", "common")
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.asr.specaugment import specaugment
 
 
-def make_net(src="data", *, num_lstm_layers=6, lstm_dim=1024, l2=0.0001, dropout=0.3, time_reduction=(3, 2)):
-  orig_src = src
+def make_encoder(src="data", **kwargs):
+  return {"class": "subnetwork", "subnetwork": make_net(**kwargs), "from": src}
+
+
+def make_net(*, num_lstm_layers=6, lstm_dim=1024, l2=0.0001, dropout=0.3, time_reduction=(3, 2)):
   net_dict = {
     "source": {"class": "eval", "eval": specaugment},
     "source0": {"class": "split_dims", "axis": "F", "dims": (-1, 1), "from": "source"},  # (T,40,1)
@@ -46,4 +49,4 @@ def make_net(src="data", *, num_lstm_layers=6, lstm_dim=1024, l2=0.0001, dropout
     src = ["lstm%i_fw" % i, "lstm%i_bw" % i]
   net_dict["output"] = {"class": "copy", "from": src}
 
-  return {"class": "subnetwork", "subnetwork": net_dict, "from": orig_src}
+  return net_dict
