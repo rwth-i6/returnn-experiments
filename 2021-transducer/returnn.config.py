@@ -9,7 +9,9 @@ from returnn.import_ import import_
 
 import_("github.com/rwth-i6/returnn-experiments", "common")
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.asr.specaugment import specaugment
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer_recomb_recog import targetb_recomb_recog
+from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.recomb_recog import targetb_recomb_recog
+from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.loss import rnnt_loss
+from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.collect_out_str import out_str
 
 config = globals()["config"]  # make PyCharm happy
 
@@ -112,61 +114,6 @@ dev = get_dataset("dev", subset=3000)
 eval_datasets = {"devtrain": get_dataset("train", subset=2000)}
 cache_size = "0"
 window = 1
-
-
-def get_vocab_tf():
-    from returnn.datasets.generating import Vocabulary
-    from returnn.tf.util.basic import get_shared_vocab
-    from returnn.tf.compat import v1 as tf
-    dataset = get_dataset("train")
-    vocab = Vocabulary.create_vocab(**dataset["bpe"])
-    labels = vocab.labels  # bpe labels ("@@" at end, or not), excluding blank
-    labels = [(l + " ").replace("@@ ", "") for l in labels] + [""]
-    labels_t = get_shared_vocab(labels)
-    return labels_t
-
-
-def get_vocab_sym(i):
-    """
-    :param tf.Tensor i: e.g. [B], int32
-    :return: same shape as input, string
-    :rtype: tf.Tensor
-    """
-    from returnn.tf.compat import v1 as tf
-    return tf.gather(params=get_vocab_tf(), indices=i)
-
-
-def out_str(source, **kwargs):
-    # ["prev:out_str", "output_emit", "output"]
-    from returnn.tf.compat import v1 as tf
-    from returnn.tf.util.basic import where_bc
-    return source(0) + where_bc(source(1), get_vocab_sym(source(2)), tf.constant(""))
-
-
-def rnnt_loss(source, **kwargs):
-    """
-    Computes the RNN-T loss function.
-
-    :param log_prob:
-    :return:
-    """
-    # acts: (B, T, U + 1, V)
-    # targets: (B, T)
-    # input_lengths (B,)
-    # label_lengths (B,)
-    from returnn.extern.HawkAaronWarpTransducer import rnnt_loss
-
-    log_probs = source(0, as_data=True, auto_convert=False)
-    targets = source(1, as_data=True, auto_convert=False)
-    encoder = source(2, as_data=True, auto_convert=False)
-
-    enc_lens = encoder.get_sequence_lengths()
-    dec_lens = targets.get_sequence_lengths()
-
-    costs = rnnt_loss(log_probs.get_placeholder_as_batch_major(), targets.get_placeholder_as_batch_major(), enc_lens, dec_lens,
-            blank_label=_targetb_blank_idx)
-    costs.set_shape((None,))  # (B,)
-    return costs
 
 
 # network, 5 epochs warmup, 5 epochs pretraining
@@ -344,8 +291,9 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
                   "initial_output": None, "out_type": {"shape": (), "dtype": "string"},
                   "eval": out_str},
 
-              "output_is_not_blank": {"class": "compare", "from": "output_", "value": _targetb_blank_idx,
-                  "kind": "not_equal", "initial_output": True},
+              "output_is_not_blank": {
+                "class": "compare", "from": "output_", "value": _targetb_blank_idx,
+                "kind": "not_equal", "initial_output": True},
 
               # initial state=True so that we are consistent to the training and the initial state is correctly set.
               "output_emit": { "class": "copy", "from": "output_is_not_blank", "is_output_layer": True, "initial_output": True},
