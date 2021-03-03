@@ -114,7 +114,6 @@ cache_size = "0"
 window = 1
 
 
-
 def get_vocab_tf():
     from returnn.datasets.generating import Vocabulary
     from returnn.tf.util.basic import get_shared_vocab
@@ -144,7 +143,6 @@ def out_str(source, **kwargs):
     return source(0) + where_bc(source(1), get_vocab_sym(source(2)), tf.constant(""))
 
 
-
 def rnnt_loss(source, **kwargs):
     """
     Computes the RNN-T loss function.
@@ -169,39 +167,6 @@ def rnnt_loss(source, **kwargs):
             blank_label=_targetb_blank_idx)
     costs.set_shape((None,))  # (B,)
     return costs
-
-
-def rnnt_alignment(source, **kwargs):
-    """
-    Computes the RNN-T alignment (forced alignment).
-
-    :param log_prob:
-    :return:
-    """
-    # alignment-length (B,T+U+1)
-    # acts: (B, T, U+1, V)
-    # targets: (B, U)
-    # input_lengths (B,)
-    # label_lengths (B,)
-    import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "code"))
-    from rnnt_tf_impl import rnnt_loss
-
-    alignment_length = source(0, as_data=True, auto_convert=False)
-    log_probs = source(1, as_data=True, auto_convert=False).get_placeholder_as_batch_major()
-    targets = source(2, as_data=True, auto_convert=False)
-    encoder = source(3, as_data=True, auto_convert=False)
-
-    enc_lens = encoder.get_sequence_lengths()
-    dec_lens = targets.get_sequence_lengths()
-
-    # print_op = tf.print({"max(U+T)": tf.reduce_max(enc_lens+dec_lens), "alignment-length": alignment_length.get_sequence_lengths()}, summarize=-1)
-    # with tf.control_dependencies([print_op]):
-        # log_probs = tf.identity(log_probs)
-
-    costs, alignment = rnnt_loss(log_probs, targets.get_placeholder_as_batch_major(), enc_lens, dec_lens,
-                                 blank_index=_targetb_blank_idx, debug=False, with_alignment=True)
-    return alignment # (B, T)
 
 
 # network, 5 epochs warmup, 5 epochs pretraining
@@ -346,9 +311,12 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
                       "lstm0_zoneout": {"class": "rnn_cell", "unit": "ZoneoutLSTM", "unit_opts": {"zoneout_factor_cell": 0.15, "zoneout_factor_output": 0.05}, "from": ["embed_dropout"], "n_out": 500},
                       "output": {"class": "copy", "from": "lstm0_zoneout"}
                   }}},
-              "readout_in": {"class": "linear", "from": ["am", "lm_masked"], "activation": None, "n_out": 1000, "L2": l2, "dropout": 0.2,
-                "out_type": {"batch_dim_axis": 2 if task == "train" else 0, "shape": (None, None, 1000) if task == "train" else (1000,),
-                  "time_dim_axis": 0 if task == "train" else None}}, # (T, U+1, B, 1000
+              "readout_in": {
+                "class": "linear", "from": ["am", "lm_masked"], "activation": None, "n_out": 1000, "L2": l2, "dropout": 0.2,
+                "out_type": {
+                  "batch_dim_axis": 2 if task == "train" else 0,
+                  "shape": (None, None, 1000) if task == "train" else (1000,),
+                  "time_dim_axis": 0 if task == "train" else None}},  # (T, U+1, B, 1000)
               "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_in"},
 
               "label_log_prob": {
@@ -370,18 +338,6 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
               },
               # switchout only applicable to viterbi training, added below.
               "output_": {"class": "copy", "from": "output", "initial_output": 0},
-
-              # "alignment_length0": {"class": "prefix_in_time", "from": "base:lm_input0", "repeat": "base:enc_seq_len", "prefix": 0, "register_as_extern_data": "alignment"},
-
-              # "fullsum_alignment0": {
-                  # "class": "eval",
-                  # "from": ["alignment_length0", "output_log_prob", "base:data:" + _target, "base:encoder"],
-                  # "eval": rnnt_alignment,
-                  # "size_target": "alignment",
-                  # "out_type": lambda sources, **kwargs: Data(name="rnnt_alignment_output", sparse=True, dim=_targetb_num_labels,
-                      # size_placeholder={}),
-                  # "is_output_layer": True,
-              # },
 
               "out_str": {
                   "class": "eval", "from": ["prev:out_str", "output_emit", "output"],
@@ -414,7 +370,8 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
           "max_seq_len": "max_len_from('base:encoder') * 3",
       }
 
-  net_dict["output"] = get_output_dict(train=(task=="train"), search=(task != "train"), target=target, beam_size=beam_size)
+  net_dict["output"] = get_output_dict(
+    train=(task == "train"), search=(task != "train"), target=target, beam_size=beam_size)
 
   subnet = net_dict["output"]["unit"]
 
@@ -449,18 +406,6 @@ truncation = -1
 
 num_epochs = _range_epochs_full_sum [1] + 1
 model = "net-model/network"
-# rnnt-fs.bpe1k.readout.lm-embed256.lr1e_3.no-curric.bs12k.mgpu.160/search.dev-other.ep160.beam12.recog.scoring.wer:9.69
-_model_init = "base/data-train/rnnt-fs.bpe1k.readout.lm-embed256.lr1e_3.no-curric.bs12k.mgpu/net-model/network.160"
-# import_model_train_epoch1 = "base/data-train/rnnt-fs.bpe1k.readout.lm-embed256.lr1e_3.no-curric.bs12k.mgpu/net-model/network.160"
-preload_from_files ={
-      'train': {
-        'filename': _model_init,
-        'prefix': '',
-        'init_for_train': True,
-        'ignore_missing': True,
-        'ignore_params': ('output/rec/readout_in/W', 'output/rec/readout_in/b'),
-      }
-      }
 cleanup_old_models = True
 gradient_clip = 0
 #gradient_clip_global_norm = 1.0
