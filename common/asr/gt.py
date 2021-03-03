@@ -14,8 +14,8 @@ tf1 = tf.compat.v1
 
 
 class Extractor:
-  def __init__(self):
-    net_dict = get_net_dict()
+  def __init__(self, **kwargs):
+    net_dict = get_net_dict(**kwargs)
     with tf1.Graph().as_default() as self.graph:
       self.extern_data = ExternData({"data": {"shape": (None, 1)}})
       self.input = self.extern_data.data["data"]
@@ -46,10 +46,9 @@ _extractor = None
 
 def _extract(*, audio, num_feature_filters, sample_rate, **_other):
   assert sample_rate == 16000
-  assert num_feature_filters == 50
   global _extractor
   if not _extractor:
-    _extractor = Extractor()
+    _extractor = Extractor(num_channels=num_feature_filters)
   features, _ = _extractor.run(audio[numpy.newaxis, :, numpy.newaxis])
   return features[0]
 
@@ -62,7 +61,7 @@ def make_returnn_audio_features_func():
   return _extract
 
 
-def get_net_dict():
+def get_net_dict(num_channels=50):
   return {
     'shift_0': {'class': 'slice', 'axis': 'T', 'slice_end': -1},
     'shift_1_raw': {'class': 'slice', 'axis': 'T', 'slice_start': 1},
@@ -74,11 +73,11 @@ def get_net_dict():
       'activation': 'abs',
       'filter_size': (640,),
       'forward_weights_init': {
-        'class': 'GammatoneFilterbankInitializer', 'length': 0.04, 'num_channels': 50},
+        'class': 'GammatoneFilterbankInitializer', 'length': 0.04, 'num_channels': num_channels},
       'from': 'gammatone_filterbank_padding',
-      'n_out': 50,
+      'n_out': num_channels,
       'padding': 'valid'},
-    'gammatone_filterbank_split': {'axis': 'F', 'class': 'split_dims', 'dims': (-1, 1), 'from': 'gammatone_filterbank'},
+    'gammatone_filterbank_split': {'class': 'split_dims', 'axis': 'F', 'dims': (-1, 1), 'from': 'gammatone_filterbank'},
     'temporal_integration': {
       'class': 'conv',
       'filter_size': (400, 1),
@@ -93,12 +92,6 @@ def get_net_dict():
       'eval': 'tf.pow(source(0) + 1e-06, 0.1)',
       'from': 'temporal_integration_merge'},
     'dct': {'class': 'dct', 'from': 'compression'},
-    'output': {
-      'class': 'linear',
-      'activation': None,
-      'batch_norm': True,
-      'forward_weights_init': 'Identity',
-      'from': 'dct',
-      'n_out': 50},
+    'output': {'class': 'batch_norm', 'from': 'dct'},
   }
 
