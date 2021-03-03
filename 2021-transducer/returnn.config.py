@@ -300,7 +300,7 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
 
               "const0": {"class": "constant", "value": 0, "collocate_with": ["du", "dt", "t", "u"], "dtype": "int32"},
               "const1": {"class": "constant", "value": 1, "collocate_with": ["du", "dt", "t", "u"], "dtype": "int32"},
-              
+
               # pos in target, [B]
               "du": {"class": "switch", "condition": "output_emit", "true_from": "const1", "false_from": "const0"},
               "u": {"class": "combine", "from": ["prev:u", "du"], "kind": "add", "initial_output": 0},
