@@ -8,9 +8,10 @@ from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.enc
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.recomb_recog import targetb_recomb_recog
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.loss import rnnt_loss
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.collect_out_str import out_str
+from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.datasets.interface import TargetConfig
 
 
-def make_net(*, task: str, target: str):
+def make_net(*, task: str, target: TargetConfig, beam_size: int):
   lstm_dim = 1024
   l2 = 0.0001
 
@@ -22,33 +23,27 @@ def make_net(*, task: str, target: str):
     "output_wo_b0": {
       "class": "masked_computation", "unit": {"class": "copy"},
       "from": "output", "mask": "output/output_emit"},
-    "output_wo_b": {"class": "reinterpret_data", "from": "output_wo_b0", "set_sparse_dim": _target_num_labels},
+    "output_wo_b": {
+      "class": "reinterpret_data", "from": "output_wo_b0", "set_sparse_dim": target.vocab.get_num_classes()},
     "decision": {
-      "class": "decide", "from": "output_wo_b", "loss": "edit_distance", "target": _target,
+      "class": "decide", "from": "output_wo_b", "loss": "edit_distance", "target": target.key,
       'only_on_search': True},
   }
 
   if task == "train":
-    net_dict["lm_input0"] = {"class": "copy", "from": "data:%s" % target}
+    net_dict["lm_input0"] = {"class": "copy", "from": "data:%s" % target.key}
     net_dict["lm_input1"] = {"class": "prefix_in_time", "from": "lm_input0", "prefix": 0}
     net_dict["lm_input"] = {"class": "copy", "from": "lm_input1"}
 
   net_dict["output"] = make_decoder(
     train=(task == "train"), search=(task != "train"), target=target, beam_size=beam_size)
 
-  subnet = net_dict["output"]["unit"]
-  subnet["output_prob"] = {
-    "class": "eval",
-    "from": ["output_log_prob", "base:data:" + _target, "base:encoder"],
-    "eval": rnnt_loss,
-    "out_type": lambda sources, **kwargs: Data(name="rnnt_loss", shape=()),
-    "loss": "as_is",
-  }
-
   return net_dict
 
 
-def make_decoder(train, search, target=target, beam_size=beam_size):
+def make_decoder(*, train, search, target: TargetConfig, beam_size: int):
+  # target is without blank.
+  blank_idx = target.vocab.get_num_classes()
   return {
     "class": "rec",
     "from": "encoder" if task == "train" else [],
@@ -59,7 +54,7 @@ def make_decoder(train, search, target=target, beam_size=beam_size):
       "am": {"class": "copy", "from": "data:source" if task == "train" else "am0"},
 
       "prev_out_non_blank": {
-        "class": "reinterpret_data", "from": "prev:output_", "set_sparse_dim": _target_num_labels},
+        "class": "reinterpret_data", "from": "prev:output_", "set_sparse_dim": target.vocab.get_num_classes()},
       "lm_masked": {"class": "masked_computation",
         "mask": "prev:output_emit",
         "from": "prev_out_non_blank",  # in decoding
@@ -85,12 +80,23 @@ def make_decoder(train, search, target=target, beam_size=beam_size):
       "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_in"},
 
       "label_log_prob": {
-        "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": 0.3, "n_out": _target_num_labels},  # (B, T, U+1, 1030)
-      "emit_prob0": {"class": "linear", "from": "readout", "activation": None, "n_out": 1, "is_output_layer": True},  # (B, T, U+1, 1)
+        "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": 0.3,
+        "n_out": target.vocab.get_num_classes()},  # (B, T, U+1, 1030)
+      "emit_prob0": {"class": "linear", "from": "readout", "activation": None, "n_out": 1},  # (B, T, U+1, 1)
       "emit_log_prob": {"class": "activation", "from": "emit_prob0", "activation": "log_sigmoid"},  # (B, T, U+1, 1)
-      "blank_log_prob": {"class": "eval", "from": "emit_prob0", "eval": "tf.compat.v1.log_sigmoid(-source(0))"},  # (B, T, U+1, 1)
-      "label_emit_log_prob": {"class": "combine", "kind": "add", "from": ["label_log_prob", "emit_log_prob"]},  # (B, T, U+1, 1), scaling factor in log-space
-      "output_log_prob": {"class": "copy", "from": ["label_emit_log_prob", "blank_log_prob"]},  # (B, T, U+1, 1031)
+      "blank_log_prob": {
+        "class": "eval", "from": "emit_prob0", "eval": "tf.compat.v1.log_sigmoid(-source(0))"},  # (B, T, U+1, 1)
+      "label_emit_log_prob": {
+        "class": "combine", "kind": "add", "from": ["label_log_prob", "emit_log_prob"]},  # (B, T, U+1, 1)
+      "output_log_prob": {"class": "copy", "from": ["label_emit_log_prob", "blank_log_prob"]},  # (B, T, U+1, D+1)
+
+      "full_sum_loss": {
+        "class": "eval",
+        "from": ["output_log_prob", "base:data:" + target.key, "base:encoder"],
+        "eval": rnnt_loss,
+        "out_type": lambda sources, **kwargs: Data(name="rnnt_loss", shape=()),
+        "loss": "as_is",
+      },
 
       "output": {
         "class": 'choice', 'target': target, 'beam_size': beam_size,
@@ -110,11 +116,11 @@ def make_decoder(train, search, target=target, beam_size=beam_size):
         "eval": out_str},
 
       "output_is_not_blank": {
-        "class": "compare", "from": "output_", "value": _targetb_blank_idx,
+        "class": "compare", "from": "output_", "value": blank_idx,
         "kind": "not_equal", "initial_output": True},
 
       # initial state=True so that we are consistent to the training and the initial state is correctly set.
-      "output_emit": { "class": "copy", "from": "output_is_not_blank", "is_output_layer": True, "initial_output": True},
+      "output_emit": {"class": "copy", "from": "output_is_not_blank", "is_output_layer": True, "initial_output": True},
 
       "const0": {"class": "constant", "value": 0, "collocate_with": ["du", "dt", "t", "u"], "dtype": "int32"},
       "const1": {"class": "constant", "value": 1, "collocate_with": ["du", "dt", "t", "u"], "dtype": "int32"},

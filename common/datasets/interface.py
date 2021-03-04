@@ -51,3 +51,9 @@ class VocabConfig:
 
   def get_opts(self) -> Dict[str]:
     raise NotImplementedError
+
+
+class TargetConfig:
+  def __init__(self, vocab: VocabConfig, key: str):
+    self.vocab = vocab
+    self.key = key
