@@ -16,7 +16,7 @@ def make_net(*, task: str, target: TargetConfig = None, beam_size: int = 12, l2=
   if not target:
     target = TargetConfig()
   net_dict = {
-    "encoder": blstm_cnn_specaug.make_net(l2=l2, lstm_dim=lstm_dim),
+    "encoder": blstm_cnn_specaug.make_encoder(l2=l2, lstm_dim=lstm_dim),
     "enc_seq_len": {"class": "length", "from": "encoder", "sparse": False},
 
     # for task "search" / search_output_layer

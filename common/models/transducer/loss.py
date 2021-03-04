@@ -16,11 +16,13 @@ def rnnt_loss(source, **kwargs):
   targets = source(1, as_data=True, auto_convert=False)
   encoder = source(2, as_data=True, auto_convert=False)
 
+  blank_idx = targets.dim  # targets is without blank
+
   enc_lens = encoder.get_sequence_lengths()
   dec_lens = targets.get_sequence_lengths()
 
   costs = rnnt_loss(
     log_probs.get_placeholder_as_batch_major(), targets.get_placeholder_as_batch_major(), enc_lens, dec_lens,
-    blank_label=_targetb_blank_idx)
+    blank_label=blank_idx)
   costs.set_shape((None,))  # (B,)
   return costs
