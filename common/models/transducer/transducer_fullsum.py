@@ -12,10 +12,7 @@ from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.col
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.datasets.interface import TargetConfig
 
 
-def make_net(*, task: str, target: TargetConfig, beam_size: int):
-  lstm_dim = 1024
-  l2 = 0.0001
-
+def make_net(*, task: str, target: TargetConfig, beam_size: int = 12, l2=0.0001, lstm_dim=1024):
   net_dict = {
     "encoder": blstm_cnn_specaug.make_net(l2=l2, lstm_dim=lstm_dim),
     "enc_seq_len": {"class": "length", "from": "encoder", "sparse": False},
@@ -42,7 +39,7 @@ def make_net(*, task: str, target: TargetConfig, beam_size: int):
   return net_dict
 
 
-def make_decoder(*, train: bool, search: bool, l2=0.0, target: TargetConfig, beam_size: int) -> Dict[str]:
+def make_decoder(*, train: bool, search: bool, l2=0.0001, target: TargetConfig, beam_size: int = 12) -> Dict[str]:
   """
   This is currently the original RNN-T label topology,
   meaning that we all vertical transitions in the lattice, i.e. U=T+S. (T input, S output, U alignment length).
@@ -84,7 +81,7 @@ def make_decoder(*, train: bool, search: bool, l2=0.0, target: TargetConfig, bea
         "activation": None, "n_out": 1000, "L2": l2, "dropout": 0.2,
         "out_type": {
           "batch_dim_axis": 0 if search else 2,
-          "shape": (None, None, 1000) if train else (1000,),
+          "shape": (1000,) if search else (None, None, 1000),
           "time_dim_axis": None if search else 0}},  # (T, U+1, B, 1000)
       "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_in"},
 
