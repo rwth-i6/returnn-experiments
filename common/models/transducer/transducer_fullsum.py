@@ -1,6 +1,7 @@
 
 
-from returnn.tf.util.data import DimensionTag, Data
+from typing import Dict
+from returnn.tf.util.data import Data
 from returnn.import_ import import_
 
 import_("github.com/rwth-i6/returnn-experiments", "common")
@@ -36,47 +37,55 @@ def make_net(*, task: str, target: TargetConfig, beam_size: int):
     net_dict["lm_input"] = {"class": "copy", "from": "lm_input1"}
 
   net_dict["output"] = make_decoder(
-    train=(task == "train"), search=(task != "train"), target=target, beam_size=beam_size)
+    train=(task == "train"), search=(task != "train"), l2=l2, target=target, beam_size=beam_size)
 
   return net_dict
 
 
-def make_decoder(*, train, search, target: TargetConfig, beam_size: int):
+def make_decoder(*, train: bool, search: bool, l2=0.0, target: TargetConfig, beam_size: int) -> Dict[str]:
+  """
+  This is currently the original RNN-T label topology,
+  meaning that we all vertical transitions in the lattice, i.e. U=T+S. (T input, S output, U alignment length).
+  """
   # target is without blank.
   blank_idx = target.vocab.get_num_classes()
   return {
     "class": "rec",
-    "from": "encoder" if task == "train" else [],
+    # In training, go framewise over the input, and inside the loop, we build up the whole 2D space (TxS).
+    "from": [] if search else "encoder",
     "include_eos": True,
-    "back_prop": (task == "train") and train,
+    "back_prop": train,
     "unit": {
       "am0": {"class": "gather_nd", "from": "base:encoder", "position": "prev:t"},  # [B,D]
-      "am": {"class": "copy", "from": "data:source" if task == "train" else "am0"},
+      "am": {"class": "copy", "from": "am0" if search else "data:source"},
 
       "prev_out_non_blank": {
         "class": "reinterpret_data", "from": "prev:output_", "set_sparse_dim": target.vocab.get_num_classes()},
-      "lm_masked": {"class": "masked_computation",
+      "lm_masked": {
+        "class": "masked_computation",
         "mask": "prev:output_emit",
         "from": "prev_out_non_blank",  # in decoding
-        "masked_from": "base:lm_input" if task == "train" else None,  # enables optimization if used
+        "masked_from": None if search else "base:lm_input",  # enables optimization if used
         "unit": {
-        "class": "subnetwork", "from": "data",
-        "subnetwork": {
-          "input_embed": {"class": "linear", "activation": None, "with_bias": False, "from": "data", "n_out": 256},
-          "embed_dropout": {"class": "dropout", "from": "input_embed", "dropout": 0.2},
-          # "lstm0": {"class": "rec", "unit": "nativelstm2", "n_out": LstmDim, "from": "embed_dropout", "L2": l2},
-          "lstm0": {
-            "class": "rnn_cell",
-            "unit": "ZoneoutLSTM", "unit_opts": {"zoneout_factor_cell": 0.15, "zoneout_factor_output": 0.05},
-            "from": "embed_dropout", "n_out": 500},
-          "output": {"class": "copy", "from": "lstm0"}
-        }}},
+          "class": "subnetwork", "from": "data",
+          "subnetwork": {
+            "input_embed": {"class": "linear", "activation": None, "with_bias": False, "from": "data", "n_out": 256},
+            "embed_dropout": {"class": "dropout", "from": "input_embed", "dropout": 0.2},
+            # "lstm0": {"class": "rec", "unit": "nativelstm2", "n_out": LstmDim, "from": "embed_dropout", "L2": l2},
+            "lstm0": {
+              "class": "rnn_cell",
+              "unit": "ZoneoutLSTM", "unit_opts": {"zoneout_factor_cell": 0.15, "zoneout_factor_output": 0.05},
+              "from": "embed_dropout", "n_out": 500},
+            "output": {"class": "copy", "from": "lstm0"}
+          }
+        }},
       "readout_in": {
-        "class": "linear", "from": ["am", "lm_masked"], "activation": None, "n_out": 1000, "L2": l2, "dropout": 0.2,
+        "class": "linear", "from": ["am", "lm_masked"],
+        "activation": None, "n_out": 1000, "L2": l2, "dropout": 0.2,
         "out_type": {
-          "batch_dim_axis": 2 if task == "train" else 0,
-          "shape": (None, None, 1000) if task == "train" else (1000,),
-          "time_dim_axis": 0 if task == "train" else None}},  # (T, U+1, B, 1000)
+          "batch_dim_axis": 0 if search else 2,
+          "shape": (None, None, 1000) if train else (1000,),
+          "time_dim_axis": None if search else 0}},  # (T, U+1, B, 1000)
       "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_in"},
 
       "label_log_prob": {
@@ -99,13 +108,15 @@ def make_decoder(*, train, search, target: TargetConfig, beam_size: int):
       },
 
       "output": {
-        "class": 'choice', 'target': target, 'beam_size': beam_size,
+        "class": 'choice',
+        'target': target.key,  # note: wrong! but this is ignored both in full-sum training and in search
+        'beam_size': beam_size,
         'from': "output_log_prob", "input_type": "log_prob",
         "initial_output": 0,
         "length_normalization": False,
-        "cheating": "exclusive" if task == "train" else None,
-        "explicit_search_sources": ["prev:out_str", "prev:output"] if task == "search" else None,
-        "custom_score_combine": targetb_recomb_recog if task == "search" else None
+        "cheating": "exclusive" if train else None,  # only relevant for train+search
+        "explicit_search_sources": ["prev:out_str", "prev:output"] if search else None,
+        "custom_score_combine": targetb_recomb_recog if search else None
       },
       # switchout only applicable to viterbi training, added below.
       "output_": {"class": "copy", "from": "output", "initial_output": 0},
