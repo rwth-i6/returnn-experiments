@@ -14,6 +14,7 @@ config = get_global_config()
 use_tensorflow = True
 task = config.value("task", "train")
 device = "gpu"
+# tf_session_opts = {"gpu_options": {"allow_growth": True}}
 
 debug_mode = False
 if int(os.environ.get("RETURNN_DEBUG", "0")):
