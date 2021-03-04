@@ -17,8 +17,8 @@ network = make_net(task=task)
 
 # trainer
 batching = "random"
-batch_size = 12000
-max_seqs = 200
+batch_size = 1000 if debug_mode else 12000
+max_seqs = 10 if debug_mode else 200
 max_seq_length = {"classes": 75}
 
 num_epochs = 100
