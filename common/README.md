@@ -30,3 +30,19 @@ The config code looks like this:
 You would also edit the code in `~/returnn/pkg/...`,
 and once finished, you would commit and push to `returnn-experiments`,
 and then change the config to that specific version (date & commit).
+
+---
+
+Note for contributions:
+
+This is supposed to be **simple**.
+Functions or classes can have some options
+with reasonable defaults.
+But this should not become too complicated.
+E.g. a function to return a Librispeech corpus
+should not be totally generic to cover every possible case.
+When it doesn't fit your use case,
+instead of making the function more complicated,
+just provide your alternative `LibrispeechCustomX` class.
+There should be reasonable defaults.
+E.g. just `Librispeech()` will give you some reasonable dataset.
