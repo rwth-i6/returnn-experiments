@@ -6,6 +6,7 @@ import ast
 import os
 import time
 import better_exchook
+import json
 
 better_exchook.install()
 txt_fn_gz = os.path.expanduser("train-other-500.txt.gz")
@@ -19,3 +20,8 @@ print("compile:", timeit.timeit(lambda: compile(txt, "<>", "exec"), number=1))
 print("parse:", timeit.timeit(lambda: compile(txt, "<>", "exec", ast.PyCF_ONLY_AST), number=1))
 print("eval:", timeit.timeit(lambda: eval(txt), number=1))
 print("ast.literal_eval:", timeit.timeit(lambda: ast.literal_eval(txt), number=1))
+
+content = eval(txt)
+js = json.dumps(content)
+
+print("json.loads:", timeit.timeit(lambda: json.loads(js), number=1))
