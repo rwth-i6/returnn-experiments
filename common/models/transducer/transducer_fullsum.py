@@ -1,6 +1,6 @@
 
-
-from typing import Dict
+from __future__ import annotations
+from typing import Dict, Any
 from returnn.tf.util.data import Data
 from returnn.import_ import import_
 
@@ -8,11 +8,13 @@ import_("github.com/rwth-i6/returnn-experiments", "common")
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.encoder import blstm_cnn_specaug
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.recomb_recog import targetb_recomb_recog
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.loss import rnnt_loss
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.collect_out_str import out_str
+from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.collect_out_str import make_out_str_func
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.datasets.interface import TargetConfig
 
 
-def make_net(*, task: str, target: TargetConfig, beam_size: int = 12, l2=0.0001, lstm_dim=1024):
+def make_net(*, task: str, target: TargetConfig = None, beam_size: int = 12, l2=0.0001, lstm_dim=1024):
+  if not target:
+    target = TargetConfig()
   net_dict = {
     "encoder": blstm_cnn_specaug.make_net(l2=l2, lstm_dim=lstm_dim),
     "enc_seq_len": {"class": "length", "from": "encoder", "sparse": False},
@@ -39,7 +41,7 @@ def make_net(*, task: str, target: TargetConfig, beam_size: int = 12, l2=0.0001,
   return net_dict
 
 
-def make_decoder(*, train: bool, search: bool, l2=0.0001, target: TargetConfig, beam_size: int = 12) -> Dict[str]:
+def make_decoder(*, train: bool, search: bool, l2=0.0001, target: TargetConfig, beam_size: int = 12) -> Dict[str, Any]:
   """
   This is currently the original RNN-T label topology,
   meaning that we all vertical transitions in the lattice, i.e. U=T+S. (T input, S output, U alignment length).
@@ -112,7 +114,7 @@ def make_decoder(*, train: bool, search: bool, l2=0.0001, target: TargetConfig, 
         "initial_output": 0,
         "length_normalization": False,
         "cheating": "exclusive" if train else None,  # only relevant for train+search
-        "explicit_search_sources": ["prev:out_str", "prev:output"] if search else None,
+        "explicit_search_sources": ["prev:out_str", "prev:output"] if search and targetb_recomb_recog else None,
         "custom_score_combine": targetb_recomb_recog if search else None
       },
       # switchout only applicable to viterbi training, added below.
@@ -121,7 +123,7 @@ def make_decoder(*, train: bool, search: bool, l2=0.0001, target: TargetConfig, 
       "out_str": {
         "class": "eval", "from": ["prev:out_str", "output_emit", "output"],
         "initial_output": None, "out_type": {"shape": (), "dtype": "string"},
-        "eval": out_str},
+        "eval": make_out_str_func(target=target.key)},
 
       "output_is_not_blank": {
         "class": "compare", "from": "output_", "value": blank_idx,

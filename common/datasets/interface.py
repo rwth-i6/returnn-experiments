@@ -1,6 +1,6 @@
 
 from __future__ import annotations
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 
 class DatasetConfig:
@@ -49,11 +49,38 @@ class VocabConfig:
   def get_num_classes(self) -> int:
     raise NotImplementedError
 
-  def get_opts(self) -> Dict[str]:
+  def get_opts(self) -> Dict[str, Any]:
     raise NotImplementedError
 
 
+class VocabConfigStatic(VocabConfig):
+  def __init__(self, *, num_classes: int, opts: Dict[str, Any]):
+    super(VocabConfigStatic, self).__init__()
+    self.num_classes = num_classes
+    self.opts = opts
+
+  @classmethod
+  def from_global_config(cls, data_key: str):
+    from returnn.config import get_global_config
+    config = get_global_config()
+    extern_data_opts = config.typed_dict["extern_data"]
+    data_opts = extern_data_opts[data_key]
+    return VocabConfigStatic(num_classes=data_opts["dim"], opts=data_opts["vocab"])
+
+  def get_num_classes(self) -> int:
+    return self.num_classes
+
+  def get_opts(self) -> Dict[str, Any]:
+    return self.opts
+
+
 class TargetConfig:
-  def __init__(self, vocab: VocabConfig, key: str):
+  def __init__(self, key: str = None, *, vocab: VocabConfig = None):
+    if not key:
+      from returnn.config import get_global_config
+      config = get_global_config()
+      key = config.typed_dict["target"]
+    if not vocab:
+      vocab = VocabConfigStatic.from_global_config(key)
     self.vocab = vocab
     self.key = key

@@ -3,7 +3,7 @@ This contains some of our standard vocabularies (e.g. BPE) for Librispeech.
 """
 
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Any
 from ...interface import VocabConfig
 
 
@@ -17,7 +17,7 @@ class _Bpe(VocabConfig):
   def get_num_classes(self) -> int:
     return self.dim
 
-  def get_opts(self) -> Dict[str]:
+  def get_opts(self) -> Dict[str, Any]:
     return {
       'bpe_file': self.codes,
       'vocab_file': self.vocab,

@@ -1,5 +1,6 @@
 
-from typing import Dict
+from __future__ import annotations
+from typing import Dict, Any
 from ..features import make_gt_features_opts
 from .vocabs import bpe1k
 from ...interface import DatasetConfig, VocabConfig
@@ -17,16 +18,19 @@ class Librispeech(DatasetConfig):
     self.train_epoch_split = train_epoch_split
     self.vocab = vocab
 
-  def get_extern_data(self) -> Dict[str, Dict[str]]:
+  def get_extern_data(self) -> Dict[str, Dict[str, Any]]:
     return {
-      "classes": {"dim": self.vocab.get_num_classes(), "sparse": True},  # see vocab
       "data": {"dim": self.audio_dim},
+      "classes": {
+        "sparse": True,
+        "dim": self.vocab.get_num_classes(),
+        "vocab": self.vocab.get_opts()},
     }
 
-  def get_train_dataset(self) -> Dict[str]:
+  def get_train_dataset(self) -> Dict[str, Any]:
     return self.get_dataset("train", train_partition_epoch=self.train_epoch_split)
 
-  def get_eval_datasets(self) -> Dict[str, Dict[str]]:
+  def get_eval_datasets(self) -> Dict[str, Dict[str, Any]]:
     return {
       "dev": self.get_dataset("dev", subset=3000),
       "devtrain": self.get_dataset("train", subset=2000)}

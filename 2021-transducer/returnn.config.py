@@ -13,7 +13,7 @@ from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.tra
 # data
 globals().update(oggzip.Librispeech().get_config_opts())
 
-network = make_net(task=task, target=globals()["target"])
+network = make_net(task=task)
 
 # trainer
 batching = "random"
