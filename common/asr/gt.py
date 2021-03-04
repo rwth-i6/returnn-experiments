@@ -22,7 +22,7 @@ class Extractor:
       self.net = TFNetwork(name="Gammatone", extern_data=self.extern_data)
       self.net.construct_from_dict(net_dict)
       self.output = self.net.get_default_output_layer().output.copy_as_batch_major()
-      self.session = tf1.Session(graph=self.graph)
+      self.session = tf1.Session(graph=self.graph, config=tf1.ConfigProto(device_count=dict(GPU=0)))
       self.session.run(tf1.global_variables_initializer())
 
   def run(self, audio, seq_lens=None):
