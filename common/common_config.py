@@ -5,6 +5,7 @@ Provides some common settings for RETURNN configs (training + search).
 Use `from ... import *` directly in your config for this module.
 """
 
+import sys
 from .multi_gpu_horovod import *  # noqa
 from returnn.config import get_global_config
 
@@ -13,18 +14,24 @@ config = get_global_config()
 # task
 use_tensorflow = True
 task = config.value("task", "train")
-device = "gpu"
+# Enforce usage of GPU. (Disable this for testing when you only have a CPU.)
+device = os.environ.get("RETURNN_DEVICE", "gpu")
+# allow_growth should be used when the GPU is shared (e.g. with Xorg).
+# However, don't set by default (for performance reasons).
+if os.environ.get("RETURNN_TF_SESSION_OPTS"):
+  tf_session_opts = eval(os.environ["RETURNN_TF_SESSION_OPTS"])
 # tf_session_opts = {"gpu_options": {"allow_growth": True}}
 
 debug_mode = False
 if int(os.environ.get("RETURNN_DEBUG", "0")):
-  import sys
   print("** DEBUG MODE", file=sys.stderr)
+  # By itself, this doesn't do anything.
+  # In your main config, you might select a smaller batch size, or other things,
+  # depending on this flag.
   debug_mode = True
 
 if config.has("beam_size"):
   beam_size = config.int("beam_size", 0)
-  import sys
   print("** beam_size %i" % beam_size, file=sys.stderr)
 else:
   beam_size = 12
