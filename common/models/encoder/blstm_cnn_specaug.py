@@ -11,7 +11,7 @@ def make_encoder(src="data", **kwargs):
 
 def make_net(
     *,
-    num_lstm_layers=6, lstm_dim=1024,
+    num_layers=6, lstm_dim=1024,
     time_reduction=(3, 2), with_specaugment=True,
     l2=0.0001, dropout=0.3,
 ) -> Dict[str, Any]:
@@ -31,15 +31,15 @@ def make_net(
   }
 
   # Add encoder BLSTM stack.
-  if len(time_reduction) > num_lstm_layers - 1:
+  if len(time_reduction) > num_layers - 1:
     time_reduction = [int(numpy.prod(time_reduction))]
   src = "conv_merged"
-  if num_lstm_layers >= 1:
+  if num_layers >= 1:
     net_dict.update({
       "lstm0_fw": {"class": "rec", "unit": "nativelstm2", "n_out": lstm_dim, "L2": l2, "direction": 1, "from": src},
       "lstm0_bw": {"class": "rec", "unit": "nativelstm2", "n_out": lstm_dim, "L2": l2, "direction": -1, "from": src}})
     src = ["lstm0_fw", "lstm0_bw"]
-  for i in range(1, num_lstm_layers):
+  for i in range(1, num_layers):
     red = time_reduction[i - 1] if (i - 1) < len(time_reduction) else 1
     net_dict.update({
       "lstm%i_pool" % (i - 1): {"class": "pool", "mode": "max", "padding": "same", "pool_size": (red,), "from": src}})
