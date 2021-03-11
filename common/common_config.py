@@ -14,13 +14,6 @@ config = get_global_config()
 # task
 use_tensorflow = True
 task = config.value("task", "train")
-# Enforce usage of GPU. (Disable this for testing when you only have a CPU.)
-device = os.environ.get("RETURNN_DEVICE", "gpu")
-# allow_growth should be used when the GPU is shared (e.g. with Xorg).
-# However, don't set by default (for performance reasons).
-if os.environ.get("RETURNN_TF_SESSION_OPTS"):
-  tf_session_opts = eval(os.environ["RETURNN_TF_SESSION_OPTS"])
-# tf_session_opts = {"gpu_options": {"allow_growth": True}}
 
 debug_mode = False
 if int(os.environ.get("RETURNN_DEBUG", "0")):
@@ -30,6 +23,14 @@ if int(os.environ.get("RETURNN_DEBUG", "0")):
   # depending on this flag.
   debug_mode = True
   dry_run = True
+
+# Enforce usage of GPU. (Disable this for testing when you only have a CPU.)
+device = os.environ.get("RETURNN_DEVICE", None if debug_mode else "gpu")
+# allow_growth should be used when the GPU is shared (e.g. with Xorg).
+# However, don't set by default (for performance reasons).
+if os.environ.get("RETURNN_TF_SESSION_OPTS"):
+  tf_session_opts = eval(os.environ["RETURNN_TF_SESSION_OPTS"])
+# tf_session_opts = {"gpu_options": {"allow_growth": True}}
 
 if config.has("beam_size"):
   beam_size = config.int("beam_size", 0)
