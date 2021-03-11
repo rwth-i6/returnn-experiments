@@ -12,8 +12,8 @@ from ...datasets.interface import TargetConfig
 
 def make_net(
     *,
-    encoder_layer_dict=None,
     task: str, target: TargetConfig = None,
+    encoder_layer_dict: Dict[str, Any] = None,
     beam_size: int = 12, l2=0.0001, lstm_dim=1024
 ) -> Dict[str, Any]:
   if not target:
