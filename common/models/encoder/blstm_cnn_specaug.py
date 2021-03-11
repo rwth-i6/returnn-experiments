@@ -1,18 +1,23 @@
 
-from returnn.import_ import import_
 import numpy
+from typing import Dict, Any
 
-import_("github.com/rwth-i6/returnn-experiments", "common")
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.asr.specaugment import specaugment
+from ...asr.specaugment import specaugment_eval_func
 
 
 def make_encoder(src="data", **kwargs):
   return {"class": "subnetwork", "subnetwork": make_net(**kwargs), "from": src}
 
 
-def make_net(*, num_lstm_layers=6, lstm_dim=1024, l2=0.0001, dropout=0.3, time_reduction=(3, 2)):
+def make_net(
+    *,
+    num_lstm_layers=6, lstm_dim=1024,
+    time_reduction=(3, 2), with_specaugment=True,
+    l2=0.0001, dropout=0.3,
+) -> Dict[str, Any]:
   net_dict = {
-    "source": {"class": "eval", "eval": specaugment},
+    "source": {"class": "eval", "eval": specaugment_eval_func}
+    if with_specaugment else {"class": "copy"},
     "source0": {"class": "split_dims", "axis": "F", "dims": (-1, 1), "from": "source"},  # (T,40,1)
 
     # Lingvo: ep.conv_filter_shapes = [(3, 3, 1, 32), (3, 3, 32, 32)],  ep.conv_filter_strides = [(2, 2), (2, 2)]
