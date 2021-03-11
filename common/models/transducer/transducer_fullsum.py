@@ -10,21 +10,24 @@ from ..collect_out_str import make_out_str_func
 from ...datasets.interface import TargetConfig
 
 
-def make_net(*, task: str, target: TargetConfig = None, beam_size: int = 12, l2=0.0001, lstm_dim=1024):
+def make_net(
+    *,
+    encoder_layer_dict=None,
+    task: str, target: TargetConfig = None,
+    beam_size: int = 12, l2=0.0001, lstm_dim=1024
+) -> Dict[str, Any]:
   if not target:
     target = TargetConfig()
+  train = (task == "train")
+  search = (task != "train")
+  if encoder_layer_dict:
+    encoder_layer_dict = blstm_cnn_specaug.make_encoder(l2=l2, lstm_dim=lstm_dim)
   return {
-    "encoder": blstm_cnn_specaug.make_encoder(l2=l2, lstm_dim=lstm_dim),
-
-    "output": make_decoder(
-      train=(task == "train"), search=(task != "train"), l2=l2, target=target, beam_size=beam_size),
+    "encoder": encoder_layer_dict,
+    "output": make_decoder("encoder", train=train, search=search, l2=l2, target=target, beam_size=beam_size),
 
     # for task "search" / search_output_layer
-    "output_wo_b0": {
-      "class": "masked_computation", "unit": {"class": "copy"},
-      "from": "output", "mask": "output/output_emit"},
-    "output_wo_b": {
-      "class": "reinterpret_data", "from": "output_wo_b0", "set_sparse_dim": target.vocab.get_num_classes()},
+    "output_wo_b": make_output_without_blank("output", target=target),
     "decision": {
       "class": "decide", "from": "output_wo_b", "loss": "edit_distance", "target": target.key,
       'only_on_search': True},
@@ -38,7 +41,7 @@ def make_decoder(
     search: bool, beam_size: int = 12,
     target: TargetConfig,
     l2=0.0001,
-  ) -> Dict[str, Any]:
+) -> Dict[str, Any]:
   """
   This is currently the original RNN-T label topology,
   meaning that we all vertical transitions in the lattice, i.e. U=T+S. (T input, S output, U alignment length).
@@ -156,4 +159,18 @@ def make_decoder(
     "back_prop": train,
     "unit": rec_decoder,
     "max_seq_len": f"max_len_from('base:{encoder}') * 3",
+  }
+
+
+def make_output_without_blank(decoder: str, *, target: TargetConfig = None):
+  if not target:
+    target = TargetConfig()
+  return {
+    "class": "subnetwork", "from": decoder, "subnetwork": {
+      "output_wo_b0": {
+        "class": "masked_computation", "unit": {"class": "copy"},
+        "from": "data", "mask": f"base:{decoder}/output_emit"},
+      "output": {
+        "class": "reinterpret_data", "from": "output_wo_b0", "set_sparse_dim": target.vocab.get_num_classes()},
+    }
   }
