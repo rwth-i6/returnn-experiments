@@ -20,7 +20,7 @@ def make_net(
     target = TargetConfig()
   train = (task == "train")
   search = (task != "train")
-  if encoder_layer_dict:
+  if not encoder_layer_dict:
     encoder_layer_dict = blstm_cnn_specaug.make_encoder(l2=l2, lstm_dim=lstm_dim)
   return {
     "encoder": encoder_layer_dict,
