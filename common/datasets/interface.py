@@ -4,6 +4,15 @@ from typing import Dict, Optional, Any
 
 
 class DatasetConfig:
+  """
+  Base class to be used to define a dataset (`train`, `dev` etc)
+  and `extern_data` for RETURNN.
+  For an example instance `dataset`,
+  you might do this in your RETURNN config::
+
+    globals().update(dataset.get_config_opts())
+  """
+
   def get_extern_data(self) -> Dict[str, Dict[str]]:
     raise NotImplementedError
 
@@ -46,10 +55,19 @@ class DatasetConfig:
 
 
 class VocabConfig:
+  """
+  Defines a vocabulary, and esp also number of classes.
+  See :func:`VocabConfigStatic.from_global_config` for a reasonable default.
+  """
+
   def get_num_classes(self) -> int:
     raise NotImplementedError
 
   def get_opts(self) -> Dict[str, Any]:
+    """
+    Options for RETURNN vocab,
+    e.g. as defined in `Data`, `extern_data`, :func:`Vocabulary.create_vocab` (in RETURNN).
+    """
     raise NotImplementedError
 
 
@@ -75,7 +93,15 @@ class VocabConfigStatic(VocabConfig):
 
 
 class TargetConfig:
+  """
+  Describes what target (data key in dataset & extern_data) to use.
+  Used for models.
+  """
   def __init__(self, key: str = None, *, vocab: VocabConfig = None):
+    """
+    Defaults will be received from the global config
+    (`target` for `key`, or `extern_data` for `vocab`).
+    """
     if not key:
       from returnn.config import get_global_config
       config = get_global_config()
