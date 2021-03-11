@@ -28,14 +28,14 @@ class Librispeech(DatasetConfig):
     }
 
   def get_train_dataset(self) -> Dict[str, Any]:
-    return self.get_dataset("train", train_partition_epoch=self.train_epoch_split)
+    return self.get_dataset("train", train=True, train_partition_epoch=self.train_epoch_split)
 
   def get_eval_datasets(self) -> Dict[str, Dict[str, Any]]:
     return {
-      "dev": self.get_dataset("dev", subset=3000),
-      "devtrain": self.get_dataset("train", subset=2000)}
+      "dev": self.get_dataset("dev", train=False, subset=3000),
+      "devtrain": self.get_dataset("train", train=False, subset=2000)}
 
-  def get_dataset(self, key, subset=None, train_partition_epoch=None):
+  def get_dataset(self, key: str, *, train: bool, subset=None, train_partition_epoch=None):
     files = []
     parts = [part for part in _Parts if part.startswith(key)]
     assert parts
@@ -48,7 +48,7 @@ class Librispeech(DatasetConfig):
       "targets": self.vocab.get_opts(),
       "audio": make_gt_features_opts(dim=self.audio_dim),
     }
-    if key.startswith("train"):
+    if train:
       d["partition_epoch"] = train_partition_epoch
       if key == "train":
         d["epoch_wise_filter"] = {
