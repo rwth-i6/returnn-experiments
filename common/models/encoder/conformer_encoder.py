@@ -283,4 +283,4 @@ class ConformerEncoder:
 def make_encoder(src="data", **kwargs):
   conformer_enc = ConformerEncoder(source=src, **kwargs)
   conformer_enc.create_network()
-  return {"class": "subnetwork", "subnetwork": conformer_enc.get_net(), "from": src} 
+  return {"class": "subnetwork", "subnetwork": conformer_enc.network.get_net(), "from": src}
