@@ -13,11 +13,21 @@ from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.tra
 # data
 globals().update(NltkTimit().get_config_opts())
 
-network = make_net(task=task)
+network = make_net(
+  task=task,
+  encoder_opts=dict(num_layers=3, lstm_dim=128, dropout=0.05),
+  decoder_opts=dict(
+    lm_embed_dim=64,
+    lm_dropout=0,
+    lm_lstm_dim=128,
+    readout_dropout=0.1,
+    readout_dim=256,
+    output_dropout=0.05,
+  ))
 
 # trainer
 batching = "random"
-batch_size = 100 if debug_mode else 1000
+batch_size = 1000
 max_seqs = 10 if debug_mode else 200
 max_seq_length = {"classes": 75}
 
