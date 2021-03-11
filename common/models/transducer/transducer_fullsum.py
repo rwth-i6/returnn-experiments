@@ -14,17 +14,23 @@ def make_net(
     *,
     task: str, target: TargetConfig = None,
     encoder_layer_dict: Dict[str, Any] = None,
-    beam_size: int = 12, l2=0.0001, lstm_dim=1024
+    encoder_opts=None,
+    decoder_opts=None,
+    beam_size: int = 12,
+    l2=0.0001,
 ) -> Dict[str, Any]:
   if not target:
     target = TargetConfig()
   train = (task == "train")
   search = (task != "train")
   if not encoder_layer_dict:
-    encoder_layer_dict = blstm_cnn_specaug.make_encoder(l2=l2, lstm_dim=lstm_dim)
+    encoder_layer_dict = blstm_cnn_specaug.make_encoder(l2=l2, **(encoder_opts or {}))
   return {
     "encoder": encoder_layer_dict,
-    "output": make_decoder("encoder", train=train, search=search, l2=l2, target=target, beam_size=beam_size),
+    "output": make_decoder(
+      "encoder",
+      train=train, search=search, l2=l2, target=target, beam_size=beam_size,
+      **(decoder_opts or {})),
 
     # for task "search" / search_output_layer
     "output_wo_b": make_output_without_blank("output", target=target),
@@ -37,6 +43,12 @@ def make_net(
 def make_decoder(
     encoder: str = "encoder",
     *,
+    lm_embed_dim=256,
+    lm_dropout=0.2,
+    lm_lstm_dim=512,
+    readout_dropout=0.2,
+    readout_dim=1024,
+    output_dropout=0.3,
     train: bool,
     search: bool, beam_size: int = 12,
     target: TargetConfig,
@@ -61,27 +73,28 @@ def make_decoder(
       "unit": {
         "class": "subnetwork", "from": "data",
         "subnetwork": {
-          "input_embed": {"class": "linear", "activation": None, "with_bias": False, "from": "data", "n_out": 256},
-          "embed_dropout": {"class": "dropout", "from": "input_embed", "dropout": 0.2},
+          "input_embed": {
+            "class": "linear", "activation": None, "with_bias": False, "from": "data", "n_out": lm_embed_dim},
+          "embed_dropout": {"class": "dropout", "from": "input_embed", "dropout": lm_dropout},
           # "lstm0": {"class": "rec", "unit": "nativelstm2", "n_out": LstmDim, "from": "embed_dropout", "L2": l2},
           "lstm0": {
             "class": "rnn_cell",
             "unit": "ZoneoutLSTM", "unit_opts": {"zoneout_factor_cell": 0.15, "zoneout_factor_output": 0.05},
-            "from": "embed_dropout", "n_out": 500},
+            "from": "embed_dropout", "n_out": lm_lstm_dim},
           "output": {"class": "copy", "from": "lstm0"}
         }
       }},
     "readout_in": {
       "class": "linear", "from": ["am", "lm_masked"],
-      "activation": None, "n_out": 1000, "L2": l2, "dropout": 0.2,
+      "activation": None, "n_out": readout_dim, "L2": l2, "dropout": readout_dropout,
       "out_type": {
         "batch_dim_axis": 0 if search else 2,
-        "shape": (1000,) if search else (None, None, 1000),
+        "shape": (readout_dim,) if search else (None, None, readout_dim),
         "time_dim_axis": None if search else 0}},  # (T, U+1, B, 1000)
     "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_in"},
 
     "label_log_prob": {
-      "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": 0.3,
+      "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": output_dropout,
       "n_out": target.get_num_classes()},  # (B, T, U+1, 1030)
     "emit_prob0": {"class": "linear", "from": "readout", "activation": None, "n_out": 1},  # (B, T, U+1, 1)
     "emit_log_prob": {"class": "activation", "from": "emit_prob0", "activation": "log_sigmoid"},  # (B, T, U+1, 1)
