@@ -46,13 +46,13 @@ def make_decoder(
   This is currently the original RNN-T label topology,
   meaning that we all vertical transitions in the lattice, i.e. U=T+S. (T input, S output, U alignment length).
   """
-  blank_idx = target.vocab.get_num_classes()  # target is without blank.
+  blank_idx = target.get_num_classes()  # target is without blank.
   rec_decoder = {
     "am0": {"class": "gather_nd", "from": f"base:{encoder}", "position": "prev:t"},  # [B,D]
     "am": {"class": "copy", "from": "am0" if search else "data:source"},
 
     "prev_out_non_blank": {
-      "class": "reinterpret_data", "from": "prev:output_", "set_sparse_dim": target.vocab.get_num_classes()},
+      "class": "reinterpret_data", "from": "prev:output_", "set_sparse_dim": target.get_num_classes()},
     "lm_masked": {
       "class": "masked_computation",
       "mask": "prev:output_emit",
@@ -82,7 +82,7 @@ def make_decoder(
 
     "label_log_prob": {
       "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": 0.3,
-      "n_out": target.vocab.get_num_classes()},  # (B, T, U+1, 1030)
+      "n_out": target.get_num_classes()},  # (B, T, U+1, 1030)
     "emit_prob0": {"class": "linear", "from": "readout", "activation": None, "n_out": 1},  # (B, T, U+1, 1)
     "emit_log_prob": {"class": "activation", "from": "emit_prob0", "activation": "log_sigmoid"},  # (B, T, U+1, 1)
     "blank_log_prob": {
@@ -171,6 +171,6 @@ def make_output_without_blank(decoder: str, *, target: TargetConfig = None):
         "class": "masked_computation", "unit": {"class": "copy"},
         "from": "data", "mask": f"base:{decoder}/output_emit"},
       "output": {
-        "class": "reinterpret_data", "from": "output_wo_b0", "set_sparse_dim": target.vocab.get_num_classes()},
+        "class": "reinterpret_data", "from": "output_wo_b0", "set_sparse_dim": target.get_num_classes()},
     }
   }

@@ -78,12 +78,12 @@ class VocabConfigStatic(VocabConfig):
     self.opts = opts
 
   @classmethod
-  def from_global_config(cls, data_key: str):
+  def from_global_config(cls, data_key: str) -> VocabConfigStatic:
     from returnn.config import get_global_config
     config = get_global_config()
     extern_data_opts = config.typed_dict["extern_data"]
     data_opts = extern_data_opts[data_key]
-    return VocabConfigStatic(num_classes=data_opts["dim"], opts=data_opts["vocab"])
+    return VocabConfigStatic(num_classes=data_opts["dim"], opts=data_opts.get("vocab", {}))
 
   def get_num_classes(self) -> int:
     return self.num_classes
@@ -110,3 +110,6 @@ class TargetConfig:
       vocab = VocabConfigStatic.from_global_config(key)
     self.vocab = vocab
     self.key = key
+
+  def get_num_classes(self) -> int:
+    return self.vocab.get_num_classes()
