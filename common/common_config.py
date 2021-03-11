@@ -29,6 +29,7 @@ if int(os.environ.get("RETURNN_DEBUG", "0")):
   # In your main config, you might select a smaller batch size, or other things,
   # depending on this flag.
   debug_mode = True
+  dry_run = True
 
 if config.has("beam_size"):
   beam_size = config.int("beam_size", 0)
