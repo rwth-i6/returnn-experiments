@@ -76,3 +76,10 @@ and then `make_transformer_decoder` and `make_transformer`
 in `models/segmental/transformer.py`.
 That makes **parts of it easily reusable**.
 **Break it down** as much as it is reasonable.
+
+## Code dependencies
+
+The building blocks will naturally depend on each other.
+In most cases, you should use **relative imports**
+to make use of other building blocks,
+and **not `import_`**.
