@@ -2,14 +2,12 @@
 from __future__ import annotations
 from typing import Dict, Any
 from returnn.tf.util.data import Data
-from returnn.import_ import import_
 
-import_("github.com/rwth-i6/returnn-experiments", "common")
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.encoder import blstm_cnn_specaug
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.recomb_recog import targetb_recomb_recog
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.loss import rnnt_loss
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.collect_out_str import make_out_str_func
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.datasets.interface import TargetConfig
+from ..encoder import blstm_cnn_specaug
+from .recomb_recog import targetb_recomb_recog
+from .loss import rnnt_loss
+from ..collect_out_str import make_out_str_func
+from ...datasets.interface import TargetConfig
 
 
 def make_net(*, task: str, target: TargetConfig = None, beam_size: int = 12, l2=0.0001, lstm_dim=1024):
