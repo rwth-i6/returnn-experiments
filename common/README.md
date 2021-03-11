@@ -1,3 +1,5 @@
+# Usage
+
 This is intended to be used for the RETURNN `returnn.import_` mechanism.
 See [here](https://github.com/rwth-i6/returnn/discussions/436)
 for some initial discussion.
@@ -31,14 +33,20 @@ You would also edit the code in `~/returnn/pkg/...`,
 and once finished, you would commit and push to `returnn-experiments`,
 and then change the config to that specific version (date & commit).
 
----
 
-Note for contributions:
+# Code principles
+
+These are the ideas behind the recipes.
+If you want to contribute, please try to follow them.
+(If something is unclear, or even in general,
+better speak with someone before you do changes, or add something.)
+
+## Simplicity
 
 This is supposed to be **simple**.
 Functions or classes can have some options
 with reasonable defaults.
-But this should not become too complicated.
+This should not become too complicated.
 E.g. a function to return a Librispeech corpus
 should not be totally generic to cover every possible case.
 When it doesn't fit your use case,
@@ -46,3 +54,25 @@ instead of making the function more complicated,
 just provide your alternative `LibrispeechCustomX` class.
 There should be reasonable defaults.
 E.g. just `Librispeech()` will give you some reasonable dataset.
+
+E.g. maybe ~5 arguments per function is ok
+(and each argument should have some good default),
+but it should not be much more.
+**Better just make separate functions instead
+even when there is some amount of duplicate code**
+(`make_transformer` which creates a standard Transformer,
+vs `make_linformer` which creates a Linformer, etc.).
+
+## Building blocks
+
+It should be simple to use functions
+as basic building blocks to build sth more complex.
+E.g. when you implement the Transformer model
+(put that to `models/segmental/transformer.py`)
+make functions `make_trafo_enc_block`
+and `make_trafo_encoder(num_layers=..., ...)`
+in `models/encoder/transformer.py`,
+and then `make_transformer_decoder` and `make_transformer`
+in `models/segmental/transformer.py`.
+That makes **parts of it easily reusable**.
+**Break it down** as much as it is reasonable.
