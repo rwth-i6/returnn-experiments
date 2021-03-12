@@ -46,7 +46,8 @@ class Librispeech(DatasetConfig):
       "path": files,
       "zip_audio_files_have_name_as_prefix": False,
       "targets": self.vocab.get_opts(),
-      "audio": make_gt_features_opts(dim=self.audio_dim),
+      "audio": {"norm_mean": "per_seq", "norm_std_dev": "per_seq", "num_feature_filters": self.audio_dim},
+           #make_gt_features_opts(dim=self.audio_dim),
     }
     if train:
       d["partition_epoch"] = train_partition_epoch
