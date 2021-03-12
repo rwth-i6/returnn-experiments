@@ -48,6 +48,8 @@ class Pretrain:
       if config_:
         net_dict["#config"] = config_
 
+      net_dict["#copy_param_mode"] = "subset"
+
     return net_dict
 
   def _lazy_init(self):
