@@ -16,7 +16,7 @@ globals().update(oggzip.Librispeech().get_config_opts())
 
 get_network = Pretrain(
   make_net, {"enc_lstm_dim": (512, 1024), "enc_num_layers": (3, 6)},
-  num_epochs=10).get_network
+  num_epochs=20).get_network
 
 # trainer
 batching = "random"
