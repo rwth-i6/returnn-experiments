@@ -6,7 +6,7 @@ from returnn.config import get_global_config
 
 from ..encoder import blstm_cnn_specaug
 from .recomb_recog import targetb_recomb_recog
-from .loss import rnnt_loss
+from .loss import rnnt_loss, rnnt_loss_out_type
 from ..collect_out_str import make_out_str_func
 from ...datasets.interface import TargetConfig
 
@@ -133,7 +133,7 @@ def make_decoder(
       "class": "eval",
       "from": ["output_log_prob", f"base:data:{target.key}", f"base:{encoder}"],
       "eval": rnnt_loss,
-      "out_type": lambda sources, **kwargs: Data(name="rnnt_loss", shape=()),
+      "out_type": rnnt_loss_out_type,
       "loss": "as_is",
     },
 

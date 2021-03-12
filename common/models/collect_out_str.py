@@ -25,7 +25,12 @@ def get_vocab_sym(i, vocab: Vocabulary):
   return tf.gather(params=get_vocab_tf(vocab), indices=i)
 
 
+_out_str_func_cache = {}
+
+
 def make_out_str_func(*, target: str):
+  if target in _out_str_func_cache:
+    return _out_str_func_cache[target]
 
   def out_str(self: EvalLayer, source, **_other):
     # sources: ["prev:out_str", "output_emit", "output"]
@@ -35,4 +40,5 @@ def make_out_str_func(*, target: str):
     assert target_data.vocab
     return source(0) + where_bc(source(1), get_vocab_sym(source(2), vocab=target_data.vocab), tf.constant(""))
 
+  _out_str_func_cache[target] = out_str
   return out_str

@@ -1,5 +1,8 @@
 
-def rnnt_loss(source, **kwargs):
+from returnn.tf.util.data import Data
+
+
+def rnnt_loss(source, **_kwargs):
   """
   Computes the RNN-T loss function.
 
@@ -26,3 +29,7 @@ def rnnt_loss(source, **kwargs):
     blank_label=blank_idx)
   costs.set_shape((None,))  # (B,)
   return costs
+
+
+def rnnt_loss_out_type(**_kwargs) -> Data:
+  return Data(name="rnnt_loss", shape=())
