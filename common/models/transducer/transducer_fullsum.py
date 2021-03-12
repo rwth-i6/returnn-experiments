@@ -46,7 +46,7 @@ def make_decoder(
     lm_embed_dim=256,
     lm_dropout=0.2,
     lm_lstm_dim=512,
-    readout_dropout=0.2,
+    readout_dropout=0.1,
     readout_dim=1024,
     output_dropout=0.3,
     train: bool,
@@ -84,14 +84,26 @@ def make_decoder(
           "output": {"class": "copy", "from": "lstm0"}
         }
       }},
-    "readout_in": {
-      "class": "linear", "from": ["am", "lm_masked"],
+    "readout_am": {
+      "class": "linear", "from": "am",
       "activation": None, "n_out": readout_dim, "L2": l2, "dropout": readout_dropout,
-      "out_type": {
-        "batch_dim_axis": 0 if search else 2,
-        "shape": (readout_dim,) if search else (None, None, readout_dim),
-        "time_dim_axis": None if search else 0}},  # (T, U+1, B, 1000)
-    "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_in"},
+      "with_bias": False,  # only once below
+    },
+    "readout_lm": {
+      "class": "linear", "from": "lm_masked",
+      "activation": None, "n_out": readout_dim, "L2": l2, "dropout": readout_dropout,
+      "with_bias": True,
+    },
+    # Separate linear, such that this is more efficient with full-sum training.
+    "readout_am_lm": {
+      "class": "combine", "kind": "add", "from": ["readout_am", "readout_lm"],
+      # (T, U+1, B, 1000) in search
+      # "out_type": {
+      #  "batch_dim_axis": 0 if search else 2,
+      #  "shape": (readout_dim,) if search else (None, None, readout_dim),
+      #  "time_dim_axis": None if search else 0}
+    },  # (T, U+1, B, 1000)
+    "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_am_lm"},
 
     "label_log_prob": {
       "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": output_dropout,
