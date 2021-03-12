@@ -9,11 +9,14 @@ import_("github.com/rwth-i6/returnn-experiments", "common")
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.common_config import *
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.datasets.asr.librispeech import oggzip
 from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.models.transducer.transducer_fullsum import make_net
+from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.training.pretrain import Pretrain
 
 # data
 globals().update(oggzip.Librispeech().get_config_opts())
 
-network = make_net(task=task)
+get_network = Pretrain(
+  make_net, {"enc_lstm_dim": (512, 1024), "enc_num_layers": (3, 6)},
+  num_epochs=10).get_network
 
 # trainer
 batching = "random"

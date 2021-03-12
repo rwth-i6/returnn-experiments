@@ -1,7 +1,8 @@
 
 from __future__ import annotations
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from returnn.tf.util.data import Data
+from returnn.config import get_global_config
 
 from ..encoder import blstm_cnn_specaug
 from .recomb_recog import targetb_recomb_recog
@@ -12,25 +13,37 @@ from ...datasets.interface import TargetConfig
 
 def make_net(
     *,
-    task: str, target: TargetConfig = None,
+    task: Optional[str] = None, target: TargetConfig = None,
     encoder_layer_dict: Dict[str, Any] = None,
     encoder_opts=None,
     decoder_opts=None,
     beam_size: int = 12,
     l2=0.0001,
+    **enc_dec_flat_args
 ) -> Dict[str, Any]:
+  if not task:
+    task = get_global_config().value("task", "train")
   if not target:
     target = TargetConfig()
+  encoder_opts = (encoder_opts or {}).copy()
+  decoder_opts = (decoder_opts or {}).copy()
+  for k, v in enc_dec_flat_args.items():
+    if k.startswith("enc_"):
+      encoder_opts[k[len("enc_"):]] = v
+    elif k.startswith("dec_"):
+      decoder_opts[k[len("dec_"):]] = v
+    else:
+      raise TypeError(f"unexpected argument {k}={v!r}")
   train = (task == "train")
   search = (task != "train")
   if not encoder_layer_dict:
-    encoder_layer_dict = blstm_cnn_specaug.make_encoder(l2=l2, **(encoder_opts or {}))
+    encoder_layer_dict = blstm_cnn_specaug.make_encoder(l2=l2, **encoder_opts)
   return {
     "encoder": encoder_layer_dict,
     "output": make_decoder(
       "encoder",
       train=train, search=search, l2=l2, target=target, beam_size=beam_size,
-      **(decoder_opts or {})),
+      **decoder_opts),
 
     # for task "search" / search_output_layer
     "output_wo_b": make_output_without_blank("output", target=target),
