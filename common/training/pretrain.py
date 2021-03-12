@@ -21,15 +21,14 @@ class Pretrain:
   """
 
   def __init__(self, make_net, make_net_args: Optional[Dict[str, Tuple[_Num, _Num]]] = None, num_epochs: int = 10):
-    config = get_global_config()
+    self._is_initialized = False  # we lazily init late, to make sure all config opts are set (e.g. learning_rate)
     self._make_net = make_net
     self._make_net_args = make_net_args or {}
-    self._lr_std = config.typed_dict["learning_rate"]
-    self._lr_warmup_initial = self._lr_std / 10.
     self._lr_warmup_num_epochs = num_epochs // 2
     self._pretrain_num_epochs = num_epochs
 
   def get_network(self, epoch: int, **_kwargs) -> Dict[str, Any]:
+    self._lazy_init()
     epoch0 = epoch - 1  # RETURNN starts with epoch 1, but 0-indexed is easier here
 
     def resolve(arg, **kwargs):
@@ -50,6 +49,15 @@ class Pretrain:
         net_dict["#config"] = config_
 
     return net_dict
+
+  def _lazy_init(self):
+    if self._is_initialized:
+      return
+    self._is_initialized = True
+
+    config = get_global_config()
+    self._lr_std = config.typed_dict["learning_rate"]
+    self._lr_warmup_initial = self._lr_std / 10.
 
   def _resolve_make_net_arg(self, epoch0: int, arg: Tuple[_Num, _Num], num_epochs: Optional[int] = None):
     start, end = arg
