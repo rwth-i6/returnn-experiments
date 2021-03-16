@@ -34,7 +34,7 @@ def make_net(
   if len(time_reduction) > num_layers - 1:
     time_reduction = [int(numpy.prod(time_reduction))]
   src = "conv_merged"
-  opts = {"n_out": lstm_dim, "L2": l2}
+  opts = {"n_out": lstm_dim, "L2": l2}  # type: Dict[str, Any]
   if rec_weight_dropout:
     opts.setdefault("unit_opts", {})["rec_weight_dropout"] = rec_weight_dropout
   if num_layers >= 1:

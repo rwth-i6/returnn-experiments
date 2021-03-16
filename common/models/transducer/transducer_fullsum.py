@@ -83,6 +83,7 @@ def make_decoder(
 
     "prev_out_non_blank": {
       "class": "reinterpret_data", "from": "prev:output_", "set_sparse_dim": target.get_num_classes()},
+    # This is SlowRNN in the paper.
     "lm_masked": {
       "class": "masked_computation",
       "mask": "prev:output_emit",
@@ -114,7 +115,6 @@ def make_decoder(
       "explicit_search_sources": ["prev:out_str", "prev:output"] if search and targetb_recomb_recog else None,
       "custom_score_combine": targetb_recomb_recog if search else None
     },
-    # switchout only applicable to viterbi training, added below.
     "output_": {"class": "copy", "from": "output", "initial_output": 0},
 
     "out_str": {
