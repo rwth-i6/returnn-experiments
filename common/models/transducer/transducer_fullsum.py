@@ -104,14 +104,6 @@ def make_decoder(
       "class": "combine", "kind": "add", "from": ["label_log_prob", "emit_log_prob"]},  # (B, T, U+1, 1)
     "output_log_prob": {"class": "copy", "from": ["label_emit_log_prob", "blank_log_prob"]},  # (B, T, U+1, D+1)
 
-    "full_sum_loss": {
-      "class": "eval",
-      "from": ["output_log_prob", f"base:data:{target.key}", f"base:{encoder}"],
-      "eval": rnnt_loss,
-      "out_type": rnnt_loss_out_type,
-      "loss": "as_is",
-    },
-
     "output": {
       "class": 'choice',
       'target': target.key,  # note: wrong! but this is ignored both in full-sum training and in search
@@ -160,6 +152,15 @@ def make_decoder(
   _safe_dict_update(rec_decoder, make_readout_to_label_log_prob(
     readout_dim=readout_dim, readout_dropout=readout_dropout,
     readout_l2=l2, output_dropout=output_dropout, target=target))
+
+  if train:
+    rec_decoder["full_sum_loss"] = {
+      "class": "eval",
+      "from": ["output_log_prob", f"base:data:{target.key}", f"base:{encoder}"],
+      "eval": rnnt_loss,
+      "out_type": rnnt_loss_out_type,
+      "loss": "as_is",
+    }
 
   if not search:
     rec_decoder.update({
