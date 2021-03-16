@@ -90,30 +90,12 @@ def make_decoder(
       "masked_from": None if search else "lm_input",  # enables optimization if used
       "unit": lm_layer_dict
     },
-    "readout_am": {
-      "class": "linear", "from": "am",
-      "activation": None, "n_out": readout_dim, "L2": l2, "dropout": readout_dropout,
-      "with_bias": False,  # only once below
-    },
     "readout_lm": {
       "class": "linear", "from": "lm_masked",
       "activation": None, "n_out": readout_dim, "L2": l2, "dropout": readout_dropout,
       "with_bias": True,
     },
-    # Separate linear, such that this is more efficient with full-sum training.
-    "readout_am_lm": {
-      "class": "combine", "kind": "add", "from": ["readout_am", "readout_lm"],
-      # (T, U+1, B, 1000) in search
-      # "out_type": {
-      #  "batch_dim_axis": 0 if search else 2,
-      #  "shape": (readout_dim,) if search else (None, None, readout_dim),
-      #  "time_dim_axis": None if search else 0}
-    },  # (T, U+1, B, 1000)
-    "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_am_lm"},
 
-    "label_log_prob": {
-      "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": output_dropout,
-      "n_out": target.get_num_classes()},  # (B, T, U+1, 1030)
     "emit_prob0": {"class": "linear", "from": "readout", "activation": None, "n_out": 1},  # (B, T, U+1, 1)
     "emit_log_prob": {"class": "activation", "from": "emit_prob0", "activation": "log_sigmoid"},  # (B, T, U+1, 1)
     "blank_log_prob": {
@@ -175,6 +157,10 @@ def make_decoder(
     "end": {"class": "compare", "from": ["t", "enc_seq_len"], "kind": "greater"},
   }
 
+  _safe_dict_update(rec_decoder, make_readout_to_label_log_prob(
+    readout_dim=readout_dim, readout_dropout=readout_dropout,
+    readout_l2=l2, output_dropout=output_dropout, target=target))
+
   if not search:
     rec_decoder.update({
       "lm_input0": {"class": "copy", "from": f"base:data:{target.key}"},
@@ -193,6 +179,38 @@ def make_decoder(
   }
 
 
+def make_readout_to_label_log_prob(
+    *,
+    readout_lm="readout_lm", postfix="",
+    readout_dim: int,
+    readout_dropout: float,
+    readout_l2: float,
+    output_dropout: float,
+    target: TargetConfig,
+) -> Dict[str, Any]:
+  return {
+    "readout_am" + postfix: {
+      "class": "linear", "from": "am",
+      "activation": None, "n_out": readout_dim, "L2": readout_l2, "dropout": readout_dropout,
+      "with_bias": False,  # only once, via readout_lm
+    },
+    # Separate linear, such that this is more efficient with full-sum training.
+    "readout_am_lm" + postfix: {
+      "class": "combine", "kind": "add", "from": ["readout_am" + postfix, readout_lm],
+      # (T, U+1, B, 1000) in search
+      # "out_type": {
+      #  "batch_dim_axis": 0 if search else 2,
+      #  "shape": (readout_dim,) if search else (None, None, readout_dim),
+      #  "time_dim_axis": None if search else 0}
+    },  # (T, U+1, B, 1000)
+    "readout" + postfix: {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_am_lm" + postfix},
+
+    "label_log_prob" + postfix: {
+      "class": "linear", "from": "readout" + postfix, "activation": "log_softmax", "dropout": output_dropout,
+      "n_out": target.get_num_classes()},  # (B, T, U+1, 1030)
+  }
+
+
 def make_output_without_blank(decoder: str, *, target: TargetConfig = None):
   if not target:
     target = TargetConfig()
@@ -205,3 +223,9 @@ def make_output_without_blank(decoder: str, *, target: TargetConfig = None):
         "class": "reinterpret_data", "from": "output_wo_b0", "set_sparse_dim": target.get_num_classes()},
     }
   }
+
+
+def _safe_dict_update(d: Dict[str, Any], d2: Dict[str, Any]):
+  for k, v in d2.items():
+    assert k not in d
+    d[k] = v
