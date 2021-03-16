@@ -93,15 +93,19 @@ def make_decoder(
     },
     "lm": {"class": "copy", "from": "lm_masked"},
     "readout": make_readout(
-      readout_dim=readout_dim, readout_dropout=readout_dropout,
-      readout_l2=l2, output_dropout=output_dropout, target=target),
+      am="am", lm="lm",
+      readout_dim=readout_dim, readout_dropout=readout_dropout, readout_l2=l2),
 
-    "emit_prob0": {"class": "linear", "from": "readout/readout", "activation": None, "n_out": 1},  # (B, T, U+1, 1)
+    "label_log_prob": {
+      "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": output_dropout,
+      "n_out": target.get_num_classes(),
+    },  # (B, T, U+1, 1030)
+    "emit_prob0": {"class": "linear", "from": "readout", "activation": None, "n_out": 1},  # (B, T, U+1, 1)
     "emit_log_prob": {"class": "activation", "from": "emit_prob0", "activation": "log_sigmoid"},  # (B, T, U+1, 1)
     "blank_log_prob": {
       "class": "eval", "from": "emit_prob0", "eval": "tf.compat.v1.log_sigmoid(-source(0))"},  # (B, T, U+1, 1)
     "label_emit_log_prob": {
-      "class": "combine", "kind": "add", "from": ["readout/label_log_prob", "emit_log_prob"]},  # (B, T, U+1, 1)
+      "class": "combine", "kind": "add", "from": ["label_log_prob", "emit_log_prob"]},  # (B, T, U+1, 1)
     "output_log_prob": {"class": "copy", "from": ["label_emit_log_prob", "blank_log_prob"]},  # (B, T, U+1, D+1)
 
     "output": {
@@ -178,8 +182,6 @@ def make_readout(
     readout_dim: int,
     readout_dropout: float,
     readout_l2: float,
-    output_dropout: float,
-    target: TargetConfig,
 ) -> Dict[str, Any]:
   shared_rel = f"base:{shared}/readout_lm" if shared else None
   net_dict = {
@@ -207,12 +209,7 @@ def make_readout(
     },  # (T, U+1, B, 1000)
     "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_am_lm"},
 
-    "label_log_prob": {
-      "class": "linear", "from": "readout", "activation": "log_softmax", "dropout": output_dropout,
-      "n_out": target.get_num_classes(),
-      "reuse_params": shared_rel},  # (B, T, U+1, 1030)
-
-    "output": {"class": "copy", "from": "label_log_prob"}
+    "output": {"class": "copy", "from": "readout"}
   }
 
   return {"class": "subnetwork", "from": am, "subnetwork": net_dict}
