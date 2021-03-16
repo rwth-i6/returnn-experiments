@@ -1,10 +1,10 @@
 
 from __future__ import annotations
 from typing import Dict, Any, Optional
-from returnn.tf.util.data import Data
 from returnn.config import get_global_config
 
 from ..encoder import blstm_cnn_specaug
+from .. import lstm
 from .recomb_recog import targetb_recomb_recog
 from .loss import rnnt_loss, rnnt_loss_out_type
 from ..collect_out_str import make_out_str_func
@@ -56,6 +56,7 @@ def make_net(
 def make_decoder(
     encoder: str = "encoder",
     *,
+    lm_layer_dict: Dict[str, Any] = None,
     lm_embed_dim=256,
     lm_dropout=0.2,
     lm_lstm_dim=512,
@@ -72,6 +73,10 @@ def make_decoder(
   meaning that we all vertical transitions in the lattice, i.e. U=T+S. (T input, S output, U alignment length).
   """
   blank_idx = target.get_num_classes()  # target is without blank.
+  if not lm_layer_dict:
+    lm_layer_dict = lstm.make_lstm(
+      num_layers=1, lstm_dim=lm_lstm_dim,
+      zoneout=True, embed_dropout=lm_dropout, embed_dim=lm_embed_dim)
   rec_decoder = {
     "am0": {"class": "gather_nd", "from": f"base:{encoder}", "position": "prev:t"},  # [B,D]
     "am": {"class": "copy", "from": "am0" if search else "data:source"},
@@ -83,20 +88,8 @@ def make_decoder(
       "mask": "prev:output_emit",
       "from": "prev_out_non_blank",  # in decoding
       "masked_from": None if search else "lm_input",  # enables optimization if used
-      "unit": {
-        "class": "subnetwork", "from": "data",
-        "subnetwork": {
-          "input_embed": {
-            "class": "linear", "activation": None, "with_bias": False, "from": "data", "n_out": lm_embed_dim},
-          "embed_dropout": {"class": "dropout", "from": "input_embed", "dropout": lm_dropout},
-          # "lstm0": {"class": "rec", "unit": "nativelstm2", "n_out": LstmDim, "from": "embed_dropout", "L2": l2},
-          "lstm0": {
-            "class": "rnn_cell",
-            "unit": "ZoneoutLSTM", "unit_opts": {"zoneout_factor_cell": 0.15, "zoneout_factor_output": 0.05},
-            "from": "embed_dropout", "n_out": lm_lstm_dim},
-          "output": {"class": "copy", "from": "lstm0"}
-        }
-      }},
+      "unit": lm_layer_dict
+    },
     "readout_am": {
       "class": "linear", "from": "am",
       "activation": None, "n_out": readout_dim, "L2": l2, "dropout": readout_dropout,
