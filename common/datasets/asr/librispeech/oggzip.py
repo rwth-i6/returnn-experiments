@@ -12,10 +12,11 @@ _Parts = [
 
 
 class Librispeech(DatasetConfig):
-  def __init__(self, audio_dim=50, train_epoch_split=20, vocab: VocabConfig = bpe1k):
+  def __init__(self, audio_dim=50, train_epoch_split=20, train_random_permute=None, vocab: VocabConfig = bpe1k):
     super(Librispeech, self).__init__()
     self.audio_dim = audio_dim
     self.train_epoch_split = train_epoch_split
+    self.train_random_permute = train_random_permute
     self.vocab = vocab
 
   def get_extern_data(self) -> Dict[str, Dict[str, Any]]:
@@ -48,7 +49,7 @@ class Librispeech(DatasetConfig):
       "targets": self.vocab.get_opts(),
       "audio": {"norm_mean": "per_seq", "norm_std_dev": "per_seq", "num_feature_filters": self.audio_dim},
       # make_gt_features_opts(dim=self.audio_dim),
-    }
+    }  # type: Dict[str, Any]
     if train:
       d["partition_epoch"] = train_partition_epoch
       if key == "train":
@@ -56,7 +57,8 @@ class Librispeech(DatasetConfig):
           (1, 5): {'max_mean_len': 200},
           (6, 10): {'max_mean_len': 500},
         }
-      # d["audio"]["random_permute"] = True  # play around. note that this can be slow
+      if self.train_random_permute:
+        d["audio"]["random_permute"] = self.train_random_permute
       d["seq_ordering"] = "laplace:.1000"
     else:
       d["targets"]['unknown_label'] = '<unk>'  # only for non-train. for train, there never should be an unknown
