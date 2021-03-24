@@ -1,0 +1,11 @@
+Seq-length 'data' Stats:
+  281241 seqs                                                          
+  Mean: 1230.94154835176                                              
+  Std dev: 383.5126785278322                                          
+  Min/max: 84 / 2974                                                  
+Seq-length 'classes' Stats:                                          
+  281241 seqs                                    
+  Mean: 58.46585312952222                        
+  Std dev: 20.54464373013634                                   
+  Min/max: 1 / 161                              
+
