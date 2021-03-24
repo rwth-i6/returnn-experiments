@@ -61,3 +61,5 @@ learning_rate_file = "newbob.data"
 # log = "/var/tmp/am540506/log/%s/crnn.%s.log" % (model_name, task)
 # os.makedirs(os.path.dirname(log), exist_ok=True)
 log_verbosity = 5
+
+device = None  # allow CPU
