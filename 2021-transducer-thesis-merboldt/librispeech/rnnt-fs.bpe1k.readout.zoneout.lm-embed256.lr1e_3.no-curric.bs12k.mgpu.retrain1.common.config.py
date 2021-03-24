@@ -6,9 +6,9 @@
 from returnn.tf.util.data import DimensionTag, Data
 from returnn.import_ import import_
 
-import_("github.com/rwth-i6/returnn-experiments", "common")
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.common_config import *
-from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.datasets.asr.librispeech import oggzip, vocabs
+import_("github.com/rwth-i6/returnn-experiments", "common", "20210324-75f7809")
+from returnn_import.github_com.rwth_i6.returnn_experiments.v20210324123103_75f78096518b.common.common_config import *
+from returnn_import.github_com.rwth_i6.returnn_experiments.v20210324123103_75f78096518b.common.datasets.asr.librispeech import oggzip, vocabs
 
 
 use_horovod = config.bool("use_horovod", False)
