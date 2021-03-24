@@ -4,6 +4,7 @@ from typing import Dict, Any
 from ..features import make_gt_features_opts
 from .vocabs import bpe1k
 from ...interface import DatasetConfig, VocabConfig
+from ....data import get_common_data_path
 
 _Parts = [
   "train-clean-100", "train-clean-360", "train-other-500",
@@ -41,7 +42,9 @@ class Librispeech(DatasetConfig):
     parts = [part for part in _Parts if part.startswith(key)]
     assert parts
     for part in parts:
-      files += ["data/dataset-ogg/%s.zip" % part, "data/dataset-ogg/%s.txt.gz" % part]
+      files += [
+        get_common_data_path("librispeech/dataset/dataset-ogg/%s.zip" % part),
+        get_common_data_path("librispeech/dataset/dataset-ogg/%s.txt.gz" % part)]
     d = {
       "class": 'OggZipDataset',
       "path": files,

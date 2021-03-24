@@ -18,5 +18,11 @@ def get_common_data_path(filename: str) -> str:
 
     E.g. return "data-common/librispeech/lm/andre_lstm_bpe1k_lm/net-model/network.020",
     and the user would make a symlink for "data-common".
+
+  This function might be extended by further logic in the future.
+  However, any logic here should be fast and lazy,
+  and not avoid any real FS interaction (even not stat or so).
+  This will be called at config loading time and should not slow down anything
+  (consider that even stat can be slow on a NFS or so).
   """
   return os.path.join(_common_data_path_base, filename)
