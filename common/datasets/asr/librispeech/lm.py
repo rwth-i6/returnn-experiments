@@ -1,4 +1,5 @@
 
+from ....data import get_common_data_path
 from ....models.lstm import make_lstm, make_net
 from ....models.lm import Lm
 from .vocabs import bpe1k
@@ -21,4 +22,4 @@ class Lstm4x2048AndreBpe1k(Lm):
 
   # 15.4 PPL, from ITC, 20 + 7 (pretrained)
   # _lm_model = "/work/asr3/zeyer/merboldt/librispeech/2020-09-04--librispeech-rnnt-rna/data-train/lm_lstm_baseline_4_2048.bpe1k/net-model-retrained-on-mgpu-itc/network.020"
-  model_path = "data-common/librispeech/lm/andre_lstm_bpe1k_lm/net-model/network.020"
+  model_path = get_common_data_path("librispeech/lm/andre_lstm_bpe1k_lm/net-model/network.020")

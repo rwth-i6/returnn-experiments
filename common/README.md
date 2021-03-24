@@ -83,3 +83,19 @@ The building blocks will naturally depend on each other.
 In most cases, you should use **relative imports**
 to make use of other building blocks,
 and **not `import_`**.
+
+## Data dependencies
+
+Small files (e.g. vocabularies up to a certain size <100kb or so)
+could be directly put to the repository next to the Python files.
+This should be kept minimal and only be used for the most common files.
+(E.g. our Librispeech BPE vocab is stored.)
+The repository should stay small,
+so try to avoid this if this is not really needed.
+
+For any larger files or other files,
+the idea is that this can easily be used across different systems.
+So there would be a common directory structure
+in some directory which could be some symlinks elsewhere.
+(We could also provide some scripts to simplify handling this.)
+To refer to such a file path, use the functions in `data.py`.
