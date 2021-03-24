@@ -150,7 +150,9 @@ class DecoderFastRnnOnlyReadout(IDecoderFastRnn):
       "subnetwork": {
         "in": LinearCombine(
           dim=self.readout_dim, dropout=self.readout_dropout, l2=self.readout_l2, ctx=self.ctx).make({
-            "lm": _base(slow_rnn), "am": _base(encoder)}),
+            # Note: Order is important here, because for multiple time dims, it will determine the order,
+            # which is important for the RNN-T loss.
+            "am": _base(encoder), "lm": _base(slow_rnn)}),
         "act": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "in"},
         "output": {"class": "copy", "from": "act"}
       }}
@@ -477,9 +479,8 @@ def _base(name: LayerRef) -> LayerRef:
 
 
 def _det_keys(d: Dict[str, Any]) -> List[str]:
-  if sys.version_info[:2] >= (3, 6):
-    return list(d.keys())  # insertion-order is kept
-  return sorted(d.keys())
+  assert sys.version_info[:2] >= (3, 6)  # the order might have influence on the behavior
+  return list(d.keys())  # insertion-order is kept
 
 
 def _safe_dict_update(d: Dict[str, Any], d2: Dict[str, Any]):
