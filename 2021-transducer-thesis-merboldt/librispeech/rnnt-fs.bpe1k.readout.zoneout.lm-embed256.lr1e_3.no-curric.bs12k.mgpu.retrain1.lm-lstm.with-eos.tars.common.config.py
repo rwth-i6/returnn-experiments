@@ -13,6 +13,13 @@ from returnn_import.github_com.rwth_i6.returnn_experiments.v20210324123103_75f78
 
 # This config is mostly for testing.
 # Probably you want `--task eval` or `--task search`.
+# Maybe together with `++use_lm_fusion_best True ++search_output_file search.tmp ++search_output_file_format py`.
+
+# Env vars you might want to set:
+# OPENBLAS_NUM_THREADS=1
+# RETURNN_DEBUG=1
+# RETURNN_TF_SESSION_OPTS='{"gpu_options": {"allow_growth": True}}'
+# RETURNN_COMMON_DATA_PATH=...
 
 # Andres best numbers (via master thesis):
 # Table 6.4, SF-ILM, λ = 1 − β, dev(clean/other)/test(clean/other): 2.26, 5.49, 2.42, 5.91
