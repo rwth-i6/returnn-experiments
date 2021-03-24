@@ -111,5 +111,10 @@ class TargetConfig:
     self.vocab = vocab
     self.key = key
 
+  @classmethod
+  def global_from_config(cls) -> TargetConfig:
+    # The default constructor with empty args will just return that.
+    return TargetConfig()
+
   def get_num_classes(self) -> int:
     return self.vocab.get_num_classes()

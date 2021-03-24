@@ -13,12 +13,13 @@ def make_net(
     num_layers=1, lstm_dim=512,
     dropout=0.0, l2=0.0,
     zoneout=False,
-    embed=True, embed_dim=256, embed_dropout=0.0
+    embed=True, embed_dim=256, embed_with_bias=False,
+    embed_dropout=0.0
 ):
   net_dict = {}
   if embed:
     net_dict["input_embed"] = {
-      "class": "linear", "activation": None, "with_bias": False, "from": source, "n_out": embed_dim}
+      "class": "linear", "activation": None, "with_bias": embed_with_bias, "from": source, "n_out": embed_dim}
     source = "input_embed"
   opts = {"class": "rec", "unit": "nativelstm2", "n_out": lstm_dim, "L2": l2, "dropout": embed_dropout}
   if zoneout:
