@@ -10,7 +10,6 @@ from __future__ import annotations
 from typing import Dict, Any
 from returnn.config import get_global_config
 
-from ....asr.gt import make_returnn_audio_features_func
 from ...interface import DatasetConfig
 
 
@@ -54,6 +53,5 @@ class NltkTimit(DatasetConfig):
       "fixed_random_seed": {"train": None, "dev": 1}[key],
       "estimated_num_seqs": _num_seqs[key],
       "num_feature_filters": self.audio_dim,
-      "features": make_returnn_audio_features_func()
     }
 
