@@ -14,6 +14,7 @@ from returnn_import.github_com.rwth_i6.returnn_experiments.v20210324123103_75f78
 # This config is mostly for testing.
 # Probably you want `--task eval` or `--task search`.
 # Maybe together with `++use_lm_fusion_best True ++search_output_file search.tmp ++search_output_file_format py`.
+# I get 6.34 on test-other with beam size 12, 6.22% with beam 24.
 
 # Env vars you might want to set:
 # OPENBLAS_NUM_THREADS=1
@@ -47,6 +48,7 @@ if config.bool("use_lm_fusion_best", False):
   config.set("lm_fusion", "divide-by-prior-interp")
   config.set("lm_scale", 0.51)
   config.set("lm_scale_internal", 0.28)
+  config.set("beam_size", 24)
 
 load = get_common_data_path(
   "librispeech/transducer/"
