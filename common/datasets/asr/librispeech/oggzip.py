@@ -74,6 +74,7 @@ class Librispeech(DatasetConfig):
     d = {
       "class": 'OggZipDataset',
       "path": files,
+      "use_cache_manager": True,
       "zip_audio_files_have_name_as_prefix": False,
       "targets": self.vocab.get_opts(),
       "audio": {
