@@ -3,11 +3,13 @@
 # vim: ft=python sw=2:
 # adapted for import_ & common recipes
 
-import os
 from returnn.tf.util.data import DimensionTag, Data
+from returnn.import_ import import_
 
+import_("github.com/rwth-i6/returnn-experiments", "common")
+from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.common_config import *
+from returnn_import.github_com.rwth_i6.returnn_experiments.dev.common.datasets.asr.librispeech import oggzip, vocabs
 
-config = globals()["config"]  # make PyCharm happy
 
 use_horovod = config.bool("use_horovod", False)
 horovod_dataset_distribution = "random_seed_offset"
@@ -51,6 +53,9 @@ else:
   beam_size = 12
 
 # data
+globals().update(oggzip.Librispeech.old_defaults(vocab=vocabs.bpe1k).get_config_opts())
+
+# Redefine extern_data anyway...
 _time_tag = DimensionTag(kind=DimensionTag.Types.Spatial, description="time")
 _target = "classes"
 _target_num_labels = 1056
@@ -65,50 +70,6 @@ if task != "train":
   extern_data["targetb"] = {"dim": _targetb_num_labels, "sparse": True, "available_for_inference": False}
 
 _epoch_split = 20
-
-
-def get_dataset(key, subset=None, train_partition_epoch=None):
-  dataset_dir = "/var/tmp/am540506/librispeech/dataset"
-  d = {
-    'class': 'LibriSpeechCorpus',
-    'path': dataset_dir,
-    "use_zip": True,
-    "use_ogg": False,
-    "use_cache_manager": not debug_mode,
-    "prefix": key,
-    "bpe": {
-      'bpe_file': '%s/trans.bpe_1000.codes' % dataset_dir,
-      'vocab_file': '%s/trans.bpe_1000.vocab' % dataset_dir,
-      #'seq_postfix': [0],  # not needed for RNA/RNN-T
-      'unknown_label': '<unk>'},
-    "audio": {
-      "norm_mean": "base/dataset/stats.mean.txt",
-      "norm_std_dev": "base/dataset/stats.std_dev.txt"},
-  }
-  if key.startswith("train"):
-    d["partition_epoch"] = train_partition_epoch
-    if key == "train":
-      d["epoch_wise_filter"] = {
-        (1, 20): {
-          'use_new_filter': True,
-          'subdirs': ['train-clean-100', 'train-clean-360']},
-        }
-    #d["audio"]["random_permute"] = True
-    num_seqs = 281241  # total
-    d["seq_ordering"] = "laplace:%i" % (num_seqs // 1000)
-  else:
-    d["fixed_random_seed"] = 1
-    d["seq_ordering"] = "sorted_reverse"
-  if subset:
-    d["fixed_random_subset"] = subset  # faster
-  return d
-
-
-train = get_dataset("train", train_partition_epoch=_epoch_split)
-dev = get_dataset("dev", subset=3000)
-eval_datasets = {"devtrain": get_dataset("train", subset=2000)}
-cache_size = "0"
-window = 1
 
 
 def _mask(x, batch_axis, axis, pos, max_amount, mask_value=0.):
@@ -712,8 +673,8 @@ debug_print_layer_output_template = True
 # trainer
 batching = "random"
 log_batch_size = True
-batch_size = 12000
-max_seqs = 200
+batch_size = 1000 if debug_mode else 12000
+max_seqs = 10 if debug_mode else 200
 max_seq_length = {"classes": 75}
 #chunking = ""  # no chunking
 truncation = -1
@@ -721,18 +682,6 @@ truncation = -1
 
 num_epochs = _range_epochs_full_sum [1] + 1
 model = "net-model/network"
-# rnnt-fs.bpe1k.readout.lm-embed256.lr1e_3.no-curric.bs12k.mgpu.160/search.dev-other.ep160.beam12.recog.scoring.wer:9.69
-_model_init = "base/data-train/rnnt-fs.bpe1k.readout.lm-embed256.lr1e_3.no-curric.bs12k.mgpu/net-model/network.160"
-# import_model_train_epoch1 = "base/data-train/rnnt-fs.bpe1k.readout.lm-embed256.lr1e_3.no-curric.bs12k.mgpu/net-model/network.160"
-preload_from_files ={
-      'train': {
-        'filename': _model_init,
-        'prefix': '',
-        'init_for_train': True,
-        'ignore_missing': True,
-        'ignore_params': ('output/rec/readout_in/W', 'output/rec/readout_in/b'),
-      }
-      }
 cleanup_old_models = True
 gradient_clip = 0
 #gradient_clip_global_norm = 1.0
@@ -757,8 +706,7 @@ learning_rate_file = "newbob.data"
 
 # log
 #log = "| /u/zeyer/dotfiles/system-tools/bin/mt-cat.py >> log/crnn.seq-train.%s.log" % task
-model_name = os.path.splitext(os.path.basename(__file__))[0]
-log = "/var/tmp/am540506/log/%s/crnn.%s.log" % (model_name, task)
+#model_name = os.path.splitext(os.path.basename(__file__))[0]
+#log = "/var/tmp/am540506/log/%s/crnn.%s.log" % (model_name, task)
 log_verbosity = 5
-os.makedirs(os.path.dirname(log), exist_ok=True)
 
