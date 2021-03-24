@@ -9,7 +9,22 @@ from returnn.import_ import import_
 import_("github.com/rwth-i6/returnn-experiments", "common", "20210324-75f7809")
 from returnn_import.github_com.rwth_i6.returnn_experiments.v20210324123103_75f78096518b.common.common_config import *
 from returnn_import.github_com.rwth_i6.returnn_experiments.v20210324123103_75f78096518b.common.datasets.asr.librispeech import oggzip, vocabs
+from returnn_import.github_com.rwth_i6.returnn_experiments.v20210324123103_75f78096518b.common.data import get_common_data_path
 
+# This config is mostly for testing.
+# Probably you want `--task eval`.
+# I get: dev: score 4.636750261205999 error None devtrain: score 1.5685920611769462 error None
+load = get_common_data_path(
+  "librispeech/transducer/"
+  "andre-rnnt-fs.bpe1k.readout.zoneout.lm-embed256.lr1e_3.no-curric.bs12k.mgpu.retrain1/"
+  "net-model/network.160")
+
+if task == "search":
+  _task = "search"
+else:
+  # The config does not really expect anything else than task=="train"...
+  # But this is what we want, also for task=="eval" etc.
+  _task = "train"
 
 use_horovod = config.bool("use_horovod", False)
 horovod_dataset_distribution = "random_seed_offset"
@@ -34,10 +49,7 @@ if use_horovod:
 
 # task
 use_tensorflow = True
-task = config.value("task", "train")
-device = "gpu"
-multiprocessing = True
-update_on_device = True
+device = None  # "gpu"
 
 debug_mode = False
 if int(os.environ.get("RETURNN_DEBUG", "0")):
@@ -66,7 +78,7 @@ extern_data = {
     _target: {"dim": _target_num_labels, "sparse": True},  # see vocab
     "data": {"dim": 40, "same_dim_tags_as": {"t": _time_tag}},  # Gammatone 40-dim
     }
-if task != "train":
+if _task != "train":
   extern_data["targetb"] = {"dim": _targetb_num_labels, "sparse": True, "available_for_inference": False}
 
 _epoch_split = 20
@@ -410,7 +422,7 @@ _range_epochs_full_sum = (0, _epoch_split * 100)
 
 
 def _get_network_align(epoch0: int):
-  net_dict = _get_network(full_sum_alignment=True, target="bpe" if task == "train" else "targetb")
+  net_dict = _get_network(full_sum_alignment=True, target="bpe" if _task == "train" else "targetb")
   net_dict["#trainable"] = False  # disable training
   net_dict["#finish_all_data"] = True  # in case of multi-GPU training or so
   subnet = net_dict["output"]["unit"]
@@ -451,7 +463,7 @@ def _get_network_full_sum(epoch0: int):
   else:
     pretrain_frac = 1
   print("Epoch %i: Constructing network using full-sum, pretrain_frac=%.1f" % (epoch0+1, pretrain_frac))
-  net_dict = _get_network(full_sum_loss=True, grow_encoder=False, pretrain_frac=pretrain_frac, target=_target if task == "train" else "targetb")
+  net_dict = _get_network(full_sum_loss=True, grow_encoder=False, pretrain_frac=pretrain_frac, target=_target if _task == "train" else "targetb")
   net_dict["#copy_param_mode"] = "subset"
   return net_dict
 
@@ -510,7 +522,7 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
         "class": "reinterpret_data", "from": "_target_masked",
         "set_sparse_dim": _target_num_labels,  # we masked blank away
         "enforce_batch_major": True,  # ctc not implemented otherwise...
-        "register_as_extern_data": "targetb_masked" if task == "train" else None},
+        "register_as_extern_data": "targetb_masked" if _task == "train" else None},
     })
 
   # Add encoder BLSTM stack.
@@ -550,17 +562,17 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
           "class": "rec",
           "from": "encoder",
           "include_eos": True,
-          "back_prop": (task == "train") and train,
+          "back_prop": (_task == "train") and train,
           "unit": {
               "am0": {"class": "gather_nd", "from": "base:encoder", "position": "prev:t"},  # [B,D]
-              "am": {"class": "copy", "from": "data:source" if task == "train" else "am0"},
+              "am": {"class": "copy", "from": "data:source" if _task == "train" else "am0"},
 
               "prev_out_non_blank": {
                   "class": "reinterpret_data", "from": "prev:output_", "set_sparse_dim": _target_num_labels},
               "lm_masked": {"class": "masked_computation",
                   "mask": "prev:output_emit",
                   "from": "prev_out_non_blank",  # in decoding
-                  "masked_from": "base:lm_input" if task == "train" else None,  # enables optimization if used
+                  "masked_from": "base:lm_input" if _task == "train" else None,  # enables optimization if used
                   "unit": {
                   "class": "subnetwork", "from": "data",
                   "subnetwork": {
@@ -571,8 +583,8 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
                       "output": {"class": "copy", "from": "lstm0_zoneout"}
                   }}},
               "readout_in": {"class": "linear", "from": ["am", "lm_masked"], "activation": None, "n_out": 1000, "L2": l2, "dropout": 0.2,
-                "out_type": {"batch_dim_axis": 2 if task == "train" else 0, "shape": (None, None, 1000) if task == "train" else (1000,),
-                  "time_dim_axis": 0 if task == "train" else None}}, # (T, U+1, B, 1000
+                "out_type": {"batch_dim_axis": 2 if _task == "train" else 0, "shape": (None, None, 1000) if _task == "train" else (1000,),
+                  "time_dim_axis": 0 if _task == "train" else None}}, # (T, U+1, B, 1000
               "readout": {"class": "reduce_out", "mode": "max", "num_pieces": 2, "from": "readout_in"},
 
               "label_log_prob": {
@@ -588,9 +600,9 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
                   'from': "output_log_prob", "input_type": "log_prob",
                   "initial_output": 0,
                   "length_normalization": False,
-                  "cheating": "exclusive" if task == "train" else None,
-                  "explicit_search_sources": ["prev:out_str", "prev:output"] if task == "search" else None,
-                  "custom_score_combine": targetb_recomb_recog if task == "search" else None
+                  "cheating": "exclusive" if _task == "train" else None,
+                  "explicit_search_sources": ["prev:out_str", "prev:output"] if _task == "search" else None,
+                  "custom_score_combine": targetb_recomb_recog if _task == "search" else None
               },
               # switchout only applicable to viterbi training, added below.
               "output_": {"class": "copy", "from": "output", "initial_output": 0},
@@ -638,7 +650,7 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
           "max_seq_len": "max_len_from('base:encoder') * 3",
       }
 
-  net_dict["output"] = get_output_dict(train=(task=="train"), search=(task != "train"), target=target, beam_size=beam_size)
+  net_dict["output"] = get_output_dict(train=(_task == "train"), search=(_task != "train"), target=target, beam_size=beam_size)
 
   subnet = net_dict["output"]["unit"]
 
@@ -647,7 +659,7 @@ def _get_network(target: str, full_sum_loss: bool = False, full_sum_alignment: b
               "class": "activation", "from": "output_log_prob", "activation": "exp",
               "target": target, "loss": "ce", "loss_opts": {"focal_loss_factor": 2.0}
           }
-      if task == "train":  # SwitchOut in training
+      if _task == "train":  # SwitchOut in training
           subnet["output_"] = {
                   "class": "eval", "from": "output", "eval": switchout_target, "initial_output": 0
                   }
