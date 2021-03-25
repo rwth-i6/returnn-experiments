@@ -15,6 +15,7 @@ from returnn_import.github_com.rwth_i6.returnn_experiments.v20210324123103_75f78
 # Probably you want `--task eval` or `--task search`.
 # Maybe together with `++use_lm_fusion_best True ++search_output_file search.tmp ++search_output_file_format py`.
 # I get 6.34 on test-other with beam size 12, 6.22% with beam 24.
+# I get 5.90% with beam 24, non-ogg dataset.
 
 # Env vars you might want to set:
 # OPENBLAS_NUM_THREADS=1
@@ -121,9 +122,55 @@ if config.has("am_scale"):
 
 # data
 vocab = vocabs.bpe1k
-dataset = oggzip.Librispeech.old_defaults(vocab=vocab)
-globals().update(dataset.get_config_opts())
-search_data = dataset.get_dataset(config.value("data", "test-other"), train=False)
+
+if config.bool("use_new_dataset", True):
+  dataset = oggzip.Librispeech.old_defaults(vocab=vocab, audio_norm="per_seq")
+  globals().update(dataset.get_config_opts())
+  train = None
+  dev = None
+  eval_datasets = None
+  search_data = dataset.get_dataset(config.value("data", "test-other"), train=False)
+
+else:
+
+  def get_dataset(key, subset=None, train_partition_epoch=None):
+    # dataset_dir = "/var/tmp/am540506/librispeech/dataset"
+    dataset_dir = get_common_data_path("librispeech/dataset/dataset-old")
+    d = {
+      'class': 'LibriSpeechCorpus',
+      'path': dataset_dir + "/tars",
+      "use_zip": True,
+      "use_ogg": False,
+      "use_cache_manager": not debug_mode,
+      "prefix": key,
+      "bpe": vocab.get_opts(),
+      "audio": {
+        "norm_mean": dataset_dir + "/stats.mean.txt",
+        "norm_std_dev": dataset_dir + "/stats.std_dev.txt"},
+     }
+    if key.startswith("train"):
+      d["partition_epoch"] = train_partition_epoch
+      if key == "train":
+        d["epoch_wise_filter"] = {
+          (1, 20): {
+            'use_new_filter': True,
+            'subdirs': ['train-clean-100', 'train-clean-360']},
+          }
+      #d["audio"]["random_permute"] = True
+      num_seqs = 281241  # total
+      d["seq_ordering"] = "laplace:%i" % (num_seqs // 1000)
+    else:
+      d["fixed_random_seed"] = 1
+      d["seq_ordering"] = "sorted_reverse"
+    if subset:
+      d["fixed_random_subset"] = subset  # faster
+    return d
+
+  # train = get_dataset("train", train_partition_epoch=20)
+  # dev = get_dataset("dev", subset=3000)
+  # eval_datasets = {"devtrain": get_dataset("train", subset=2000)}
+
+  search_data = get_dataset(config.value("data", "test-other"))
 
 # Redefine extern_data anyway...
 _time_tag = DimensionTag(kind=DimensionTag.Types.Spatial, description="time")
