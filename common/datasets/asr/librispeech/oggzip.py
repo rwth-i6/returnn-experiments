@@ -59,6 +59,7 @@ class Librispeech(DatasetConfig):
     assert parts
     for part in parts:
       files += [
+        # (History: Changed data/dataset-ogg -> data-common/librispeech/dataset/dataset-ogg)
         get_common_data_path("librispeech/dataset/dataset-ogg/%s.zip" % part),
         get_common_data_path("librispeech/dataset/dataset-ogg/%s.txt.gz" % part)]
 
