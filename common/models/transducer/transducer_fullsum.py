@@ -375,13 +375,11 @@ def make_net(
     target = TargetConfig.global_from_config()
   encoder_opts = (encoder_opts or {}).copy()
   decoder_opts = (decoder_opts or {}).copy()
-  for k, v in kwargs.items():
+  for k in list(kwargs.keys()):
     if k.startswith("enc_"):
-      encoder_opts[k[len("enc_"):]] = v
+      encoder_opts[k[len("enc_"):]] = kwargs.pop(k)
     elif k.startswith("dec_"):
-      decoder_opts[k[len("dec_"):]] = v
-    else:
-      raise TypeError(f"unexpected argument {k}={v!r}")
+      decoder_opts[k[len("dec_"):]] = kwargs.pop(k)
   encoder_opts.setdefault("l2", l2)
   decoder_opts.setdefault("l2", l2)
   ctx = Context(task=task, beam_size=beam_size, target=target)
