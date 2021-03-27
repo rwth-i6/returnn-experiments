@@ -334,7 +334,7 @@ class EncoderBLstmCnnSpecAug(IEncoder):
 
 
 class Net:
-  def __init__(self, *, ctx: Context, encoder: IEncoder = None, decoder: Decoder = None):
+  def __init__(self, *, ctx: Context, encoder: IEncoder = None, decoder: Decoder = None, aux_ctc_loss=False):
     self.ctx = ctx
     if not encoder:
       encoder = EncoderBLstmCnnSpecAug(ctx=ctx)
@@ -342,9 +342,10 @@ class Net:
     if not decoder:
       decoder = Decoder(ctx=ctx)
     self.decoder = decoder
+    self.aux_ctc_loss = aux_ctc_loss
 
   def make_net(self) -> Dict[str, Any]:
-    return {
+    net = {
       "encoder": self.encoder.make("data"),
       "output": self.decoder.make("encoder"),
 
@@ -354,6 +355,9 @@ class Net:
         "class": "decide", "from": "output_wo_b", "loss": "edit_distance", "target": self.ctx.target.key,
         'only_on_search': True},
     }
+    if self.aux_ctc_loss:
+      net["ctc"] = make_ctc_loss("encoder", target=self.ctx.target)
+    return net
 
 
 def make_net(
@@ -363,7 +367,7 @@ def make_net(
     decoder_opts=None,
     beam_size: int = 12,
     l2=0.0001,
-    **enc_dec_flat_args
+    **kwargs
 ) -> Dict[str, Any]:
   if not task:
     task = get_global_config().value("task", "train")
@@ -371,7 +375,7 @@ def make_net(
     target = TargetConfig.global_from_config()
   encoder_opts = (encoder_opts or {}).copy()
   decoder_opts = (decoder_opts or {}).copy()
-  for k, v in enc_dec_flat_args.items():
+  for k, v in kwargs.items():
     if k.startswith("enc_"):
       encoder_opts[k[len("enc_"):]] = v
     elif k.startswith("dec_"):
@@ -384,7 +388,8 @@ def make_net(
   net = Net(
     ctx=ctx,
     encoder=EncoderBLstmCnnSpecAug(ctx=ctx, **encoder_opts),
-    decoder=_make_decoder(ctx=ctx, **decoder_opts))
+    decoder=_make_decoder(ctx=ctx, **decoder_opts),
+    **kwargs)
   return net.make_net()
 
 
@@ -411,6 +416,12 @@ def _make_decoder(
       ctx=ctx, readout_dim=readout_dim, readout_dropout=readout_dropout, readout_l2=l2),
     log_prob_separate_nb=DecoderLogProbSeparateNb(ctx=ctx, dropout=output_dropout),
     log_prob_separate_wb=DecoderLogProbSeparateWb(ctx=ctx))
+
+
+def make_ctc_loss(src: LayerRef, *, target: TargetConfig):
+  return {
+    "class": "softmax", "from": src, "loss": "ctc", "target": target.key,
+    "loss_opts": {"beam_width": 1, "use_native": True}}
 
 
 def make_output_without_blank(decoder: str, *, target: TargetConfig = None):
