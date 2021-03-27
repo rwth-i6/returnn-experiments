@@ -1,6 +1,6 @@
 
 import numpy
-from typing import Dict, Any
+from typing import Dict, Any, Union, Tuple
 
 from ...asr.specaugment import specaugment_eval_func
 
@@ -12,7 +12,8 @@ def make_encoder(src="data", **kwargs):
 def make_net(
     *,
     num_layers=6, lstm_dim=1024,
-    time_reduction=(3, 2), with_specaugment=True,
+    time_reduction: Union[int, Tuple[int, ...]] = 6,
+    with_specaugment=True,
     l2=0.0001, dropout=0.3, rec_weight_dropout=0.0,
 ) -> Dict[str, Any]:
   net_dict = {
@@ -31,8 +32,18 @@ def make_net(
   }
 
   # Add encoder BLSTM stack.
-  if len(time_reduction) > num_layers - 1:
-    time_reduction = [int(numpy.prod(time_reduction))]
+  if isinstance(time_reduction, int):
+    n = time_reduction
+    time_reduction = []
+    for i in range(2, n + 1):
+      while n % i == 0:
+        time_reduction.insert(0, i)
+        n //= i
+      if n <= 1:
+        break
+  assert isinstance(time_reduction, (tuple, list))
+  while len(time_reduction) > num_layers - 1:
+    time_reduction[:2] = [time_reduction[0] * time_reduction[1]]
   src = "conv_merged"
   opts = {"n_out": lstm_dim, "L2": l2}  # type: Dict[str, Any]
   if rec_weight_dropout:
