@@ -1,0 +1,16 @@
+epoch   1: 253.1
+epoch   2: 147.5
+epoch  11: 50.2
+epoch  12: 44.6
+epoch  60: 20.0
+epoch  78: 17.7
+epoch  80: 17.5
+epoch 140: 15.7
+epoch 142: 15.5
+epoch 153: 15.6
+epoch 160: 15.5
+epoch 178: 15.4
+epoch 190: 15.4
+epoch 191: 15.5
+epoch 199: 15.4
+epoch 200: 15.4

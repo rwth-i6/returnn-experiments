@@ -1,0 +1,13 @@
+epoch   1: 21.6
+epoch   2: 21.3
+epoch   8: 16.3
+epoch  10: 16.3
+epoch  12: 16.1
+epoch  18: 16.0
+epoch  19: 16.2
+epoch  40: 15.4
+epoch  80: 15.2
+epoch  97: 15.1
+epoch  98: 15.1
+epoch  99: 15.1
+epoch 100: 15.1

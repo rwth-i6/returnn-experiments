@@ -1,0 +1,7 @@
+epoch  80: 14.7
+epoch 154: 14.4
+epoch 160: 14.4
+epoch 167: 14.4
+epoch 191: 14.4
+epoch 192: 14.4
+epoch 200: 14.4
