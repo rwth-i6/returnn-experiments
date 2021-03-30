@@ -2,7 +2,8 @@
 
 Our experiments were performed with [RETURNN](https://github.com/rwth-i6/returnn),
 which is based on [TensorFlow](http://tensorflow.org/).
-It should work on Python 2.7 or >=3.6, and using TensorFlow <=1.15.
+It should work on Python 2.7 or >=3.6, and using TensorFlow <=1.15
+(it should mostly work also with TF >=2, maybe needs some `tf` -> `tf.compat.v1` replacements in the configs).
 
 All the relevant RETURNN configs can be found in the `switchboard` subdirectory.
 Please also check `switchboard/README.md` about the organization of these files.
