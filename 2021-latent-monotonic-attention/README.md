@@ -29,9 +29,14 @@ We use that concept during the whole training, to have fine-grained control of t
 The same function `get_net_dict` also constructs the network for decoding.
 Note that one epoch in the config corresponds to a sub-epoch of the training data, as we split the corpora into multiple (6) parts (on-the-fly).
 
-The latent variable `t` is implemented using the [`ChoiceLayer`](https://returnn.readthedocs.io/en/latest/layer_reference/recurrent.html#TFNetworkRecLayer.ChoiceLayer).
+The latent variable `t` is implemented using the [`ChoiceLayer`](https://returnn.readthedocs.io/en/latest/layer_reference/recurrent.html?highlight=ChoiceLayer#returnn.tf.layers.rec.ChoiceLayer).
 This allows for the Viterbi search during training (for the best alignment)
 and also for the normal beam search during decoding.
-In training, we use the [extra-search-net](https://returnn.readthedocs.io/en/latest/api/TFNetwork.html#TFNetwork.TFNetwork.construct_extra_net) concept (`"extra.search:output"` in the config) to enable the search for the best alignment, but fixed ground truth label sequence.
+[Read more on how beam search with multiple stochastic variables works in RETURNN](https://returnn.readthedocs.io/en/latest/internals/search.html),
+and also see our [slides of the Interspeech 2020 tutorial “Efficient and Flexible Implementation of Machine Learning for ASR and MT”](https://www-i6.informatik.rwth-aachen.de/publications/download/1154/Zeyer--2020.pdf) with an introduction of the core concepts,
+specifically page 56 about recurrency with multiple stochastic variables.
+![image](https://user-images.githubusercontent.com/59132/113063447-9cc20080-91b5-11eb-8746-c013083561eb.png)
+
+In training, we use the [extra-search-net](https://returnn.readthedocs.io/en/latest/api/tf.network.html?highlight=construct_extra_net#returnn.tf.network.TFNetwork.construct_extra_net) concept (`"extra.search:output"` in the config) to enable the search for the best alignment, but fixed ground truth label sequence.
 
 The initial linear alignment is created in the function `t_linear`.
