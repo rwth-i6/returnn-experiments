@@ -100,8 +100,7 @@ class IDecoderSlowRnn(_IMaker):
   def make(self, *,
            prev_sparse_label_nb: LayerRef,
            prev_emit: LayerRef,
-           unmasked_sparse_label_nb_seq: Optional[LayerRef] = None,
-           prev_fast_rnn: LayerRef, encoder: LayerRef) -> LayerDict:
+           unmasked_sparse_label_nb_seq: Optional[LayerRef] = None) -> LayerDict:
     raise NotImplementedError
 
 
@@ -116,8 +115,7 @@ class DecoderSlowRnnLstmIndependent(IDecoderSlowRnn):
   def make(self, *,
            prev_sparse_label_nb: LayerRef,
            prev_emit: LayerRef,
-           unmasked_sparse_label_nb_seq: Optional[LayerRef] = None,
-           prev_fast_rnn: LayerRef, encoder: LayerRef) -> LayerDict:
+           unmasked_sparse_label_nb_seq: Optional[LayerRef] = None) -> LayerDict:
     return make_masked(
       source=prev_sparse_label_nb,
       mask=prev_emit,
@@ -239,8 +237,7 @@ class Decoder(_IMaker):
         prev_sparse_label_nb="prev_out_non_blank",
         prev_emit="prev:output_emit",
         unmasked_sparse_label_nb_seq=None if search else "lm_input",  # might enable optimization if used
-        prev_fast_rnn="prev:fast_rnn",
-        encoder="am"),
+      ),
 
       "fast_rnn": self.fast_rnn.make(
         prev_label_wb="prev:output_",
