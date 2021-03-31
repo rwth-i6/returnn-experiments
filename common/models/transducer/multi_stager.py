@@ -102,4 +102,3 @@ class MultiStager:
       self.update_network(epoch)
       print(self.state.model, self.state.up_to_epoch, self.state.index)
       return self.state.model
-
