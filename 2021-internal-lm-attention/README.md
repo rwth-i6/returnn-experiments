@@ -1,1 +1,30 @@
 We propose new methods to estimate the internal language model for attention-based encoder-decoder ASR models.
+
+### Features
+
+For Switchboard, we use 40-dim Gammatones features extracted using [RASR](https://github.com/rwth-i6/rasr). For Librispeech, we use 40-dim MFCC features extracted using `librosa` within [RETURNN](https://github.com/rwth-i6/returnn).
+
+### Configs
+
+All training and inference is done using [RETURNN](https://github.com/rwth-i6/returnn). All configs are generated using [Sisyphus](https://github.com/rwth-i6/sisyphus).
+
+#### ASR
+
+- `ffdec_*`: configs for Feed-forward (FF) decoder models
+- `lstmdec_*`: configs for LSTM-based decoder models
+
+#### Language Model (LM)
+
+Configs for training both transcription only LM for Density Ratio and for training external LMs are found under directory `lm`.
+
+#### Internal Language Model (ILM)
+
+- `train_mini_lstm.config`: config to train Mini-LSTM
+
+##### Inference configs with ILM estimation methods
+
+
+- `ilm_zero.config`: uses zero method
+- `ilm_global_avg.config`: uses global average (encoder or attention) method
+- `ilm_seq_avg.config`: uses sequence averge method
+- `ilm_mini_lstm.config`: uses Mini-LSTM method
