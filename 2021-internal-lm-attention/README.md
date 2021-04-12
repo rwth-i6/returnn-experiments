@@ -6,7 +6,7 @@ For Switchboard, we use 40-dim Gammatones features extracted using [RASR](https:
 
 ### Configs
 
-All training and inference is done using [RETURNN](https://github.com/rwth-i6/returnn). All configs are generated using [Sisyphus](https://github.com/rwth-i6/sisyphus).
+All training and inference are done using [RETURNN](https://github.com/rwth-i6/returnn). All configs are generated using [Sisyphus](https://github.com/rwth-i6/sisyphus).
 
 #### ASR
 
