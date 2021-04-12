@@ -15,7 +15,7 @@ All training and inference are done using [RETURNN](https://github.com/rwth-i6/r
 
 #### Language Model (LM)
 
-Configs for training both transcription only LM for Density Ratio and for training external LMs are found under directory `lm`.
+Configs for training transcription only LMs for Density Ratio and for training external LMs are found under directory `lm`.
 
 #### Internal Language Model (ILM)
 
