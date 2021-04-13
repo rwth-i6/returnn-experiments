@@ -5,7 +5,7 @@ Paper: [Investigating Methods to Improve Language Model Integration for Attentio
 Please cite as:
 
 ```
-@misc{zeineldeen2021investigating,
+@misc{zeineldeen2021ilm,
       title={Investigating Methods to Improve Language Model Integration for Attention-based Encoder-Decoder ASR Models}, 
       author={Mohammad Zeineldeen and Aleksandr Glushko and Wilfried Michel and Albert Zeyer and Ralf Schlüter and Hermann Ney},
       year={2021},
