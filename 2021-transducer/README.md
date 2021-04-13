@@ -11,4 +11,4 @@ url = {http://arxiv.org/abs/2104.03006}
 }
 ```
 
-Further configs [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2021-transducer-thesis-merboldt).
+Further configs [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2021-transducer-thesis-merboldt/librispeech).
