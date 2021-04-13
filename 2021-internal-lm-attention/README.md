@@ -43,3 +43,5 @@ Configs for training transcription only LMs for Density Ratio and for training e
 - `ilm_global_avg.config`: uses global average (encoder or attention) method
 - `ilm_seq_avg.config`: uses sequence averge method
 - `ilm_mini_lstm.config`: uses Mini-LSTM method
+
+For dumping the global average over training data for encoder outputs or attention context vectors, we used this [script](https://github.com/rwth-i6/returnn/blob/master/tools/dump-forward-stats.py).
