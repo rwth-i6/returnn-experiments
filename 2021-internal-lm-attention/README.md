@@ -1,5 +1,20 @@
 We propose new methods to estimate the internal language model for attention-based encoder-decoder ASR models.
 
+Paper: [Investigating Methods to Improve Language Model Integration for Attention-based Encoder-Decoder ASR Models](https://arxiv.org/abs/2104.05544)
+
+Please cite as:
+
+```
+@misc{zeineldeen2021investigating,
+      title={Investigating Methods to Improve Language Model Integration for Attention-based Encoder-Decoder ASR Models}, 
+      author={Mohammad Zeineldeen and Aleksandr Glushko and Wilfried Michel and Albert Zeyer and Ralf Schlüter and Hermann Ney},
+      year={2021},
+      eprint={2104.05544},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
+```
+
 ### Features
 
 For Switchboard, we use 40-dim Gammatones features extracted using [RASR](https://github.com/rwth-i6/rasr). For Librispeech, we use 40-dim MFCC features extracted using `librosa` within [RETURNN](https://github.com/rwth-i6/returnn).
