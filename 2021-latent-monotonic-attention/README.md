@@ -1,4 +1,17 @@
-# Configs for `A study of latent monotonic attention variants`
+# Configs for "A study of latent monotonic attention variants"
+
+Paper [A study of latent monotonic attention variants](https://arxiv.org/abs/2103.16710):
+```
+@Misc { zeyer2021:latent-attention,
+title= {A study of latent monotonic attention variants},
+author= {Zeyer, Albert and Schlüter, Ralf and Ney, Hermann},
+howpublished= {Preprint arXiv:2103.16710},
+month= mar,
+year= 2021,
+pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1178&row=pdf},
+url = {http://arxiv.org/abs/2103.16710}
+}
+```
 
 Our experiments were performed with [RETURNN](https://github.com/rwth-i6/returnn),
 which is based on [TensorFlow](http://tensorflow.org/).
