@@ -1,18 +1,19 @@
-
 from returnn.tf.util.data import Data
+import tensorflow as tf
 
 
-def rnnt_loss(source, **_kwargs):
+def rnnt_loss(source, **_kwargs) -> tf.Tensor:
+  """ Computes the RNN-T loss function. Native TF kernel implementation.
+  B: batch, T: time, U:target/labels, V: vocabulary
+  Args:
+      source: function (i: int, as_data: bool = False, ...) -> tf.Tensor|Data
+              which returns one of:
+        output_log_prob: [B, T, U+1, V] log-probabilities
+        target: [B, U] -> [V] target labels
+        base:encoder: [B, T, Feat] -> [V] encoder output
+  Returns:
+      costs: [B]
   """
-  Computes the RNN-T loss function. Native TF kernel implementation.
-
-  :param log_prob:
-  :return:
-  """
-  # acts: (B, T, U + 1, V)
-  # targets: (B, T)
-  # input_lengths (B,)
-  # label_lengths (B,)
   from returnn.extern.HawkAaronWarpTransducer import rnnt_loss
 
   log_probs = source(0, as_data=True, auto_convert=False)
@@ -31,17 +32,18 @@ def rnnt_loss(source, **_kwargs):
   return costs
 
 
-def rnnt_tf_loss(source, **kwargs):
+def rnnt_tf_loss(source, **kwargs) -> tf.Tensor:
+  """ Computes the RNN-T loss function. Pure TF.
+  B: batch, T: time, U:target/labels, V: vocabulary
+  Args:
+      source: function (i: int, as_data: bool = False, ...) -> tf.Tensor|Data
+              which returns one of:
+        output_log_prob: [B, T, U+1, V] log-probabilities
+        target: [B, U] -> [V] target labels
+        base:encoder: [B, T, Feat] -> [V] encoder output
+  Returns:
+      costs: [B]
   """
-  Computes the RNN-T loss function. Pure TF.
-
-  :param log_prob:
-  :return:
-  """
-  # acts: (B, T, U + 1, V)
-  # targets: (B, T)
-  # input_lengths (B,)
-  # label_lengths (B,)
   from .rnnt_align_sum_max_pure_tf import tf_forward_shifted_rnnt
 
   log_probs = source(0, as_data=True, auto_convert=False)
@@ -60,20 +62,18 @@ def rnnt_tf_loss(source, **kwargs):
   return costs
 
 
-def rnnt_loss_out_type(**_kwargs) -> Data:
-  return Data(name="rnnt_loss", shape=())
-
-
-def rna_tf_loss(source, **kwargs):
+def rna_tf_loss(source, **kwargs) -> tf.Tensor:
+  """ Computes the RNA loss. Pure TF.
+  B: batch, T: time, U:target/labels, V: vocabulary
+  Args:
+      source: function (i: int, as_data: bool = False, ...) -> tf.Tensor|Data
+              which returns one of:
+        output_log_prob: [B, T, U+1, V] log-probabilities
+        target: [B, U] -> [V] target labels
+        base:encoder: [B, T, Feat] -> [V] encoder output
+  Returns:
+      costs: [B]
   """
-  Computes the RNA loss. Pure TF.
-  :param log_prob:
-  :return:
-  """
-  # acts: (B, T, U, V)
-  # targets: (B, U-1)
-  # input_lengths (B,)
-  # label_lengths (B,)
   from .rna_align_sum_max_pure_tf import tf_forward_shifted_rna
   from returnn.tf.compat import v1 as tf
 
@@ -90,6 +90,10 @@ def rna_tf_loss(source, **kwargs):
     blank_index=blank_idx, debug=False)
   costs = tf.where(tf.is_finite(costs), costs, tf.zeros_like(costs))
   return costs
+
+
+def rnnt_loss_out_type(**_kwargs) -> Data:
+  return Data(name="rnnt_loss", shape=())
 
 
 def rna_loss_out_type(**_kwargs) -> Data:
