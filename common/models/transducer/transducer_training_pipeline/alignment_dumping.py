@@ -47,7 +47,7 @@ def update_net_for_alignment_dumping(net: Dict[str, Any],
     "from": "max_alignment",
     "is_output_layer": True,
     "dump_per_run": True,
-    "extend_existing_file": extend,  # TODO: extend only after the first time
+    "extend_existing_file": extend,
     # dataset_name comes from **opts of the lambda in filename
     "filename":
       (lambda **opts:

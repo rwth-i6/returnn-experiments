@@ -32,6 +32,7 @@ def update_net_for_fixed_path_training(net: Dict[str, Any],
   target = ctx.target
   blank_idx = ctx.blank_idx
   train = ctx.train
+  num_labels_wb = ctx.num_labels_wb
 
   subnet = net[decoder]["unit"]
   subnet["target"] = new_target_name
@@ -50,7 +51,7 @@ def update_net_for_fixed_path_training(net: Dict[str, Any],
   # The layer name must be smaller than "t_target" such that this is created first.
   net["existing_alignment"] = {"class": "reinterpret_data",
                                "from": "data:alignment",
-                               "set_sparse_dim": target.get_num_classes(),
+                               "set_sparse_dim": num_labels_wb,
                                "size_base": "encoder",  # TODO: for RNA only...
                                "set_sparse": True}
   net["1_targetb_base"] = {"class": "copy",
@@ -70,10 +71,10 @@ def update_net_for_fixed_path_training(net: Dict[str, Any],
   # Update extern_data
   extern_data = get_global_config().get_of_type("extern_data", dict)
   _output_len_tag = DimensionTag(kind=DimensionTag.Types.Spatial, description="output-len")  # it's downsampled time
-  extern_data["alignment"] = {"dim": target.get_num_classes(),
+  extern_data["alignment"] = {"dim": num_labels_wb,
                               "sparse": True,
                               "same_dim_tags_as": {"t": _output_len_tag}}
-  net["#config"]["extern_data"] = extern_data  # TODO: Why doesn't it work?
+  net["#config"]["extern_data"] = extern_data
 
   # Change datasets to MetaDatasets
   def path_template(key):

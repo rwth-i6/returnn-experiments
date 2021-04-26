@@ -22,7 +22,7 @@ get_network = TransducerMultiStager([st1, st2]).get_network
 
   TODO:
     - [ ] Make sure that the alignments correspond to the dataset used(sequence_ordering, ..)
-    - [ ] Reset option
+    - [ ] Chunking for RNNT
     - [ ] How to define loops? Instead of creating Stages manually (could do a for loop)
 """
 
@@ -43,11 +43,10 @@ class Stage:
                alignment_topology: Topology,
                fixed_path: bool = False,
                reset: bool = True,
-               chunking: bool = False,  # TODO
+               chunking: bool = False,
                stage_num_align: int = -1,
                name: str = None):
-    """Represents a stage of the transducer training pipeline
-
+    """Represents one stage of the transducer training pipeline
     Args:
         make_net ([type]): callback to save the method for creating the network
         num_epochs (int): nr of epochs this stage lasts
@@ -69,7 +68,12 @@ class Stage:
       name = alignment_topology.name + f"_{'fixed_path' if fixed_path else 'full_sum'}"
     self.name = name
 
-  def st(self, **kwargs):
+  def st(self, **kwargs) -> Stage:
+    """
+    Creates a copy of itself where **kwargs may provide different instace variables.
+    i.e `my_stage.st(fixed_path=True, stage_num_align=1)` returns `my_stage` with changed instance
+    variables, fixed_path and stage_num.
+    """
     import copy
     cp = copy.deepcopy(self)
     for (k, v) in kwargs.items():
@@ -79,13 +83,14 @@ class Stage:
 
 
 class TransducerFullSumAndFramewiseTrainingPipeline:
-  """Wrapper around Pretrain which enables Multi-Stage training"""
+  """Wrapper around get_network() which enables Multi-Stage training"""
   def __init__(self, stage_list: List[Stage]):
     self.type = "FullSum"  # type of stage. It can be one of {"FullSum", "CE", "Align"}
     self.stage = stage_list[0]  # saves the stage we are on
     self.index = 0  # index of current stage
-    self.start_epoch = 1  # holds the epoch, the current stage started.
+    self.start_epoch = 0  # holds the last epoch of the previous stage(i.e our start epoch).
     self.align_dir = os.path.dirname(get_global_config().value("model", "net-model/network"))
+    self.epoch_split = get_global_config().get_of_type("train", dict).get("partition_epoch", 1)
     self.stage_list = stage_list
     self._proof_check_stages()
 
@@ -98,9 +103,16 @@ class TransducerFullSumAndFramewiseTrainingPipeline:
     """Returns the epoch number relative to the start of current stage"""
     return epoch - self.start_epoch
 
+  def _stage_end_epoch(self) -> int:
+    """
+    Returns the total number of epochs in this stage(training + alignment dumping epochs)
+    That corresponds to the last epoch of the current stage.
+    """
+    return self.stage.num_epochs + self.epoch_split
+
   def _update(self, epoch: int):
     """Update model for the next stage if necessary"""
-    if len(self.stage_list) > self.index and self.stage.num_epochs < self._stage_epoch(epoch):
+    if self.index < len(self.stage_list):  # only if we aren't already in the last stage
       self.index += 1
       self.stage = self.stage_list[self.index]
 
@@ -111,7 +123,10 @@ class TransducerFullSumAndFramewiseTrainingPipeline:
 
   def _get_net_with_align_dumping(self, epoch: int, ctx: Context) -> Dict[str, Any]:
     net = self._get_net(epoch)
-    net = update_net_for_alignment_dumping(net=net, extend=False, ctx=ctx,
+    epoch0 = epoch - 1
+    # False only for the first align_dump epoch, True for the rest of algin_dump epochs
+    extend = epoch0 % self.epoch_split > 0
+    net = update_net_for_alignment_dumping(net=net, extend=extend, ctx=ctx,
                                            stage_num=self.index, align_dir=self.align_dir,
                                            alignment_topology=self.stage.alignment_topology)
     return net
@@ -126,12 +141,12 @@ class TransducerFullSumAndFramewiseTrainingPipeline:
     if self.stage.reset:
       net["#copy_param_mode"] = "reset"
 
-    # Chunking
+    # TODO: Chunking  not working for RNNT
     if self.stage.chunking:
       _time_red = 6
       _chunk_size = 60
       net["#config"].update({
-        # TODO: more? e.g. maximize GPU mem util
+        # TODO: not configurable yet. How to provide the params to the stage?
         "chunking":  # can use chunking with frame-wise training
         (
           {"data": _chunk_size * _time_red, "alignment": _chunk_size},
@@ -152,16 +167,21 @@ class TransducerFullSumAndFramewiseTrainingPipeline:
     target = TargetConfig.global_from_config()
     ctx = Context(task=task, target=target, beam_size=12)
 
-    self._update(epoch)
-    if self.stage.num_epochs == self._stage_epoch(epoch):  # create alignments
+    #      ............................  Stage1   ..............................
+    # start+1         train     start+N     start+N+1      align_dump     start+N+EpochSplit
+    #      |-|-|-|-|-|-|-|-|-|-|-|-|-|     -     |-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
+    if self.stage.num_epochs < self._stage_epoch(epoch) <= self._stage_end_epoch():  # Dump alignments
       self.type = "Align"
       net = self._get_net_with_align_dumping(epoch, ctx)
-    elif self.stage.fixed_path:  # train with forced alignments(fixed path training)
+    elif self.stage.fixed_path:  # Train with forced alignments and CE loss(fixed path training)
       self.type = "CE"
       net = self._get_net_with_fixed_path_training(epoch, ctx)
-
-    else:  # fullsum training
+    else:  # Train with fullsum loss
       self.type = "FullSum"
       net = self._get_net(epoch)
+
+    # End of stage, make the jump to the next stage
+    if self._stage_end_epoch() == self._stage_epoch(epoch):
+      self._update(epoch)
 
     return net
