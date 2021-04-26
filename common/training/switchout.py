@@ -4,7 +4,7 @@ from ..asr.specaugment import random_mask
 def switchout_target(self, source, targetb_blank_idx: int,
                      target_num_labels: int, time_factor: int = 6,
                      switchout_prob: float = 0.05,
-                     switchout_blank_prob: float = 0.5, *, **kwargs):
+                     switchout_blank_prob: float = 0.5, **kwargs):
   """Switchout. It takes as input a batch of outputs and returns a switchout version of it.
   Usage:
     {
@@ -33,8 +33,6 @@ def switchout_target(self, source, targetb_blank_idx: int,
   def get_switched():
     x_ = x
     shape = tf.shape(x)
-    n_batch = tf.shape(x)[data.batch_dim_axis]
-    n_time = tf.shape(x)[data.time_dim_axis]
     take_rnd_mask = tf.less(tf.random_uniform(shape=shape, minval=0., maxval=1.), switchout_prob)
     take_blank_mask = tf.less(tf.random_uniform(shape=shape, minval=0., maxval=1.), switchout_blank_prob)
     rnd_label = tf.random_uniform(shape=shape, minval=0, maxval=target_num_labels, dtype=tf.int32)
