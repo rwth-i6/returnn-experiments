@@ -3,7 +3,7 @@ futures
 h5py
 pysoundfile
 tqdm
-tensorflow==2.3.1
+tensorflow==2.5.0
 torch==1.6.0+cu101
 librosa==0.7.2
 numba==0.48
