@@ -1,0 +1,87 @@
+# Notes
+
+peaky: one label dominates over time, others only very few / single frame
+sharp: in a single frame, prob distribution is sharp, i.e. one label dominates
+
+* bias, blank 0 init, frames 100, target [0] -> peaky, blank almost always
+
+## Models
+
+bias: logits = bias (broadcasted)
+mem model: logits = mem
+mem+bias: logits = mem + bias
+ffnn + constructed input
+
+## Ground truth examples
+
+* `b b b A A A B B b b b C C C C b b b` or so?
+* look at example in paper?
+
+## Experiments
+
+* mem, blank 0 init, frames 100, target [0, 0, 1] -> peaky, blank 90%, '0' 5.2%, '1' 4.6%
+* mem, blank -1 init, frames 100, target [0, 0, 1] -> not peaky, sharp, '0' 69%, '1' 28%, blank 3.7%
+* mem, blank -1 init, frames 100, target [0, 1] -> not peaky, sharp, '0' 48%, '1' 48%, blank 3.3%
+* mem, blank -1 init, frames 100, target [0] -> peaky, sharp, '0' 92%, '1' 4.2%, blank 3.1%
+* mem, blank 0 init, frames 100, target [0] -> peaky, sharp, '0' 4.3%, '1' 3.8%, blank 92%
+* mem, blank 0 init, frames 100, target [0], steps 1000 -> peaky, sharp, '0' 1.1%, blank 99%
+
+* mem+bias, rnd_normal init, frames 100, target [0], classes 2 -> peaky, sharp, [0.01 0.   0.99], num blanks: 99 / 100
+* mem+bias, rnd_normal init, frames 100, target [0], classes 1 -> peaky, sharp, [0.01 0.99], num blanks: 99 / 100
+
+* mem+bias, rnd_normal init, frames 10000, target [0], classes 1 -> peaky, sharp, bias shifts after first step to first label, num blanks: 10000 / 10000
+* mem+bias, rnd_normal init, frames 10000, target [0], classes 1, scale lr True -> peaky, sharp, bias shifts after first step to first label, num blanks: 10000 / 10000
+* mem+bias, rnd_normal init, try various rnd_seed, frames 10000, target [0], classes 1, scale lr True, lr 100. -> sharp, converges always to some alignment, but avg sm blank varies greatly, but histogram peaks at 75%-85%
+* mem, rnd_normal init, try various rnd_seed, frames 100, target [0], classes 1, scale lr True, lr 100. -> sharp, hist [ 1  5  9  4 10  6  5  8 14  8  8 10 16  9 15 14 15 12  7 24]
+* bias, rnd_normal init, try various rnd_seed, frames 100, target [0], classes 1, scale lr True, lr 100. -> sharp, hist [113   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  87] (0% or 100%)
+
+
+## Observations
+
+* bias model, zero init, posteriors not sharp, but blank most often at optimum. optimum loss is >0. all Viterbi alignments are peaky.
+  (also shown analytically)
+* mem or mem+bias model, zero init, blank dominates clearly, but not as much as possible, i.e. not peaky. reaches real optimum at 0.0.
+  (also shown analytically)
+
+* bias model, random init, either blank 0% or 100% almost always. the same optimum as zero init is almost never reached. blank 0% means real optimal loss 0.0, blank 100% means high loss
+* bias model, random init scale 0.01, almost always blank 100%, loss >0
+* mem or mem+bias model, random init, if lr is high reaches real optimum at 0.0, otherwise loss >0, but fraction of blank varies, although it is most likely that blank dominates
+* mem model, random init scale 0.01, almost always blank 100%, depends also on learning rate, i.e. too high lr and similar as rnd scale 1.
+* mem model, random init scale 0.01, adam, slightly different, converges too fast? almost always blank. first 100% blank. if lr is 1., then at some points jumps away (loss increases) from there and has some few frames of non-blank.
+
+* once it tends to converge to one alignment, it will not go away from there (not easily, esp if lr is low). if that alignment has 100% blank, BW will always look different, but it takes very long to go away from there with small lr. if that alignment has the target symbols, it reaches loss=0 at some point. i.e. the true optimum loss=0 is always reachable, but with gradient descent, we might reach it very slowly, depending on lr and initialization.
+* gradient noise does not seem to help in escaping a bad alignment (100% blank). nor weight noise.
+* update_exact is the perfect variant of gradient descent. without, and with small lr, it can take long time to get away from blank 100%
+* loss_type max (Viterbi) almost never produces 100% blank. distribution looks much more evenly distributed
+
+* scale_sm_by_prior solves the 100% blank case for any initialization
+* scale_sm_by_prior with loss_type max (Viterbi) also somewhat works, but more random.
+* scale_sm_by_prior with weight_noise 0.1 seems even more stable. better with weight_noise 0.01, which matches rnd_scale
+* loss_type sum_with_prior instead of scale_sm_by_prior might make more sense, works similar. but optimal loss is not at 0.0 anymore
+
+* linear model, no bias, ground truth (even dist or not), zero init, loss "sum" -> peaky!
+  (also shown analytically)
+* linear model, no bias, ground truth (even dist or not), zero init, loss "sum_with_prior" -> perfect reconstruction, not peaky
+* linear model, no bias, ground truth (even dist), random init (scale 1.0), loss "sum_with_prior" -> many possible amounts of blank
+* linear model, bias, ground truth (noneven), identity init, loss "sum" -> will go away from perfect solution (SGD and Adam), but loss also goes down. because gradient descent screws the bias. even with low lr.
+* blstm, ground truth (noneven), random init (scale 0.01), loss "sum" -> always peaky
+
+
+## Thoughts
+
+* focal loss for/against class imbalance?
+* weight frames by prior? prior by posterior?
+
+* regularization on logits, e.g. shuffle dims? should fix bad alignment. maybe not, only better grad for one step, then bad again?
+* sometimes flip some weights? or some soft variant of this.
+* randomly mask logits? logits_time_dropout
+
+* some of the thoughts assume that an underlying "true" distribution exists / is well defined. this might not be the case. e.g. the mem model, there maybe is not such a thing, there are many solutions with loss=0. although maybe the one with logits=0 is the true one?
+
+
+## TODO
+
+* question to think about: what is a good alignment? in the sense that a model can get good performance, and can learn it easily, and it generalizes well. can we measure this property? and if so, should we try to add this measure to the loss during training
+* assume we have given some underlying "true" distribution which we expect, but we don't know how this distribution looks like. also, it does not cover blank. these experiments do not cover this yet. we would need some observations. maybe we can just assume uniformity as a goal (excluding blank).
+* what is a good way to estimate the underlying "true" distribution? -> FFNN, no window, no bias? auto-encoder-like, recover input?
+* no matter the initialization, how can we make sure that we always get close to the underlying "true" distribution? Viterbi is better, but too random. avoid to stick to one alignment. how? scale_sm_by_prior looks good.
