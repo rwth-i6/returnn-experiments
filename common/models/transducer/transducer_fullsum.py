@@ -229,11 +229,15 @@ class Decoder(_IMaker):
     blank_idx = self.ctx.blank_idx
 
     rec_decoder = {
-      "am0": {"class": "gather_nd", "from": _base(encoder), "position": "prev:t"},  # [B,D]
+      "t_": {"class": "eval", "from": ["prev:t", "enc_seq_len"], "eval": 'tf.minimum(source(0), source(1)-1)'},
+      "am0": {"class": "gather_nd", "from": _base(encoder), "position": "t_"},  # [B,D]
       "am": {"class": "copy", "from": "am0" if search else "data:source"},
 
+      "prev_output_wo_b": {
+        "class": "masked_computation", "unit": {"class": "copy", "initial_output": 0},
+        "from": "prev:output_", "mask": "prev:output_emit", "initial_output": 0},
       "prev_out_non_blank": {
-        "class": "reinterpret_data", "from": "prev:output_", "set_sparse_dim": target.get_num_classes()},
+        "class": "reinterpret_data", "from": "prev_output_wo_b", "set_sparse_dim": target.get_num_classes()},
 
       "slow_rnn": self.slow_rnn.make(
         prev_sparse_label_nb="prev_out_non_blank",
@@ -252,7 +256,7 @@ class Decoder(_IMaker):
 
       "output": {
         "class": 'choice',
-        'target': target.key,  # note: wrong! but this is ignored both in full-sum training and in search
+        'target': target.key if train else None,
         'beam_size': beam_size,
         'from': "output_log_prob_wb", "input_type": "log_prob",
         "initial_output": 0,
