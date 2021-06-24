@@ -3,3 +3,4 @@ The configs `ctcfbw.*.config` correspond to the FS-trained models.
 The WERs are generated via RASR,
 and the losses are calculated via the script `calc_full_sum_scores.py`.
 
+The results are published as part of the PhD thesis of Albert Zeyer.
