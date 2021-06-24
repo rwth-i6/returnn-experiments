@@ -1,5 +1,22 @@
+Here are the configs for the paper
+[CTC in the Context of Generalized Full-Sum HMM Training](https://www-i6.informatik.rwth-aachen.de/publications/download/1035/Zeyer--2017.pdf).
 
-This repo contains the configs,
+Please cite as:
+```
+@InProceedings { zeyer2017:ctc,
+author= {Zeyer, Albert and Beck, Eugen and Schlüter, Ralf and Ney, Hermann},
+title= {CTC in the Context of Generalized Full-Sum HMM Training},
+booktitle= {Interspeech},
+year= 2017,
+pages= {944-948},
+address= {Stockholm, Sweden},
+month= aug,
+booktitlelink= {http://www.interspeech2017.org/},
+pdf = {https://www-i6.informatik.rwth-aachen.de/publications/downloader.php?id=1035&row=pdf}
+}
+```
+
+The configs are
 to be used with [RETURNN](https://github.com/rwth-i6/returnn)
 (called CRNN earlier/internally)
 and [RASR](https://www-i6.informatik.rwth-aachen.de/rwth-asr/)
