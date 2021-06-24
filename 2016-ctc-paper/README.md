@@ -39,3 +39,32 @@ The formal analysis was published as a separate paper
 with configs [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2021-formal-peaky-behavior-ctc).
 The extended Switchboard experiments can be found
 in [`switchboard-extended2020`](switchboard-extended2020).
+
+---
+
+On RETURNN side, there is a generic FastBaumWelch operation,
+which can be found in the `FastBaumWelchOp` class (in native_op.py),
+which gets in a batch of weighted FSAs corresponding to the targets (target FSAs)
+and the posteriors and calculates the soft alignment
+via the Baum-Welch algorithm (dynamic programming).
+
+The FSA can be constructed via RASR,
+corresponding to the allowed phoneme sequences or CART labels,
+given the transcription and lexicon and HMM configuration.
+The weights correspond to the log probs
+of the HMM transitions and pronunciation probabilities from the lexicon.
+This is constructed by a chain of weighted finite state transducers (WFST).
+
+The FSA can also be constructed on-the-fly
+for the CTC label topology (extended by blank)
+via `GetCtcFsaFastBwOp` and `get_ctc_fsa_fast_bw`.
+Also see the function `ctc_loss` which encapsulates all of this
+and calculates the same as `tf.nn.ctc_loss`
+but much faster
+because everything runs batched on the GPU
+(both the FSA construction and Baum-Welch calculation).
+
+There is `FastBaumWelchLayer` which wraps `FastBaumWelchOp` as a layer,
+to calculate the soft alignment.
+
+There is also `CtcLoss` and `FastBaumWelchLoss`.
