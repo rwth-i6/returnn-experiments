@@ -30,3 +30,12 @@ replace the `train`/`dev` config settings, which specify the train and dev corpu
 At the moment, they will use the `ExternSprintDataset` interface to get the preprocessed data out of RASR.
 You can also use other dataset implementations provided by RETURNN (see RETURNN doc / source code),
 e.g. the HDF format directly.
+
+---
+
+Some extensions on the experiments were performed later,
+as part of the studies on some formal analysis on the peaky behavior.
+The formal analysis was published as a separate paper
+with configs [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2021-formal-peaky-behavior-ctc).
+The extended Switchboard experiments can be found
+in [`switchboard-extended2020`](switchboard-extended2020).
