@@ -18,3 +18,6 @@ which covers most synthetic experiments from the paper.
 `simple_model.txt` contains some further comments and notes about some experiments on synthetic data.
 
 See the docstring of `fst_utils.py` for the symbolic computations and proofs.
+
+This work is an extension of earlier practical work on Switchboard
+which can be found [here](https://github.com/rwth-i6/returnn-experiments/tree/master/2016-ctc-paper).
