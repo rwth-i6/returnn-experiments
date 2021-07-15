@@ -8,3 +8,5 @@ This folder contains the config files that were used in training and decoding of
 Note that the configs are automatically created by a currently not publicy available Sisyphus setup.
 The publication of the full setup might follow at a later point.
 All external data path placeholders are marked with "<<< >>>".
+
+The models presented here are related to the following submission: https://arxiv.org/abs/2104.05379
