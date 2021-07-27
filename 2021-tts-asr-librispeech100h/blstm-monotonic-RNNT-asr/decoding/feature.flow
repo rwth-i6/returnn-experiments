@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="features"/>
+  <param name="id"/>
+  <node filter="generic-cache" id="$(id)" name="cache" path="<<<gt.cache.$(TASK)>>>"/>
+  <link from="cache" to="network:features"/>
+</network>

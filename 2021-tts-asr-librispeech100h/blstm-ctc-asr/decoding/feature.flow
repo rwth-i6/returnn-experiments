@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="features"/>
+  <param name="id"/>
+  <node filter="generic-cache" id="$(id)" name="cache" path="<<<gt.cache.$(TASK)>>>"/>
+  <node filter="tensorflow-forward" id="$(id)" name="tf-fwd"/>
+  <link from="cache" to="tf-fwd:features"/>
+  <link from="tf-fwd:log-posteriors" to="network:features"/>
+</network>
