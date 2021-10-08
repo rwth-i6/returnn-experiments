@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="alignments"/>
+  <out name="features"/>
+  <param name="end-time"/>
+  <param name="start-time"/>
+  <param name="TASK"/>
+  <param name="id"/>
+  <node filter="generic-cache" id="$(id)" name="cache" path="`cf /work/asr4/raissi/ms-thesis-setups/lm-sa-swb/2021-08--specaugment/work/features/extraction/FeatureExtraction.Gammatone.Jlfrg2riiRX3/output/gt.cache.bundle`"/>
+  <node filter="generic-cache" id="$(id)" name="feature-cache-ivec" path="`cf /u/kitza/setups/sisyphus/swb1/2018-09-semisupervised/work/adaptation/ivector/IVectorExtractionJob.OswBVUkmHda7/output/ivec.bundle`"/>
+  <node filter="generic-cache" id="$(id)" name="alignment-cache" path="/work/asr2/zeyer/setups-data/switchboard/2016-01-28--crnn/tuske__2016_01_28__align.combined.train"/>
+  <node filter="signal-repeating-frame-prediction" name="sync"/>
+  <link from="feature-cache-ivec" to="sync"/>
+  <link from="cache" to="sync:target"/>
+  <node check-same-length="true" filter="generic-vector-f32-concat" name="concatenation" timestamp-port="feature-1"/>
+  <link from="cache" to="concatenation:feature-1"/>
+  <link from="sync" to="concatenation:feature-2"/>
+  <link from="concatenation" to="network:features"/>
+  <link from="alignment-cache" to="network:alignments"/>
+</network>
