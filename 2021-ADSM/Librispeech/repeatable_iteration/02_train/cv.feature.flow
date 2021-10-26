@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="features"/>
+  <param name="id"/>
+  <!-- load pre-extracted features to save time -->
+  <node filter="generic-cache" id="$(id)" name="cache" path="../01_feature_extraction/cv/gt.cache"/>
+  <link from="cache" to="network:features"/>
+</network>

@@ -1,0 +1,3 @@
+last vocab refinement (model train + Viterbi align + weight filtering) + word-count filtering (e.g. 20)
+1. => final mapping => final vocab
+2. => target sequence
