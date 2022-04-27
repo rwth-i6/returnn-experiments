@@ -6,16 +6,9 @@ Paper title: **Improving the Training Recipe for a Robust Conformer-based Hybrid
 
 We use 40-dim Gammatones features extracted using [RASR](https://github.com/rwth-i6/rasr).
 
-### Models Configs
+### Experiments Configs
 
-[REURNN](https://github.com/rwth-i6/returnn) is used to train all models. We use [RASR](https://github.com/rwth-i6/rasr) for recognition.
+- [REURNN](https://github.com/rwth-i6/returnn) is used to train all models. We use [RASR](https://github.com/rwth-i6/rasr) for recognition.
 
-#### For training
-
-`table_X`: directory containing the configs for table(s) X in the paper
-
-#### For recognition
-
-RASR recognition configs can be found in `recognition` directory.
-
+- `table_X`: directory containing the configs for table(s) X in the paper
 
