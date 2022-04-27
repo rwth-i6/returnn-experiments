@@ -12,7 +12,7 @@ We use 40-dim Gammatones features extracted using [RASR](https://github.com/rwth
 
 #### For training
 
-- `table_X`: directory containing the configs for table(s) X in the paper
+`table_X`: directory containing the configs for table(s) X in the paper
 
 #### For recognition
 
