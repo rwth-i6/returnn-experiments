@@ -1,7 +1,7 @@
 # LSH self attention implementation
 
-This implements locality sensitive hashing (LSH) presented in the
-[Reformer](https://arxiv.org/pdf/2001.04451.pdf) within RETURNN for encoder-decoder models, as part of the self
+This implements locality-sensitive-hashing (LSH) attention for NMT
+as presented in our paper ["Locality-Sensitive Hashing for Long Context Neural Machine Translation" submitted to IWSLT2022](https://aclanthology.org/2022.iwslt-1.4/).
 
 Running this requires some features of [this RETURNN development branch](https://github.com/rwth-i6/returnn/tree/frithjof-self-attention),
 e.g. the `CumConcatLayer` and being able to specify optional time axes by dim tag name (e.g. `stag:key-window?`).
@@ -9,7 +9,7 @@ It does not work with the current RETURNN master currently.
 
 ## Setup
 
-```
+```bash
 git clone https://github.com/rwth-i6/returnn.git -b frithjof-self-attention
 pip install --user -r returnn/requirements.txt  # install RETURNN requirements
 export PYTHONPATH=$PWD/returnn/:$PYTHONPATH  # add RETURNN to your pythonpath
@@ -70,3 +70,25 @@ add_lsh_cross_attention_layer(
 ```
 
 Look at the code and in particular our tests in `test_lsh.py` for more detailed usage.
+
+
+## Citation
+
+If you use our work please cite it as:
+
+```
+@inproceedings{petrick-etal-2022-locality,
+    title = "Locality-Sensitive Hashing for Long Context Neural Machine Translation",
+    author = "Petrick, Frithjof  and
+      Rosendahl, Jan  and
+      Herold, Christian  and
+      Ney, Hermann",
+    booktitle = "Proceedings of the 19th International Conference on Spoken Language Translation (IWSLT 2022)",
+    month = may,
+    year = "2022",
+    address = "Dublin, Ireland (in-person and online)",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.iwslt-1.4",
+    pages = "32--42"
+}
+```
