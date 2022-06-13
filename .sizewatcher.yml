@@ -1,0 +1,8 @@
+# https://github.com/adobe/sizewatcher#configuration
+
+report:
+  githubStatus: true
+  githubComment: false
+
+limits:
+  fail: "1M"
