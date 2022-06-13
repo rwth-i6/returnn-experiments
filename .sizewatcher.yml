@@ -6,3 +6,6 @@ report:
 
 limits:
   fail: "1M"
+
+comparators:
+  git: true
