@@ -1,4 +1,6 @@
-We present a training recipe for conformer-based hybrid ASR models.
+We present a training recipe for conformer-based hybrid ASR models. This work has been accepted at ICASSP 2022. 
+
+Paper: [Conformer-based Hybrid ASR System for Switchboard Dataset](https://arxiv.org/abs/2111.03442)
 
 ### Features Extraction
 
