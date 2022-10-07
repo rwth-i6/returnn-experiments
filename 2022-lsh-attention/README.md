@@ -1,4 +1,4 @@
-# LSH self attention implementation
+# LSH attention implementation
 
 This implements locality-sensitive-hashing (LSH) attention for NMT
 as presented in our paper ["Locality-Sensitive Hashing for Long Context Neural Machine Translation" submitted to IWSLT2022](https://aclanthology.org/2022.iwslt-1.4/).
@@ -71,6 +71,10 @@ add_lsh_cross_attention_layer(
 
 Look at the code and in particular our tests in `test_lsh.py` for more detailed usage.
 
+## Complete RETURNN Config Example
+
+Here you can find a complete RETURNN config that you can use directly by swapping out your dataset paths:
+[complete-returnn-example.config](https://github.com/rwth-i6/returnn-experiments/blob/master/2022-lsh-attention/complete-returnn-example.config)
 
 ## Citation
 
