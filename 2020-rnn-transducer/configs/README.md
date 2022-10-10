@@ -1,6 +1,6 @@
 `*.config` files are [RETURNN config files](https://github.com/rwth-i6/returnn).
 
-* Transducer model, RNA label topology, full-sum training: `rna-tf2.blank0.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50.config`    
+* Transducer model, RNA label topology, full-sum training: `rna-tf2.blank0.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50.config`. Corresponds to Table 2, first line in the paper. In sub-ep 148 it gets 17.5% WER on Hub500 avg.
 * Transducer model, RNA label topology, viterbi training: `rna-tf2.vit.ctcalignfix-ctcalign-norepfix-4l.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50.config`
 * Transducer model, CTC label topology, full-sum training: `rna-tf2.blank0.rep.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50.config`
 * Transducer model, CTC label topology, viterbi training: `rna-tf2.rep.vit.ctcalignfix-ctcalign-p0-4la.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50.config`
