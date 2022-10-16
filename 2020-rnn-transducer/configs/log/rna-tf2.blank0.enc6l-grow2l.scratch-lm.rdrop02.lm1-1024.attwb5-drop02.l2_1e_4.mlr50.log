@@ -1,0 +1,35 @@
++------- PROLOGUE SCRIPT -----------------------------------------------
+| 
+| Job ID ...........: 1135963
+| Started at .......: Thu Apr 23 15:47:41 CEST 2020
+| Execution host ...: cluster-cn-279
+| Cluster queue ....: 4-GPU-1080-128G
+| Script ...........: /var/spool/sge/cluster-cn-279/job_scripts/1135963
+| > exec /u/zeyer/environments/setup/common/bin/qint.py train.q.sh train --execute --guard-level 3
+| 
++------- PROLOGUE SCRIPT -----------------------------------------------
+Run "train.trainset.1"
+Train. JOB_ID train.trainset.1 
+Sprint path: /work/asr3/zeyer/sprint-executables/test
+Ubuntu 16.04 xenial
+New maximum RSS usage: 12.5 GB 
+RETURNN starting up, version 20200416.125355--git-eddd3f2-dirty, date/time 2020-04-23-15-47-46 (UTC+0200), pid 7865, cwd /work/asr3/zeyer/merboldt/setups-data/2020-01-08--rnnt-rna/data-train/rna-tf2.blank0.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50, Python /usr/bin/python3 
+RETURNN command line options: ['config-train/rna-tf2.blank0.enc6l-grow2l.scratch-lm.rdrop02.lm1-1024.attwb5-drop02.l2_1e_4.mlr50.config']
+Hostname: cluster-cn-279 
+TensorFlow: 1.15.2 (v1.15.0-92-g5d80e1e) (<site-package> in /u/merboldt/.local/lib/python3.5/site-packages/tensorflow)
+Use num_threads=4 (but min 2) via SGE num_proc. 
+Setup TF inter and intra global thread pools, num_threads 4, session opts {'inter_op_parallelism_threads': 4, 'device_count': {'GPU': 0}, 'log_device_placement': False, 'intra_op_parallelism_threads': 4}.
+
+...
+
+2020-04-23 15:47:46.958402: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1325] Created TensorFlow device (/device:GPU:0 with 10481 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:81:00.0, compute capability: 6.1)
+
+...
+
+pretrain epoch 1, step 0, cost:output/output_prob 17.841435356039142, loss 750.48865, max_size:bpe 5, max_size:data 117, mem_usage:GPU:0 440.9MB, num_seqs 42, 2.499 sec/step, elapsed 0:00:07, exp. remaining 0:13:49, complete 0.86%
+pretrain epoch 1, step 1, cost:output/output_prob 17.84785993323044, loss 697.2149, max_size:bpe 2, max_size:data 127, mem_usage:GPU:0 1.2GB, num_seqs 39, 0.236 sec/step, elapsed 0:00:07, exp. remaining 0:13:22, complete 0.91%
+pretrain epoch 1, step 2, cost:output/output_prob 21.474195845681265, loss 795.6936, max_size:bpe 6, max_size:data 134, mem_usage:GPU:0 1.8GB, num_seqs 37, 0.234 sec/step, elapsed 0:00:07, exp. remaining 0:13:00, complete 0.97%
+pretrain epoch 1, step 3, cost:output/output_prob 20.361966492129568, loss 713.81616, max_size:bpe 5, max_size:data 141, mem_usage:GPU:0 1.8GB, num_seqs 35, 0.227 sec/step, elapsed 0:00:07, exp. remaining 0:12:41, complete 1.02%
+pretrain epoch 1, step 4, cost:output/output_prob 24.415161860441003, loss 806.84766, max_size:bpe 8, max_size:data 149, mem_usage:GPU:0 1.8GB, num_seqs 33, 0.245 sec/step, elapsed 0:00:08, exp. remaining 0:12:29, complete 1.07%
+
+...
