@@ -5,13 +5,32 @@ Paper: [Investigating Methods to Improve Language Model Integration for Attentio
 Please cite as:
 
 ```
-@misc{zeineldeen2021ilm,
-      title={Investigating Methods to Improve Language Model Integration for Attention-based Encoder-Decoder ASR Models}, 
-      author={Mohammad Zeineldeen and Aleksandr Glushko and Wilfried Michel and Albert Zeyer and Ralf Schlüter and Hermann Ney},
-      year={2021},
-      eprint={2104.05544},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
+@inproceedings{DBLP:conf/interspeech/ZeineldeenGMZSN21,
+  author    = {Mohammad Zeineldeen and
+               Aleksandr Glushko and
+               Wilfried Michel and
+               Albert Zeyer and
+               Ralf Schl{\"{u}}ter and
+               Hermann Ney},
+  editor    = {Hynek Hermansky and
+               Honza Cernock{\'{y}} and
+               Luk{\'{a}}s Burget and
+               Lori Lamel and
+               Odette Scharenborg and
+               Petr Motl{\'{\i}}cek},
+  title     = {Investigating Methods to Improve Language Model Integration for Attention-Based
+               Encoder-Decoder {ASR} Models},
+  booktitle = {Interspeech 2021, 22nd Annual Conference of the International Speech
+               Communication Association, Brno, Czechia, 30 August - 3 September
+               2021},
+  pages     = {2856--2860},
+  publisher = {{ISCA}},
+  year      = {2021},
+  url       = {https://doi.org/10.21437/Interspeech.2021-1255},
+  doi       = {10.21437/Interspeech.2021-1255},
+  timestamp = {Mon, 14 Mar 2022 16:42:12 +0100},
+  biburl    = {https://dblp.org/rec/conf/interspeech/ZeineldeenGMZSN21.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 ```
 
