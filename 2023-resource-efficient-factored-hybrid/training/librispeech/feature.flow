@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<network name="network">
+  <out name="alignments"/>
+  <out name="features"/>
+  <param name="TASK"/>
+  <param name="id"/>
+  <node filter="generic-cache" id="$(id)" name="alignment-cache" path="`cf /u/mgunz/gunz/dependencies/alignments/ls-960/scratch/daniel-with-dc-detection/alignment.cache.bundle`"/>
+  <node filter="generic-cache" id="$(id)" name="cache" path="`cf /work/asr_archive/assis/luescher/best-models/librispeech/960h_2019-04-10/FeatureExtraction.Gammatone.de79otVcMWSK/output/gt.cache.bundle`"/>
+  <link from="cache" to="network:features"/>
+  <link from="alignment-cache" to="network:alignments"/>
+</network>
