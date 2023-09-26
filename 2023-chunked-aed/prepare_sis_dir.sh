@@ -15,7 +15,7 @@ cd $dirname
 echo "Cloning repos"
 
 git clone git@github.com:rwth-i6/sisyphus.git
-ln -s sisyphus/sis .
+ln -s sisyphus/sis .  # used to call the manager to run jobs
 
 git clone git@github.com:rwth-i6/returnn.git
 
