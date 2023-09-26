@@ -6,7 +6,7 @@ We use [RETURNN](https://github.com/rwth-i6/returnn) for training and our setups
 
 ### Global AED baselines
 
-Generated configs via sisyphus can be found in `{librispeech,ted2}/global_aed_baseline.py`
+Generated configs via sisyphus can be found in `{librispeech,ted2}/global_aed_baseline.py`.
 Sisyphus configs can be also found here:
 - LibriSpeech: https://github.com/rwth-i6/i6_experiments/blob/main/users/zeineldeen/experiments/conformer_att_2022/librispeech_960/configs/baseline_960h_v2.py
 - TED-LIUM-v2: https://github.com/rwth-i6/i6_experiments/blob/main/users/zeineldeen/experiments/conformer_att_2023/tedlium2/configs/ted2_att_baseline.py
