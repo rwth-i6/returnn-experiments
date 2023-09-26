@@ -33,3 +33,5 @@ from i6_experiments.users.zeineldeen.experiments.chunkwise_att_2023.librispeech_
 def main():
     run_all_exps()
 ```
+Then, to run the experiments, you just call `./sis m` inside the setup dir. This
+will call the `main` function defined above.
