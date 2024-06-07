@@ -1,4 +1,4 @@
-Configs and recipes for experiments in 
+This folder contains configs and code related to the publication: 
 
 paper [Dynamic Encoder Size Based on Data-Driven Layer-wise Pruning for Speech Recognition]()
 
