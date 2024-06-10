@@ -13,3 +13,5 @@ ConformerCTCModel, ConformerCTCConfig and train_step in returnn config is define
 
 
 ### TED-LIUM-v2 Iterative-Zero-Out
+
+ConformerCTCModel, ConformerCTCConfig and train_step in returnn config is defined in [here](https://github.com/rwth-i6/i6_experiments/blob/main/users/jxu/experiments/ctc/tedlium2/pytorch_networks/dynamic_encoder_size/iterative_zero_out_refactored/jointly_train_iterative_zero_out_layerwise.py)
