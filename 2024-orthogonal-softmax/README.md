@@ -1,4 +1,4 @@
-This folder contains configs and code related to the publication: 
+This folder contains configs and code related to the submitted paper: 
 
 Efficient Supernet Training with Orthogonal Softmax for Scalable ASR Model Compression
 
