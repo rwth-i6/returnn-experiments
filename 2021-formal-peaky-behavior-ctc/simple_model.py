@@ -44,6 +44,7 @@ tf1 = tf.compat.v1
 tf1.disable_eager_execution()
 tf1.disable_v2_tensorshape()
 tf1.disable_control_flow_v2()
+tf1.disable_v2_behavior()
 tf = tf1
 
 
