@@ -1,0 +1,12 @@
+# Note: I probably used an old Python (3.6 or so) here,
+# with some old TensorFlow (probably 1.14 or so).
+# Using recent versions should just work.
+# Testing now here with Python 3.12,
+# and versions I installed today (2024-10-25) on my Mac M1.
+
+tensorflow  # 2.18.0
+numpy  # 2.0.2
+sympy  # 1.13.3
+matplotlib  # 3.9.2
+returnn  # 1.20241024.173653
+better_exchook  # 1.20241017.104137
