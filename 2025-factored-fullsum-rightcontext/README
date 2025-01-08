@@ -1,0 +1,9 @@
+* Training uses tensorflow backend, RASR for data preparation, and extended CUDA kernel
+** config files for data preparation
+** returnn config, containing both network definition and the RASR settings for the alignment FSA
+** a copy of the additional layer and CUDA code for running factored loss
+
+* decoding uses master branch of RASR 
+** recognition config
+
+
