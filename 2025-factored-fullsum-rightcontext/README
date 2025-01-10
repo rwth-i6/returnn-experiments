@@ -6,7 +6,7 @@ This experiment consists of training and decoding modules for the factored monop
 
 The training process uses the following components:
 - TensorFlow Backend: For building and training the neural network.
-- [RASR (RWTH ASR)](https://www-i6.informatik.rwth-aachen.de/rwth-asr): For data preparation.
+- [RASR (RWTH ASR)](https://www-i6.informatik.rwth-aachen.de/rwth-asr): For data preparation and alignment FSA.
 - Extended CUDA Kernel: For optimized computations.
 
 ### Configuration Files
