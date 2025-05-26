@@ -1,10 +1,10 @@
-This folder contains information related to the publication :
+This folder contains information related to the publication:
 
 "Analyzing the Importance of Blank for CTC-Based Knowledge Distillation"
 
-The full experimental setup can be found in public i6-experiment repository.
+The full experimental setup can be found in the public i6-experiment repository.
 
-The initial hooks for the corresponding experiments and model setup are as follows:
+The initial hooks for the corresponding experiments and model setups are as follows:
 
 -- TEDLIUM
 https://github.com/rwth-i6/i6_experiments/blob/main/users/hilmes/experiments/tedlium2/standalone/experiments/ctc_phon/finetune_hubert.py
