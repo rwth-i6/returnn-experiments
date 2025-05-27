@@ -13,4 +13,4 @@ e.g. the HDF format directly.
 
 Most of these configs belong to
 [publications from our group](https://www-i6.informatik.rwth-aachen.de/web/Publications/index.html),
-[Human Language Technology and Pattern Recognition Group (i6), RWTH Aachen University, Germany](https://www-i6.informatik.rwth-aachen.de).
+[Machine Learning and Human Language Technology Group (i6), RWTH Aachen University, Germany](https://www-i6.informatik.rwth-aachen.de/web/Homepage/index.html).
