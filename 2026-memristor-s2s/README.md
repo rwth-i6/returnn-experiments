@@ -1,6 +1,6 @@
 This folder contains information related to the publication:
 
-"Investigating the Feasibility of Executing Neural Sequence Tasks on Memristor Hardware via Physically Accurate Simulation"
+"Investigating the Feasibility of Executing Neural Sequence Processing on Memristor Hardware via Physically Accurate Simulation"
 
 The PyTorch toolkit for the simulation can be found under:
 https://github.com/rwth-i6/SynaptogenML
