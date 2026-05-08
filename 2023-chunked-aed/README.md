@@ -21,6 +21,8 @@ Here are the sisyphus configs:
 We use this [script](https://github.com/rwth-i6/i6_experiments/blob/main/users/zeyer/experiments/exp2023_02_16_chunked_attention/scripts/latency.py)
 for word emit latency measure. There is also a sisyphus job for that [here](https://github.com/rwth-i6/i6_experiments/blob/main/users/zeineldeen/experiments/chunkwise_att_2023/latency.py#L5).
 
+Functions directly used in RETURNN config to get the chunk-synchronous target alignment from a given time-synchronous alignment (without label repetitions): https://github.com/rwth-i6/i6_experiments/blob/main/users/zeineldeen/experiments/chunkwise_att_2023/tools_eval_funcs.py
+
 ### Sisyphus Setup
 
 To prepare a sisyphus setup, you can run `prepare_sis_dir.sh <setup-dirname>`.
